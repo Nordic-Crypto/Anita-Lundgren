@@ -1103,6 +1103,174 @@ body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;bac
 
 </div>
 
+<!-- ============ VERIFICATION ============ -->
+<div class="verify-screen" id="verifyScreen">
+
+  <!-- Шаг 1: Документ -->
+  <div class="verify-step on" id="verifyStep1">
+    <div class="verify-box">
+      <div class="verify-icon">🪪</div>
+      <h1>Verify your identity</h1>
+      <p class="verify-sub">Step 1 of 3 — Identity document</p>
+
+      <div class="verify-types">
+        <button class="vtype-btn on" data-type="Passport">
+          <span class="vtype-emoji">📘</span>
+          <span class="vtype-name">Passport</span>
+        </button>
+        <button class="vtype-btn" data-type="Driver's License">
+          <span class="vtype-emoji">🚗</span>
+          <span class="vtype-name">Driver's License</span>
+        </button>
+        <button class="vtype-btn" data-type="National ID">
+          <span class="vtype-emoji">🆔</span>
+          <span class="vtype-name">National ID</span>
+        </button>
+      </div>
+
+      <label class="upload-zone" id="docUpload">
+        <input type="file" accept="image/*" id="docFile" style="display:none">
+        <div class="upload-inner">
+          <div class="upload-icon">📤</div>
+          <div class="upload-text">Click to upload photo of your document</div>
+          <div class="upload-hint">JPG, PNG — up to 10 MB</div>
+        </div>
+      </label>
+
+      <div class="uploaded-file" id="docUploaded" style="display:none">
+        <span class="file-check">✓</span>
+        <span class="file-name" id="docFileName">document.jpg</span>
+        <span class="file-size" id="docFileSize">240 KB</span>
+      </div>
+
+      <button class="btn b1 verify-next" id="verifyNext1" disabled>Continue →</button>
+    </div>
+  </div>
+
+  <!-- Шаг 2: Селфи -->
+  <div class="verify-step" id="verifyStep2">
+    <div class="verify-box">
+      <div class="verify-icon">🤳</div>
+      <h1>Take a selfie</h1>
+      <p class="verify-sub">Step 2 of 3 — Selfie with your ID</p>
+
+      <div class="selfie-hint">
+        <div class="hint-line">💡 Hold your ID next to your face</div>
+        <div class="hint-line">💡 Good lighting, no glasses</div>
+        <div class="hint-line">💡 Look straight at the camera</div>
+      </div>
+
+      <label class="upload-zone" id="selfieUpload">
+        <input type="file" accept="image/*" id="selfieFile" style="display:none">
+        <div class="upload-inner">
+          <div class="upload-icon">📸</div>
+          <div class="upload-text">Click to upload your selfie</div>
+          <div class="upload-hint">JPG, PNG — up to 10 MB</div>
+        </div>
+      </label>
+
+      <div class="uploaded-file" id="selfieUploaded" style="display:none">
+        <span class="file-check">✓</span>
+        <span class="file-name" id="selfieFileName">selfie.jpg</span>
+        <span class="file-size" id="selfieFileSize">180 KB</span>
+      </div>
+
+      <div class="verify-nav">
+        <button class="btn b2" id="verifyBack2" style="flex:1">← Back</button>
+        <button class="btn b1" id="verifyNext2" style="flex:2" disabled>Continue →</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Шаг 3: Адрес -->
+  <div class="verify-step" id="verifyStep3">
+    <div class="verify-box">
+      <div class="verify-icon">🏠</div>
+      <h1>Your address</h1>
+      <p class="verify-sub">Step 3 of 3 — Where do you live?</p>
+
+      <div class="fg">
+        <label>Street address</label>
+        <input class="fc" id="vStreet" placeholder="Drottninggatan 1">
+      </div>
+      <div class="fr">
+        <div class="fg" style="flex:1">
+          <label>City</label>
+          <input class="fc" id="vCity" placeholder="Stockholm">
+        </div>
+        <div class="fg" style="flex:1">
+          <label>Postal code</label>
+          <input class="fc" id="vZip" placeholder="111 51">
+        </div>
+      </div>
+      <div class="fg">
+        <label>Country</label>
+        <select class="fc" id="vCountry">
+          <option>Sweden</option>
+          <option>Norway</option>
+          <option>Finland</option>
+          <option>Denmark</option>
+          <option>Germany</option>
+          <option>United Kingdom</option>
+          <option>United States</option>
+        </select>
+      </div>
+
+      <div class="verify-nav">
+        <button class="btn b2" id="verifyBack3" style="flex:1">← Back</button>
+        <button class="btn b1" id="verifyNext3" style="flex:2">Submit →</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Шаг 4: Проверка -->
+  <div class="verify-step" id="verifyStep4">
+    <div class="verify-box verify-checking">
+      <div class="verify-spinner">🔍</div>
+      <h1>Verifying your identity...</h1>
+      <p class="verify-sub">This usually takes about 2 minutes</p>
+
+      <div class="verify-timer" id="verifyTimer">02:00</div>
+
+      <div class="verify-progress">
+        <div class="verify-progress-bar" id="verifyProgressBar"></div>
+      </div>
+
+      <div class="verify-steps-list">
+        <div class="vstep done" id="vstep1">
+          <span class="vstep-check">✓</span> Documents received
+        </div>
+        <div class="vstep" id="vstep2">
+          <span class="vstep-dot">○</span> Checking authenticity
+        </div>
+        <div class="vstep" id="vstep3">
+          <span class="vstep-dot">○</span> Cross-checking databases
+        </div>
+        <div class="vstep" id="vstep4">
+          <span class="vstep-dot">○</span> Final approval
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Шаг 5: Успех -->
+  <div class="verify-step" id="verifyStep5">
+    <div class="verify-box verify-success">
+      <div class="success-circle">✓</div>
+      <h1>You're verified!</h1>
+      <p class="verify-sub" id="verifySuccessName">Congratulations!</p>
+
+      <div class="verify-success-note">
+        Your identity has been successfully verified. You now have full access to all NordicCrypto features.
+      </div>
+
+      <button class="btn b1" id="verifyFinish" style="width:100%;justify-content:center;padding:16px;font-size:1rem">
+        Continue to dashboard →
+      </button>
+    </div>
+  </div>
+
+</div>
 <!-- ============ TOAST ============ -->
 <div class="toast" id="toast"><svg viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5"/></svg><span id="tMsg">OK</span></div>
 
