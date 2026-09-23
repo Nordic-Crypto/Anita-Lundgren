@@ -523,9 +523,16 @@ var onbType = 'Visa';
 var onbCur = 'USD';
 
 function updateOnbPreview(){
-  $('prevType').textContent = 'VIRTUAL ' + onbType.toUpperCase();
-  $('prevName').textContent = ($('onbName').value || 'YOUR NAME').toUpperCase();
-  $('prevCur').textContent = onbCur;
+  var typeEl = $('prevType');
+  var nameEl = $('prevName');
+  var curEl = $('prevCur');
+
+  if (typeEl) typeEl.textContent = 'VIRTUAL ' + onbType.toUpperCase();
+  if (nameEl){
+    var full = getFullName();
+    nameEl.textContent = (full || 'YOUR NAME').toUpperCase();
+  }
+  if (curEl) curEl.textContent = onbCur;
 }
 
 var typeBtns = document.querySelectorAll('.type-btn');
@@ -548,11 +555,46 @@ for (var c = 0; c < curBtns.length; c++){
   };
 }
 
-document.getElementById('onbName').oninput = updateOnbPreview;
 updateOnbPreview();
+/* Step 1 — Get started */
+var step1Btn = document.getElementById('onbNext1');
+if (step1Btn) step1Btn.onclick = function(){
+  playTone(660, 0.06, 'sine', 0.05);
+  goToOnbStep(2);
+  setTimeout(function(){
+    if ($('onbFirst')) $('onbFirst').focus();
+  }, 200);
+};
 
+/* Step 2 — Back */
+var step2Back = document.getElementById('onbBack2');
+if (step2Back) step2Back.onclick = function(){
+  goToOnbStep(1);
+};
+
+/* Step 2 — Continue */
+var step2Next = document.getElementById('onbNext2');
+if (step2Next) step2Next.onclick = function(){
+  var first = $('onbFirst').value.trim();
+  var last = $('onbLast').value.trim();
+  if (!first){ toast('Please enter your first name', true); $('onbFirst').focus(); return; }
+  if (!last){ toast('Please enter your last name', true); $('onbLast').focus(); return; }
+  playTone(880, 0.08, 'sine', 0.06);
+  updateStep3Title();
+  updateOnbPreview();
+  goToOnbStep(3);
+};
+
+/* Live preview на шаге 2 */
+['onbFirst', 'onbMiddle', 'onbLast'].forEach(function(id){
+  var el = document.getElementById(id);
+  if (el) el.oninput = function(){
+    updateOnbPreview();
+    updateStep3Title();
+  };
+});
 document.getElementById('btnCreateCard').onclick = function(){
-  var name = $('onbName').value.trim();
+  var name = getFullName();
   if (!name || name.length < 2){ toast('Please enter your name', true); return; }
 
   // 1. Создать карту в state
@@ -672,6 +714,35 @@ document.getElementById('btnReset').onclick = function(){
 /* ========== TIMERS ========== */
 setInterval(function(){ updateTxStatuses(); renderOrder(); }, 5000);
 
+/* ========== ONBOARDING STEP NAVIGATION ========== */
+function goToOnbStep(n){
+  var steps = document.querySelectorAll('.onb-step');
+  for (var i = 0; i < steps.length; i++) steps[i].classList.remove('on');
+  var target = document.getElementById('onbStep' + n);
+  if (target) target.classList.add('on');
+}
+
+function getFullName(){
+  var first = ($('onbFirst') ? $('onbFirst').value.trim() : '');
+  var middle = ($('onbMiddle') ? $('onbMiddle').value.trim() : '');
+  var last = ($('onbLast') ? $('onbLast').value.trim() : '');
+  var parts = [];
+  if (first) parts.push(first);
+  if (middle) parts.push(middle);
+  if (last) parts.push(last);
+  return parts.join(' ');
+}
+
+function getFirstName(){
+  var first = ($('onbFirst') ? $('onbFirst').value.trim() : '');
+  return first || 'there';
+}
+
+function updateStep3Title(){
+  var fn = getFirstName();
+  var el = $('onbStep3Title');
+  if (el) el.textContent = 'Almost done, ' + fn + '!';
+}
 /* ========== CARD CREATION ANIMATION ========== */
 function playCardCreationAnimation(cardData, onComplete){
   var stage = document.getElementById('animStage');
