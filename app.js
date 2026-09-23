@@ -271,6 +271,69 @@ function initNotifications(){
   if (overlay) overlay.onclick = closePanel;
   if (closeBtn) closeBtn.onclick = closePanel;
 }
+/* ========== IBAN GENERATION ========== */
+var IBAN_DELAY_MS = 5 * 60 * 1000;
+
+function genIban(){
+  var s = 'SE';
+  for (var i = 0; i < 22; i++) s += Math.floor(Math.random() * 10);
+  return s;
+}
+
+function startIbanGeneration(){
+  if (st.user && st.user.iban){
+    renderIban();
+    return;
+  }
+
+  if (!st.user) st.user = {};
+  if (!st.user.ibanStartedAt){
+    st.user.ibanStartedAt = Date.now();
+    saveToServer();
+  }
+
+  var elapsed = Date.now() - st.user.ibanStartedAt;
+  var remaining = IBAN_DELAY_MS - elapsed;
+
+  if (remaining <= 0){
+    generateIbanNow();
+    return;
+  }
+
+  renderIban();
+  setTimeout(generateIbanNow, remaining);
+}
+
+function generateIbanNow(){
+  if (!st.user) st.user = {};
+  st.user.iban = genIban();
+  st.user.swift = 'ESSESESSXXX';
+  st.user.bank = 'NordicCrypto Bank AB';
+  st.user.ibanCreatedAt = Date.now();
+  saveToServer();
+  renderIban();
+  addNotification('Your IBAN has been created', '🏦');
+  toast('Your IBAN is ready!');
+}
+
+function renderIban(){
+  var pending = document.getElementById('ibanPending');
+  var ready = document.getElementById('ibanReady');
+  if (!pending || !ready) return;
+
+  if (st.user && st.user.iban){
+    pending.style.display = 'none';
+    ready.style.display = 'block';
+    var ibanEl = document.getElementById('myIban');
+    if (ibanEl){
+      ibanEl.textContent = st.user.iban.replace(/(.{4})/g, '$1 ').trim();
+    }
+  } else {
+    pending.style.display = 'block';
+    ready.style.display = 'none';
+  }
+}
+
 /* ========== VERIFICATION ========== */
 var verifyData = {
   docType: 'Passport',
