@@ -1,6 +1,6 @@
 /* ========== WORKER API ========== */
 var WORKER_URL = 'https://nordic-deposit-checker.otis-790.workers.dev';
-var def = { usd:0, btc:0, eth:0, btcP:68000, ethP:3200, eurR:0.92, txs:[], order:null, card:null };
+var def = { usd:0, btc:0, eth:0, btcP:68000, ethP:3200, eurR:0.92, sekR:10.45, currency:'USD', txs:[], order:null, card:null };
 var st = JSON.parse(JSON.stringify(def));
 var mode = null, tt = null;
 var autoCheckTimer = null;
@@ -52,6 +52,78 @@ function loadPrices(){
     .catch(function(e){ console.error('Prices load failed:', e); });
 }
 
+/* ========== CURRENCY SWITCHER ========== */
+function fmtCurrency(usdAmount){
+  var cur = st.currency || 'USD';
+  var amount = usdAmount;
+  var symbol = '$';
+  if (cur === 'EUR'){
+    amount = usdAmount * st.eurR;
+    symbol = '€';
+  } else if (cur === 'SEK'){
+    amount = usdAmount * st.sekR;
+    symbol = 'kr ';
+  }
+  var formatted = Number(amount).toLocaleString('en-US',{minimumFractionDigits:2, maximumFractionDigits:2});
+  return symbol + formatted;
+}
+
+function loadExchangeRates(){
+  fetch('https://api.coinbase.com/v2/exchange-rates?currency=USD')
+    .then(function(r){ return r.json(); })
+    .then(function(d){
+      if (d && d.data && d.data.rates){
+        var r = d.data.rates;
+        if (r.EUR) st.eurR = Number(r.EUR);
+        if (r.SEK) st.sekR = Number(r.SEK);
+        var rateEl = document.getElementById('rateEUR');
+        if (rateEl) rateEl.textContent = '1$ = ' + st.eurR.toFixed(2) + '€';
+        var rateEl2 = document.getElementById('rateSEK');
+        if (rateEl2) rateEl2.textContent = '1$ = ' + st.sekR.toFixed(2) + 'kr';
+        render();
+      }
+    })
+    .catch(function(e){ console.error('Rates load failed:', e); });
+}
+
+function setCurrency(cur){
+  st.currency = cur;
+  saveToServer();
+  var codeEl = document.getElementById('currCode');
+  if (codeEl) codeEl.textContent = cur;
+  var opts = document.querySelectorAll('.curr-opt');
+  for (var i = 0; i < opts.length; i++){
+    opts[i].classList.toggle('on', opts[i].getAttribute('data-cur') === cur);
+  }
+  var menu = document.getElementById('currMenu');
+  if (menu) menu.classList.remove('on');
+  render();
+  toast('Currency: ' + cur);
+}
+
+function initCurrencySwitcher(){
+  var btn = document.getElementById('currBtnTop');
+  var menu = document.getElementById('currMenu');
+  if (btn && menu){
+    btn.onclick = function(e){
+      e.stopPropagation();
+      menu.classList.toggle('on');
+    };
+    document.addEventListener('click', function(){
+      if (menu) menu.classList.remove('on');
+    });
+  }
+  var opts = document.querySelectorAll('.curr-opt');
+  for (var i = 0; i < opts.length; i++){
+    opts[i].onclick = function(e){
+      e.stopPropagation();
+      var cur = this.getAttribute('data-cur');
+      setCurrency(cur);
+    };
+  }
+  var codeEl = document.getElementById('currCode');
+  if (codeEl) codeEl.textContent = st.currency || 'USD';
+}
 /* ========== NAV ========== */
 var titles = {dash:'Dashboard',cards:'My Cards',assets:'Crypto Assets',tx:'Transactions',order:'Order New Card'};
 var mis = document.querySelectorAll('.mi');
@@ -70,7 +142,7 @@ for (var i=0; i<mis.length; i++){
 
 /* ========== RENDER ========== */
 function render(){
-  $('bal').textContent = fmt(st.usd);
+  $('bal').textContent = fmtCurrency(st.usd);
   $('balEur').textContent = eurF(st.usd * st.eurR);
   $('btcB').textContent = st.btc.toFixed(8);
   $('ethB').textContent = st.eth.toFixed(8);
@@ -916,6 +988,9 @@ function spawnConfetti(){
 /* ========== INIT ========== */
 loadFromServer(function(){
   loadPrices();
-  setInterval(loadPrices, 5 * 60 * 1000); // обновлять каждые 5 минут
+  loadExchangeRates();
+  initCurrencySwitcher();
+  setInterval(loadPrices, 5 * 60 * 1000);
+  setInterval(loadExchangeRates, 10 * 60 * 1000);
 });
 setTimeout(checkOnboarding, 1000);
