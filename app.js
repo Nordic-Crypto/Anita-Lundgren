@@ -847,19 +847,24 @@ document.addEventListener('click', function unlockAudio(){
 function playTone(freq, duration, type, volume){
   var ctx = getAudioCtx();
   if (!ctx) return;
-  if (ctx.state === 'suspended') ctx.resume();
+  if (ctx.state === 'suspended') {
+    ctx.resume();
+  }
   try {
+    var now = ctx.currentTime;
     var osc = ctx.createOscillator();
     var gain = ctx.createGain();
     osc.type = type || 'sine';
     osc.frequency.value = freq;
-    gain.gain.value = (volume || 0.05) * 4;
-    gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + duration);
+    var vol = Math.min((volume || 0.3) * 4, 1.0);
+    gain.gain.setValueAtTime(0, now);
+    gain.gain.linearRampToValueAtTime(vol, now + 0.005);
+    gain.gain.exponentialRampToValueAtTime(0.0001, now + duration);
     osc.connect(gain);
     gain.connect(ctx.destination);
-    osc.start();
-    osc.stop(ctx.currentTime + duration);
-  } catch(e){}
+    osc.start(now);
+    osc.stop(now + duration + 0.05);
+  } catch(e){ console.error('playTone error:', e); }
 }
 
 function playChime(){
