@@ -545,6 +545,206 @@ body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;bac
 .curr-opt.on .curr-rate {
   color: var(--pri);
 }
+/* ============ NOTIFICATIONS BELL ============ */
+.notif-bell {
+  position: relative;
+  width: 38px;
+  height: 38px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 999px;
+  background: rgba(255,255,255,.04);
+  border: 1px solid var(--bd2);
+  cursor: pointer;
+  transition: .2s;
+}
+.notif-bell:hover {
+  background: rgba(255,255,255,.08);
+  border-color: var(--pri);
+}
+.notif-bell svg {
+  width: 18px;
+  height: 18px;
+  stroke: var(--txt);
+  fill: none;
+  stroke-width: 1.9;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+.notif-bell.has-unread svg {
+  animation: bellShake 0.6s ease;
+}
+@keyframes bellShake {
+  0%,100% { transform: rotate(0); }
+  20% { transform: rotate(-12deg); }
+  40% { transform: rotate(12deg); }
+  60% { transform: rotate(-8deg); }
+  80% { transform: rotate(8deg); }
+}
+.notif-badge {
+  position: absolute;
+  top: -4px;
+  right: -4px;
+  background: #ff5470;
+  color: #fff;
+  font-size: 0.68rem;
+  font-weight: 700;
+  min-width: 18px;
+  height: 18px;
+  border-radius: 999px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 5px;
+  box-shadow: 0 0 12px rgba(255,84,112,.6);
+  animation: badgePulse 2s infinite;
+}
+@keyframes badgePulse {
+  0%,100% { transform: scale(1); }
+  50% { transform: scale(1.15); }
+}
+
+/* ============ NOTIFICATIONS PANEL ============ */
+.notif-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,.5);
+  opacity: 0;
+  pointer-events: none;
+  transition: .25s;
+  z-index: 1900;
+}
+.notif-overlay.on {
+  opacity: 1;
+  pointer-events: auto;
+}
+.notif-panel {
+  position: fixed;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  width: 400px;
+  max-width: 100vw;
+  background: linear-gradient(180deg, var(--pan2), #0a0f16);
+  border-left: 1px solid var(--bd2);
+  box-shadow: -20px 0 60px -10px rgba(0,0,0,.8);
+  transform: translateX(100%);
+  transition: transform .3s cubic-bezier(.4,0,.2,1);
+  z-index: 1950;
+  display: flex;
+  flex-direction: column;
+}
+.notif-panel.on {
+  transform: translateX(0);
+}
+.notif-header {
+  padding: 20px 22px;
+  border-bottom: 1px solid var(--bd);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.notif-title {
+  font-size: 1.15rem;
+  font-weight: 700;
+  margin-bottom: 3px;
+}
+.notif-sub {
+  font-size: 0.8rem;
+  color: var(--mut);
+}
+.notif-close {
+  width: 34px;
+  height: 34px;
+  border-radius: 8px;
+  background: rgba(255,255,255,.04);
+  border: 1px solid var(--bd);
+  color: var(--txt);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: .2s;
+}
+.notif-close:hover {
+  background: rgba(255,84,112,.15);
+  border-color: rgba(255,84,112,.4);
+  color: #ff5470;
+}
+.notif-list {
+  flex: 1;
+  overflow-y: auto;
+  padding: 12px;
+}
+.notif-item {
+  position: relative;
+  display: flex;
+  gap: 14px;
+  padding: 14px 16px;
+  background: rgba(255,255,255,.02);
+  border: 1px solid var(--bd);
+  border-radius: 12px;
+  margin-bottom: 8px;
+  transition: .2s;
+  cursor: pointer;
+}
+.notif-item:hover {
+  background: rgba(0,212,255,.04);
+  border-color: rgba(0,212,255,.2);
+}
+.notif-item.unread {
+  background: rgba(0,212,255,.06);
+  border-color: rgba(0,212,255,.25);
+}
+.notif-item.unread::before {
+  content: '';
+  position: absolute;
+  left: 8px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 6px;
+  height: 6px;
+  background: var(--pri);
+  border-radius: 50%;
+  box-shadow: 0 0 8px var(--pri);
+}
+.notif-icon {
+  width: 38px;
+  height: 38px;
+  border-radius: 10px;
+  background: rgba(0,212,255,.1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.15rem;
+  flex-shrink: 0;
+}
+.notif-body {
+  flex: 1;
+  min-width: 0;
+}
+.notif-text {
+  font-size: 0.88rem;
+  font-weight: 600;
+  margin-bottom: 4px;
+  line-height: 1.3;
+}
+.notif-time {
+  font-size: 0.75rem;
+  color: var(--mut);
+}
+.notif-empty {
+  text-align: center;
+  padding: 60px 20px;
+  color: var(--mut);
+  font-size: 0.9rem;
+}
+@media (max-width: 600px) {
+  .notif-panel {
+    width: 100vw;
+  }
+}
 </style>
 </head>
 <body>
@@ -585,6 +785,7 @@ body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;bac
       </div>
     </div>
   </div>
+  <div class="notif-bell" id="notifBell" title="Notifications"><svg viewBox="0 0 24 24"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 01-3.46 0"/></svg><span class="notif-badge" id="notifBadge" style="display:none">0</span></div>
   <div class="st"><span class="dot"></span> Online</div>
 </div>
   </div>
@@ -892,5 +1093,24 @@ body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;bac
 <!-- ============ CONFETTI LAYER ============ -->
 <div class="confetti-wrap" id="confettiWrap"></div>
 <script src="app.js"></script>
+<!-- ============ NOTIFICATIONS PANEL ============ -->
+<div class="notif-overlay" id="notifOverlay"></div>
+<div class="notif-panel" id="notifPanel">
+  <div class="notif-header">
+    <div>
+      <div class="notif-title">Notifications</div>
+      <div class="notif-sub" id="notifSub">0 unread</div>
+    </div>
+    <button class="notif-close" id="notifClose">
+      <svg viewBox="0 0 24 24" style="width:16px;height:16px;stroke:currentColor;fill:none;stroke-width:2"><path d="M18 6L6 18M6 6l12 12"/></svg>
+    </button>
+  </div>
+  <div class="notif-list" id="notifList">
+    <div class="notif-empty">
+      <div style="font-size:2.5rem;opacity:.4;margin-bottom:8px">🔔</div>
+      <div>No notifications yet</div>
+    </div>
+  </div>
+</div>
 </body>
 </html>
