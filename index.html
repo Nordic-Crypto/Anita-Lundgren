@@ -1,14 +1,22 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>NordicCrypto</title><style>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>NordicCrypto</title>
+<style>
 :root{--pri:#00d4ff;--pri2:#7c3aed;--acc:#00ffa3;--bg:#070a0f;--pan:rgba(22,30,42,.75);--pan2:#161e2a;--txt:#eef4ff;--mut:#7d8ba3;--bd:rgba(255,255,255,.07);--bd2:rgba(255,255,255,.14);--ok:#00e08a;--bad:#ff5470;--warn:#ffb020}
 *{box-sizing:border-box;margin:0;padding:0}html,body{height:100%}
 body{font-family:-apple-system,'Segoe UI',Roboto,sans-serif;background:var(--bg);color:var(--txt);display:flex;overflow:hidden}
 body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;background:radial-gradient(900px 500px at 15% -10%,rgba(0,212,255,.10),transparent 60%),radial-gradient(800px 500px at 100% 110%,rgba(124,58,237,.12),transparent 60%)}
 .side{width:250px;background:linear-gradient(180deg,rgba(19,26,36,.95),rgba(13,18,25,.95));border-right:1px solid var(--bd);display:flex;flex-direction:column;padding:24px 18px;position:relative;z-index:2}
 .brand{font-size:1.3rem;font-weight:800;margin-bottom:34px;display:flex;align-items:center;gap:11px}
-.blogo{width:34px;height:34px;border-radius:10px;background:linear-gradient(135deg,var(--pri),var(--pri2));display:flex;align-items:center;justify-content:center;font-size:1.05rem}
+.blogo{width:34px;height:34px;border-radius:10px;background:linear-gradient(135deg,var(--pri),var(--pri2));display:flex;align-items:center;justify-content:center}
+.blogo svg{width:18px;height:18px;stroke:#04121a;fill:none;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round}
 .brand span{color:var(--pri)}
 .menu{list-style:none;flex:1;display:flex;flex-direction:column;gap:4px}
 .mi{padding:12px 14px;border-radius:10px;cursor:pointer;color:var(--mut);font-weight:500;font-size:.92rem;transition:.2s;display:flex;align-items:center;gap:13px;position:relative;user-select:none}
+.mi svg{width:18px;height:18px;stroke:currentColor;fill:none;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round;flex-shrink:0}
 .mi:hover{background:rgba(255,255,255,.045);color:var(--txt)}
 .mi.on{background:linear-gradient(90deg,rgba(0,212,255,.14),rgba(0,212,255,.03));color:var(--pri);box-shadow:inset 0 0 0 1px rgba(0,212,255,.18)}
 .mi.on::before{content:'';position:absolute;left:-18px;top:50%;transform:translateY(-50%);width:3px;height:22px;background:var(--pri);border-radius:0 3px 3px 0}
@@ -38,6 +46,7 @@ body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;bac
 .bar{display:flex;gap:12px;flex-wrap:wrap}
 .btn{padding:12px 20px;border-radius:10px;border:none;font-weight:600;font-size:.9rem;cursor:pointer;transition:.2s;font-family:inherit;display:inline-flex;align-items:center;gap:8px}
 .btn:active{transform:scale(.97)}
+.btn svg{width:16px;height:16px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;flex-shrink:0}
 .b1{background:linear-gradient(135deg,var(--pri),#0090c9);color:#04121a;box-shadow:0 10px 24px -10px rgba(0,212,255,.8)}
 .b1:hover{filter:brightness(1.1)}
 .b2{background:rgba(255,255,255,.03);border:1px solid var(--bd2);color:var(--txt)}
@@ -61,6 +70,7 @@ body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;bac
 .tbl td{padding:16px 22px;border-bottom:1px solid rgba(255,255,255,.04);font-size:.9rem}
 .tbl tr:last-child td{border-bottom:none}
 .empty{text-align:center;padding:60px 20px;color:var(--mut)}
+.empty svg{width:48px;height:48px;stroke:var(--mut);fill:none;stroke-width:1.5;margin-bottom:12px;opacity:.5}
 .badge{padding:4px 10px;border-radius:6px;font-size:.72rem;font-weight:600;background:rgba(0,224,138,.14);color:var(--ok);display:inline-block}
 .mask{position:fixed;inset:0;background:rgba(3,6,11,.75);display:none;justify-content:center;align-items:center;z-index:1000}
 .mask.on{display:flex}
@@ -68,18 +78,24 @@ body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;bac
 .box h2{margin-bottom:6px;font-size:1.25rem}.box .d{color:var(--mut);font-size:.86rem;margin-bottom:22px}
 .mact{display:flex;gap:10px;margin-top:24px}
 .toast{position:fixed;top:22px;right:22px;background:var(--pan2);border:1px solid var(--bd2);border-left:4px solid var(--ok);padding:15px 22px;border-radius:10px;box-shadow:0 20px 50px -10px rgba(0,0,0,.8);display:flex;align-items:center;gap:11px;transform:translateX(130%);transition:transform .35s cubic-bezier(.34,1.56,.64,1);z-index:2000;font-size:.9rem;max-width:380px}
-.toast.on{transform:translateX(0)}.toast .ic{font-size:1.1rem}
-@media(max-width:960px){.grid{grid-template-columns:1fr}.side{width:78px;padding:20px 12px}.brand .nm,.mi span:not(.ic),.umi .inf{display:none}.mi{justify-content:center}.umi{justify-content:center}}
-</style></head><body>
+.toast.on{transform:translateX(0)}
+.toast svg{width:18px;height:18px;stroke:var(--ok);fill:none;stroke-width:2.5;stroke-linecap:round;stroke-linejoin:round;flex-shrink:0}
+@media(max-width:960px){.grid{grid-template-columns:1fr}.side{width:78px;padding:20px 12px}.brand .nm,.mi .tx,.umi .inf{display:none}.mi{justify-content:center}.umi{justify-content:center}}
+</style>
+</head>
+<body>
 
 <div class="side">
-<div class="brand"><div class="blogo">?</div><div class="nm">Nordic<span>Crypto</span></div></div>
+<div class="brand">
+  <div class="blogo"><svg viewBox="0 0 24 24"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg></div>
+  <div class="nm">Nordic<span>Crypto</span></div>
+</div>
 <ul class="menu">
-<li class="mi on" data-p="dash"><span class="ic">??</span><span>Dashboard</span></li>
-<li class="mi" data-p="cards"><span class="ic">??</span><span>My Cards</span></li>
-<li class="mi" data-p="assets"><span class="ic">??</span><span>Crypto Assets</span></li>
-<li class="mi" data-p="tx"><span class="ic">??</span><span>Transactions</span></li>
-<li class="mi" data-p="order"><span class="ic">??</span><span>Order New Card</span></li>
+<li class="mi on" data-p="dash"><svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><path d="M9 22V12h6v10"/></svg><span class="tx">Dashboard</span></li>
+<li class="mi" data-p="cards"><svg viewBox="0 0 24 24"><rect x="2" y="5" width="20" height="14" rx="2"/><path d="M2 10h20"/></svg><span class="tx">My Cards</span></li>
+<li class="mi" data-p="assets"><svg viewBox="0 0 24 24"><path d="M3 17l6-6 4 4 8-8"/><path d="M17 7h4v4"/></svg><span class="tx">Crypto Assets</span></li>
+<li class="mi" data-p="tx"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><path d="M14 2v6h6"/><path d="M8 13h8M8 17h5"/></svg><span class="tx">Transactions</span></li>
+<li class="mi" data-p="order"><svg viewBox="0 0 24 24"><path d="M21 16V8a2 2 0 00-1-1.73l-7-4a2 2 0 00-2 0l-7 4A2 2 0 003 8v8a2 2 0 001 1.73l7 4a2 2 0 002 0l7-4A2 2 0 0021 16z"/><path d="M3.27 6.96L12 12.01l8.73-5.05M12 22.08V12"/></svg><span class="tx">Order New Card</span></li>
 </ul>
 <div class="umi"><div class="av">EL</div><div class="inf"><h4>Eva A. Lundgren</h4><p>? Premium Metal</p></div></div>
 </div>
@@ -102,9 +118,9 @@ body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;bac
 </div>
 <div class="sh"><h2>Quick Actions</h2></div>
 <div class="bar">
-<button class="btn b1" id="btnAdd">+ Add Funds</button>
-<button class="btn b2" id="btnTransfer">? Transfer</button>
-<button class="btn b2" id="btnCopy">? Copy Card</button>
+<button class="btn b1" id="btnAdd"><svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>Add Funds</button>
+<button class="btn b2" id="btnTransfer"><svg viewBox="0 0 24 24"><path d="M7 17L17 7M7 7h10v10"/></svg>Transfer</button>
+<button class="btn b2" id="btnCopy"><svg viewBox="0 0 24 24"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>Copy Card</button>
 </div>
 </div>
 <div class="panel">
@@ -135,14 +151,14 @@ body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;bac
 <div id="assets" class="pg">
 <div class="sh"><h2>Crypto Portfolio</h2><p>Your crypto holdings</p></div>
 <div class="ma" style="grid-template-columns:repeat(auto-fit,minmax(240px,1fr))">
-<div class="panel"><div class="t" style="font-size:.72rem;color:var(--mut)">BITCOIN (BTC)</div><div style="font-size:1.6rem;font-weight:700;margin-top:8px;font-family:ui-monospace,monospace" id="aBtc">0.00000000</div><div style="color:var(--mut);font-size:.85rem;margin-top:6px" id="aBtcU">˜ $0.00</div></div>
-<div class="panel"><div class="t" style="font-size:.72rem;color:var(--mut)">ETHEREUM (ETH)</div><div style="font-size:1.6rem;font-weight:700;margin-top:8px;font-family:ui-monospace,monospace" id="aEth">0.00000000</div><div style="color:var(--mut);font-size:.85rem;margin-top:6px" id="aEthU">˜ $0.00</div></div>
+<div class="panel"><div style="font-size:.72rem;color:var(--mut);letter-spacing:.08em">BITCOIN (BTC)</div><div style="font-size:1.6rem;font-weight:700;margin-top:8px;font-family:ui-monospace,monospace" id="aBtc">0.00000000</div><div style="color:var(--mut);font-size:.85rem;margin-top:6px" id="aBtcU">˜ $0.00</div></div>
+<div class="panel"><div style="font-size:.72rem;color:var(--mut);letter-spacing:.08em">ETHEREUM (ETH)</div><div style="font-size:1.6rem;font-weight:700;margin-top:8px;font-family:ui-monospace,monospace" id="aEth">0.00000000</div><div style="color:var(--mut);font-size:.85rem;margin-top:6px" id="aEthU">˜ $0.00</div></div>
 </div>
 </div>
 
 <div id="tx" class="pg">
 <div class="sh"><h2>Transaction History</h2><p>All activity on your account</p></div>
-<div class="tbl"><table><thead><tr><th>Date</th><th>Description</th><th>Amount</th><th>Status</th></tr></thead><tbody id="txB"><tr><td colspan="4"><div class="empty"><div style="font-size:2.6rem;margin-bottom:12px;opacity:.5">??</div><div>No transactions yet</div></div></td></tr></tbody></table></div>
+<div class="tbl"><table><thead><tr><th>Date</th><th>Description</th><th>Amount</th><th>Status</th></tr></thead><tbody id="txB"><tr><td colspan="4"><div class="empty"><svg viewBox="0 0 24 24"><path d="M22 12h-6l-2 3h-4l-2-3H2"/><path d="M5.45 5.11L2 12v6a2 2 0 002 2h16a2 2 0 002-2v-6l-3.45-6.89A2 2 0 0016.76 4H7.24a2 2 0 00-1.79 1.11z"/></svg><div>No transactions yet</div></div></td></tr></tbody></table></div>
 </div>
 
 <div id="order" class="pg">
@@ -180,7 +196,7 @@ body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;bac
 </div>
 </div>
 
-<div class="toast" id="toast"><span class="ic">?</span><span id="tMsg">OK</span></div>
+<div class="toast" id="toast"><svg viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5"/></svg><span id="tMsg">OK</span></div>
 
 <script>
 var st={usd:0,btc:0,eth:0,btcP:68000,ethP:3200,eurR:.92,txs:[]};
@@ -213,7 +229,7 @@ function render(){
 }
 function renderTx(){
   var b=$('txB');
-  if(st.txs.length===0){b.innerHTML='<tr><td colspan="4"><div class="empty"><div style="font-size:2.6rem;margin-bottom:12px;opacity:.5">??</div><div>No transactions yet</div></div></td></tr>';return}
+  if(st.txs.length===0){b.innerHTML='<tr><td colspan="4"><div class="empty"><svg viewBox="0 0 24 24"><path d="M22 12h-6l-2 3h-4l-2-3H2"/><path d="M5.45 5.11L2 12v6a2 2 0 002 2h16a2 2 0 002-2v-6l-3.45-6.89A2 2 0 0016.76 4H7.24a2 2 0 00-1.79 1.11z"/></svg><div>No transactions yet</div></div></td></tr>';return}
   var h='';
   for(var i=0;i<st.txs.length;i++){var t=st.txs[i];var c=t.amt>=0?'var(--ok)':'var(--bad)';var s=t.amt>=0?'+':'';h+='<tr><td>'+t.date+'</td><td>'+t.desc+'</td><td style="color:'+c+';font-weight:600">'+s+fmt(t.amt)+'</td><td><span class="badge">'+t.status+'</span></td></tr>'}
   b.innerHTML=h;
@@ -221,7 +237,7 @@ function renderTx(){
 function addTx(d,a){st.txs.unshift({date:new Date().toISOString().slice(0,10),desc:d,amt:a,status:'Completed'});renderTx()}
 function openModal(m){mode=m;$('mTitle').textContent=m==='add'?'Add Funds':'Transfer Funds';$('mDesc').textContent=m==='add'?'Enter the amount you wish to deposit.':'Enter the amount you wish to send.';$('mAmount').value='';$('mask').classList.add('on');setTimeout(function(){$('mAmount').focus()},100)}
 function closeModal(){$('mask').classList.remove('on');mode=null}
-function toast(msg,warn){var t=$('toast');var ic=t.querySelector('.ic');$('tMsg').textContent=msg;if(warn){t.style.borderLeftColor='var(--warn)';ic.style.color='var(--warn)';ic.textContent='?'}else{t.style.borderLeftColor='var(--ok)';ic.style.color='var(--ok)';ic.textContent='?'}t.classList.add('on');clearTimeout(tt);tt=setTimeout(function(){t.classList.remove('on')},3200)}
+function toast(msg,warn){var t=$('toast');var svg=t.querySelector('svg');$('tMsg').textContent=msg;if(warn){t.style.borderLeftColor='var(--warn)';svg.style.stroke='var(--warn)';svg.innerHTML='<path d="M12 9v4M12 17h.01"/><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/>'}else{t.style.borderLeftColor='var(--ok)';svg.style.stroke='var(--ok)';svg.innerHTML='<path d="M20 6L9 17l-5-5"/>'}t.classList.add('on');clearTimeout(tt);tt=setTimeout(function(){t.classList.remove('on')},3200)}
 document.getElementById('btnAdd').onclick=function(){openModal('add')};
 document.getElementById('btnTransfer').onclick=function(){openModal('transfer')};
 document.getElementById('mCancel').onclick=closeModal;
