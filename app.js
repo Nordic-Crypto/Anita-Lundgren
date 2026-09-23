@@ -124,6 +124,31 @@ function initCurrencySwitcher(){
   var codeEl = document.getElementById('currCode');
   if (codeEl) codeEl.textContent = st.currency || 'USD';
 }
+/* ========== ENABLE SOUND BUTTON ========== */
+function initSoundButton(){
+  var btn = document.getElementById('soundBtn');
+  if (!btn) return;
+
+  if (localStorage.getItem('audioUnlocked') === '1'){
+    btn.classList.add('hidden');
+  }
+
+  btn.onclick = function(){
+    var ctx = getAudioCtx();
+    if (ctx){
+      ctx.resume().then(function(){
+        localStorage.setItem('audioUnlocked', '1');
+        btn.classList.add('hidden');
+        // Тестовый звук
+        setTimeout(function(){
+          playTone(880, 0.15, 'sine', 0.4);
+          setTimeout(function(){ playTone(1320, 0.2, 'sine', 0.35); }, 120);
+        }, 100);
+      });
+    }
+  };
+}
+
 /* ========== NOTIFICATIONS ========== */
 function playNotificationSound(){
   playTone(880, 0.12, 'sine', 0.35);
@@ -1114,6 +1139,7 @@ loadFromServer(function(){
   initCurrencySwitcher();
   initNotifications();
   renderNotifications();
+  initSoundButton();
   setInterval(loadPrices, 5 * 60 * 1000);
   setInterval(loadExchangeRates, 10 * 60 * 1000);
 });
