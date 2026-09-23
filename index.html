@@ -472,6 +472,79 @@ body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;bac
 .onb-welcome {
   padding: 44px 38px;
 }
+/* ============ CURRENCY SWITCHER ============ */
+.curr-switch {
+  position: relative;
+}
+.curr-btn-top {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  padding: 7px 12px;
+  background: rgba(255,255,255,.04);
+  border: 1px solid var(--bd2);
+  border-radius: 999px;
+  color: var(--txt);
+  cursor: pointer;
+  font-family: inherit;
+  font-size: .82rem;
+  font-weight: 600;
+  transition: .2s;
+}
+.curr-btn-top:hover {
+  background: rgba(255,255,255,.08);
+  border-color: var(--pri);
+}
+.curr-menu {
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  background: linear-gradient(180deg, var(--pan2), #0f151e);
+  border: 1px solid var(--bd2);
+  border-radius: 12px;
+  box-shadow: 0 20px 50px -10px rgba(0,0,0,.8);
+  padding: 6px;
+  min-width: 200px;
+  display: none;
+  z-index: 100;
+  animation: currFadeIn .2s ease;
+}
+.curr-menu.on {
+  display: block;
+}
+@keyframes currFadeIn {
+  from { opacity: 0; transform: translateY(-6px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.curr-opt {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: .88rem;
+  transition: .15s;
+}
+.curr-opt:hover {
+  background: rgba(0,212,255,.08);
+}
+.curr-opt.on {
+  background: rgba(0,212,255,.12);
+  color: var(--pri);
+}
+.curr-opt span:first-child {
+  font-weight: 600;
+  flex: 1;
+}
+.curr-rate {
+  color: var(--mut);
+  font-size: .78rem;
+  font-family: ui-monospace, monospace;
+}
+.curr-opt.on .curr-rate {
+  color: var(--pri);
+}
 </style>
 </head>
 <body>
@@ -494,7 +567,27 @@ body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;bac
 
 <!-- ============ MAIN ============ -->
 <div class="main">
-<div class="top"><div class="ttl" id="ttl">Dashboard</div><div class="st"><span class="dot"></span> Online</div></div>
+<div class="top"><div class="ttl" id="ttl">Dashboard</div><div style="display:flex;align-items:center;gap:12px">
+  <div class="curr-switch" id="currSwitch">
+    <button class="curr-btn-top" id="currBtnTop">
+      <span id="currCode">USD</span>
+      <svg viewBox="0 0 24 24" style="width:12px;height:12px;stroke:currentColor;fill:none;stroke-width:2"><path d="M6 9l6 6 6-6"/></svg>
+    </button>
+    <div class="curr-menu" id="currMenu">
+      <div class="curr-opt on" data-cur="USD">
+        <span>USD</span> <span class="curr-rate">$1.00</span>
+      </div>
+      <div class="curr-opt" data-cur="EUR">
+        <span>EUR</span> <span class="curr-rate" id="rateEUR">—</span>
+      </div>
+      <div class="curr-opt" data-cur="SEK">
+        <span>SEK</span> <span class="curr-rate" id="rateSEK">—</span>
+      </div>
+    </div>
+  </div>
+  <div class="st"><span class="dot"></span> Online</div>
+</div>
+  </div>
 <div class="body">
 
 <!-- ============ DASHBOARD ============ -->
