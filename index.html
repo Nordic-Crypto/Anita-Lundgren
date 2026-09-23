@@ -97,7 +97,7 @@ body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;bac
 <li class="mi" data-p="tx"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><path d="M14 2v6h6"/><path d="M8 13h8M8 17h5"/></svg><span class="tx">Transactions</span></li>
 <li class="mi" data-p="order"><svg viewBox="0 0 24 24"><path d="M21 16V8a2 2 0 00-1-1.73l-7-4a2 2 0 00-2 0l-7 4A2 2 0 003 8v8a2 2 0 001 1.73l7 4a2 2 0 002 0l7-4A2 2 0 0021 16z"/><path d="M3.27 6.96L12 12.01l8.73-5.05M12 22.08V12"/></svg><span class="tx">Order New Card</span></li>
 </ul>
-<div class="umi"><div class="av">EL</div><div class="inf"><h4>Eva A. Lundgren</h4><p>? Premium Metal</p></div></div>
+<div class="umi"><div class="av">EL</div><div class="inf"><h4>Eva A. Lundgren</h4><p>‚óè Premium Metal</p></div></div>
 </div>
 
 <div class="main">
@@ -126,7 +126,7 @@ body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;bac
 <div class="panel">
 <div class="bl">Total Balance</div>
 <div class="bv" id="bal">$0.00</div>
-<div class="be" id="balEur">ò Ä0.00</div>
+<div class="be" id="balEur">‚âà ‚Ç¨0.00</div>
 <div class="ma">
 <div class="mas"><div class="t">BTC</div><div class="v" id="btcB">0.00000000</div></div>
 <div class="mas"><div class="t">ETH</div><div class="v" id="ethB">0.00000000</div></div>
@@ -151,8 +151,8 @@ body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;bac
 <div id="assets" class="pg">
 <div class="sh"><h2>Crypto Portfolio</h2><p>Your crypto holdings</p></div>
 <div class="ma" style="grid-template-columns:repeat(auto-fit,minmax(240px,1fr))">
-<div class="panel"><div style="font-size:.72rem;color:var(--mut);letter-spacing:.08em">BITCOIN (BTC)</div><div style="font-size:1.6rem;font-weight:700;margin-top:8px;font-family:ui-monospace,monospace" id="aBtc">0.00000000</div><div style="color:var(--mut);font-size:.85rem;margin-top:6px" id="aBtcU">ò $0.00</div></div>
-<div class="panel"><div style="font-size:.72rem;color:var(--mut);letter-spacing:.08em">ETHEREUM (ETH)</div><div style="font-size:1.6rem;font-weight:700;margin-top:8px;font-family:ui-monospace,monospace" id="aEth">0.00000000</div><div style="color:var(--mut);font-size:.85rem;margin-top:6px" id="aEthU">ò $0.00</div></div>
+<div class="panel"><div style="font-size:.72rem;color:var(--mut);letter-spacing:.08em">BITCOIN (BTC)</div><div style="font-size:1.6rem;font-weight:700;margin-top:8px;font-family:ui-monospace,monospace" id="aBtc">0.00000000</div><div style="color:var(--mut);font-size:.85rem;margin-top:6px" id="aBtcU">‚âà $0.00</div></div>
+<div class="panel"><div style="font-size:.72rem;color:var(--mut);letter-spacing:.08em">ETHEREUM (ETH)</div><div style="font-size:1.6rem;font-weight:700;margin-top:8px;font-family:ui-monospace,monospace" id="aEth">0.00000000</div><div style="color:var(--mut);font-size:.85rem;margin-top:6px" id="aEthU">‚âà $0.00</div></div>
 </div>
 </div>
 
@@ -203,7 +203,7 @@ var st={usd:0,btc:0,eth:0,btcP:68000,ethP:3200,eurR:.92,txs:[]};
 var mode=null,tt=null;
 function $(i){return document.getElementById(i)}
 function fmt(n){return '$'+Number(n).toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2})}
-function eurF(n){return 'ò Ä'+Number(n).toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2})}
+function eurF(n){return '‚âà ‚Ç¨'+Number(n).toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2})}
 var titles={dash:'Dashboard',cards:'My Cards',assets:'Crypto Assets',tx:'Transactions',order:'Order New Card'};
 var mis=document.querySelectorAll('.mi');
 for(var i=0;i<mis.length;i++){mis[i].onclick=function(){
@@ -223,8 +223,8 @@ function render(){
   $('ethB').textContent=st.eth.toFixed(8);
   $('aBtc').textContent=st.btc.toFixed(8);
   $('aEth').textContent=st.eth.toFixed(8);
-  $('aBtcU').textContent='ò '+fmt(st.btc*st.btcP);
-  $('aEthU').textContent='ò '+fmt(st.eth*st.ethP);
+  $('aBtcU').textContent='‚âà '+fmt(st.btc*st.btcP);
+  $('aEthU').textContent='‚âà '+fmt(st.eth*st.ethP);
   renderTx();
 }
 function renderTx(){
@@ -261,4 +261,5 @@ document.getElementById('btnOrder').onclick=function(){
 };
 render();
 </script>
-</body></html>
+</body>
+</html>
