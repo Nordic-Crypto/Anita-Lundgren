@@ -35,6 +35,8 @@ body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;bac
 .panel{background:var(--pan);border:1px solid var(--bd);border-radius:16px;padding:24px;box-shadow:0 20px 50px -20px rgba(0,0,0,.7)}
 .pay{background:radial-gradient(500px 200px at 100% 0%,rgba(0,212,255,.18),transparent 60%),linear-gradient(135deg,#1b2533 0%,#0a0e15 100%);border:1px solid rgba(255,255,255,.09);border-radius:20px;padding:26px;height:226px;display:flex;flex-direction:column;justify-content:space-between;box-shadow:0 30px 60px -30px rgba(0,0,0,.9);position:relative;overflow:hidden;margin-bottom:24px}
 .pay::after{content:'';position:absolute;top:-60%;right:-20%;width:340px;height:340px;background:radial-gradient(circle,rgba(124,58,237,.25),transparent 65%);pointer-events:none}
+.pay.frozen{filter:grayscale(.7) brightness(.7)}
+.pay.frozen::before{content:'FROZEN';position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:2rem;font-weight:900;letter-spacing:.3em;color:rgba(255,255,255,.2);z-index:5;pointer-events:none}
 .ptop{display:flex;justify-content:space-between;align-items:flex-start;position:relative;z-index:1}
 .pb{font-weight:800;letter-spacing:.14em;font-size:.82rem}
 .pt{font-size:.7rem;color:var(--mut);letter-spacing:.12em}
@@ -51,6 +53,8 @@ body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;bac
 .b1:hover{filter:brightness(1.1)}
 .b2{background:rgba(255,255,255,.03);border:1px solid var(--bd2);color:var(--txt)}
 .b2:hover{background:rgba(255,255,255,.07)}
+.b3{background:rgba(255,84,112,.1);border:1px solid rgba(255,84,112,.3);color:#ff5470}
+.b3:hover{background:rgba(255,84,112,.2)}
 .bl{color:var(--mut);font-size:.82rem;margin-bottom:10px;letter-spacing:.05em;text-transform:uppercase}
 .bv{font-size:2.6rem;font-weight:800;line-height:1;background:linear-gradient(135deg,#fff,#8fb8ff);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
 .be{color:var(--mut);margin-top:10px;font-size:.95rem}
@@ -92,6 +96,25 @@ body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;bac
 .toast{position:fixed;top:22px;right:22px;background:var(--pan2);border:1px solid var(--bd2);border-left:4px solid var(--ok);padding:15px 22px;border-radius:10px;box-shadow:0 20px 50px -10px rgba(0,0,0,.8);display:flex;align-items:center;gap:11px;transform:translateX(130%);transition:transform .35s cubic-bezier(.34,1.56,.64,1);z-index:2000;font-size:.9rem;max-width:380px}
 .toast.on{transform:translateX(0)}
 .toast svg{width:18px;height:18px;stroke:var(--ok);fill:none;stroke-width:2.5;stroke-linecap:round;stroke-linejoin:round;flex-shrink:0}
+.hidden{display:none}
+/* ============ ONBOARDING ============ */
+.onboard{position:fixed;inset:0;background:radial-gradient(900px 500px at 30% 10%,rgba(0,212,255,.12),transparent 60%),radial-gradient(800px 500px at 70% 90%,rgba(124,58,237,.14),transparent 60%),var(--bg);display:none;justify-content:center;align-items:center;z-index:3000;overflow-y:auto;padding:40px 20px}
+.onboard.on{display:flex}
+.onb-box{background:linear-gradient(180deg,rgba(22,30,42,.95),rgba(13,18,25,.95));border:1px solid var(--bd2);border-radius:20px;padding:38px;width:100%;max-width:520px;box-shadow:0 40px 100px -20px rgba(0,0,0,.9)}
+.onb-logo{display:flex;align-items:center;gap:12px;margin-bottom:24px;font-size:1.4rem;font-weight:800}
+.onb-logo .blogo{width:38px;height:38px}
+.onb-box h1{font-size:1.55rem;font-weight:800;margin-bottom:8px;letter-spacing:-.02em}
+.onb-box > p{color:var(--mut);font-size:.92rem;margin-bottom:26px}
+.onb-preview{margin-bottom:24px;transition:.3s}
+.type-btns{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.type-btn{padding:16px;border-radius:12px;background:rgba(255,255,255,.03);border:2px solid var(--bd);cursor:pointer;text-align:center;font-weight:600;transition:.2s;font-family:inherit;color:var(--txt);font-size:.9rem}
+.type-btn:hover{border-color:var(--bd2);background:rgba(255,255,255,.06)}
+.type-btn.on{border-color:var(--pri);background:rgba(0,212,255,.1);color:var(--pri);box-shadow:0 0 0 4px rgba(0,212,255,.08)}
+.cur-btns{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.cur-btn{padding:14px;border-radius:12px;background:rgba(255,255,255,.03);border:2px solid var(--bd);cursor:pointer;text-align:center;font-weight:600;transition:.2s;font-family:inherit;color:var(--txt);font-size:.88rem}
+.cur-btn:hover{border-color:var(--bd2);background:rgba(255,255,255,.06)}
+.cur-btn.on{border-color:var(--pri);background:rgba(0,212,255,.1);color:var(--pri);box-shadow:0 0 0 4px rgba(0,212,255,.08)}
+/* ============ TRACKING ============ */
 .track-wrap{max-width:720px}
 .track-head{display:flex;justify-content:space-between;align-items:flex-start;gap:16px;margin-bottom:22px;flex-wrap:wrap}
 .track-id-box{background:rgba(0,212,255,.06);border:1px solid rgba(0,212,255,.2);padding:12px 18px;border-radius:12px}
@@ -117,13 +140,13 @@ body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;bac
 .log-item:last-child{border-bottom:none}
 .log-time{color:var(--mut);font-family:ui-monospace,monospace;font-size:.76rem;flex-shrink:0;min-width:70px}
 .log-msg{color:var(--txt)}
-.hidden{display:none}
 @media(max-width:700px){.info-grid{grid-template-columns:1fr}}
 @media(max-width:960px){.grid{grid-template-columns:1fr}.side{width:78px;padding:20px 12px}.brand .nm,.mi .tx,.umi .inf{display:none}.mi{justify-content:center}.umi{justify-content:center}}
 </style>
 </head>
 <body>
 
+<!-- ============ SIDEBAR ============ -->
 <div class="side">
 <div class="brand">
   <div class="blogo"><svg viewBox="0 0 24 24"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg></div>
@@ -139,20 +162,22 @@ body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;bac
 <div class="umi"><div class="av">EL</div><div class="inf"><h4>Eva A. Lundgren</h4><p>● Premium Metal</p></div></div>
 </div>
 
+<!-- ============ MAIN ============ -->
 <div class="main">
 <div class="top"><div class="ttl" id="ttl">Dashboard</div><div class="st"><span class="dot"></span> Online</div></div>
 <div class="body">
 
+<!-- ============ DASHBOARD ============ -->
 <div id="dash" class="pg on">
 <div class="grid">
 <div>
-<div class="pay">
-<div class="ptop"><div class="pb">NORDIC CRYPTO</div><div class="pt">METAL VISA</div></div>
+<div class="pay" id="cardDash">
+<div class="ptop"><div class="pb" id="cardBrandDash">NORDIC CRYPTO</div><div class="pt" id="cardTypeDash">METAL VISA</div></div>
 <div class="chip"></div>
-<div class="pn">4921 8842 1093 5542</div>
+<div class="pn" id="cardNumDash">— — — — &nbsp; — — — — &nbsp; — — — — &nbsp; — — — —</div>
 <div class="pf">
-<div><div class="pl">CARD HOLDER</div><div class="pv">Eva Anita Lundgren</div></div>
-<div style="text-align:right"><div class="pl">EXPIRES</div><div class="pv m">09/28</div></div>
+<div><div class="pl">CARD HOLDER</div><div class="pv" id="cardNameDash">—</div></div>
+<div style="text-align:right"><div class="pl">EXPIRES</div><div class="pv m" id="cardExpDash">—/—</div></div>
 </div>
 </div>
 <div class="sh"><h2>Quick Actions</h2></div>
@@ -182,19 +207,48 @@ body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;bac
 </div>
 </div>
 
+<!-- ============ MY CARDS ============ -->
 <div id="cards" class="pg">
-<div class="sh"><h2>My Payment Cards</h2><p>Manage your NordicCrypto Metal Visa card</p></div>
-<div class="pay" style="max-width:420px">
-<div class="ptop"><div class="pb">NORDIC CRYPTO</div><div class="pt">METAL VISA</div></div>
+<div class="sh"><h2>My Payment Cards</h2><p>Manage your NordicCrypto card</p></div>
+
+<div id="cardDetails">
+<div class="pay" style="max-width:420px" id="cardFull">
+<div class="ptop"><div class="pb" id="cardBrandFull">NORDIC CRYPTO</div><div class="pt" id="cardTypeFull">METAL VISA</div></div>
 <div class="chip"></div>
-<div class="pn">4921 8842 1093 5542</div>
+<div class="pn" id="cardNumFull">— — — — &nbsp; — — — — &nbsp; — — — — &nbsp; — — — —</div>
 <div class="pf">
-<div><div class="pl">CARD HOLDER</div><div class="pv">Eva Anita Lundgren</div></div>
-<div style="text-align:right"><div class="pl">CVV</div><div class="pv m">842</div></div>
-</div>
+<div><div class="pl">CARD HOLDER</div><div class="pv" id="cardNameFull">—</div></div>
+<div style="text-align:right"><div class="pl">EXPIRES</div><div class="pv m" id="cardExpFull">—/—</div></div>
 </div>
 </div>
 
+<div class="bar" style="margin-top:20px">
+<button class="btn b2" id="btnShowCvv">👁 Show CVV</button>
+<button class="btn b2" id="btnFreeze">❄ Freeze Card</button>
+<button class="btn b3" id="btnDeleteCard">🗑 Delete Card</button>
+</div>
+
+<div class="panel" style="margin-top:24px;max-width:520px">
+<h4 style="margin-bottom:16px">Card Details</h4>
+<div class="iban-row"><span class="l">Card Number</span><span class="v" id="detNum">—</span></div>
+<div class="iban-row"><span class="l">CVV</span><span class="v" id="detCvv">●●●</span></div>
+<div class="iban-row"><span class="l">Expires</span><span class="v" id="detExp">—</span></div>
+<div class="iban-row"><span class="l">Cardholder</span><span class="v" id="detName">—</span></div>
+<div class="iban-row"><span class="l">Type</span><span class="v" id="detType">—</span></div>
+<div class="iban-row"><span class="l">Currency</span><span class="v" id="detCur">—</span></div>
+<div class="iban-row"><span class="l">Status</span><span class="v" id="detStatus">Active</span></div>
+</div>
+
+<div class="panel" style="margin-top:24px;max-width:520px">
+<h4 style="margin-bottom:12px">Want a physical card?</h4>
+<p style="color:var(--mut);font-size:.88rem;margin-bottom:16px">Order a premium metal card shipped to your address.</p>
+<button class="btn b1" id="btnGoOrder">Order Physical Card →</button>
+</div>
+</div>
+
+</div>
+
+<!-- ============ ASSETS ============ -->
 <div id="assets" class="pg">
 <div class="sh"><h2>Crypto Portfolio</h2><p>Your crypto holdings</p></div>
 <div class="ma" style="grid-template-columns:repeat(auto-fit,minmax(240px,1fr))">
@@ -203,18 +257,20 @@ body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;bac
 </div>
 </div>
 
+<!-- ============ TRANSACTIONS ============ -->
 <div id="tx" class="pg">
 <div class="sh"><h2>Transaction History</h2><p>All activity on your account</p></div>
 <div class="tbl"><table><thead><tr><th>Date</th><th>Description</th><th>Amount</th><th>Status</th></tr></thead><tbody id="txB"></tbody></table></div>
 </div>
 
+<!-- ============ ORDER NEW CARD ============ -->
 <div id="order" class="pg">
 <div id="orderForm">
-<div class="sh"><h2>Order New Metal Card</h2><p>Get a premium NordicCrypto Metal Visa shipped from Stockholm, Sweden</p></div>
+<div class="sh"><h2>Order Physical Metal Card</h2><p>Premium NordicCrypto Metal shipped from Stockholm, Sweden</p></div>
 <div class="panel" style="max-width:640px">
 <h3 style="margin-bottom:18px;font-size:1.05rem">Shipping Details</h3>
 <div class="fr">
-<div class="fg" style="flex:2"><label>Full Name</label><input class="fc" id="oName" value="Eva Anita Lundgren"></div>
+<div class="fg" style="flex:2"><label>Full Name</label><input class="fc" id="oName" placeholder="Eva Anita Lundgren"></div>
 <div class="fg" style="flex:1"><label>Card Type</label><select class="fc" id="oType"><option>Metal (Free)</option><option>Gold (+$100)</option></select></div>
 </div>
 <div class="fg"><label>Country</label><select class="fc" id="oCountry"><option>Sweden</option><option>Norway</option><option>Finland</option><option>Denmark</option><option>Germany</option><option>United Kingdom</option><option>United States</option><option>France</option><option>Spain</option><option>Netherlands</option></select></div>
@@ -258,8 +314,6 @@ body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;bac
 </div>
 
 <div class="log" id="trackLog"></div>
-
-<button class="btn b2" style="margin-top:18px" id="btnNewOrder">Order Another Card</button>
 </div>
 </div>
 </div>
@@ -268,6 +322,7 @@ body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;bac
 </div>
 </div>
 
+<!-- ============ MODAL (Add Funds / Transfer) ============ -->
 <div class="mask" id="mask">
 <div class="box">
 <h2 id="mTitle">Add Funds</h2>
@@ -290,6 +345,55 @@ body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;bac
 </div>
 </div>
 
+<!-- ============ ONBOARDING (Create Virtual Card) ============ -->
+<div class="onboard" id="onboard">
+<div class="onb-box">
+<div class="onb-logo">
+  <div class="blogo"><svg viewBox="0 0 24 24"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg></div>
+  Nordic<span style="color:var(--pri)">Crypto</span>
+</div>
+<h1>Create your virtual card</h1>
+<p>Set up your NordicCrypto Virtual Card to start using your account.</p>
+
+<div class="onb-preview">
+  <div class="pay" style="max-width:100%;height:200px">
+    <div class="ptop"><div class="pb">NORDIC CRYPTO</div><div class="pt" id="prevType">VIRTUAL VISA</div></div>
+    <div class="chip"></div>
+    <div class="pn">•••• •••• •••• ••••</div>
+    <div class="pf">
+      <div><div class="pl">CARD HOLDER</div><div class="pv" id="prevName">EVA ANITA LUNDGREN</div></div>
+      <div style="text-align:right"><div class="pl">CURRENCY</div><div class="pv m" id="prevCur">USD</div></div>
+    </div>
+  </div>
+</div>
+
+<div class="fg">
+  <label>Name on card</label>
+  <input class="fc" id="onbName" value="Eva Anita Lundgren" maxlength="26">
+</div>
+
+<div class="fg">
+  <label>Card type</label>
+  <div class="type-btns">
+    <button class="type-btn on" data-type="Visa">Visa</button>
+    <button class="type-btn" data-type="Mastercard">Mastercard</button>
+  </div>
+</div>
+
+<div class="fg">
+  <label>Currency</label>
+  <div class="cur-btns">
+    <button class="cur-btn on" data-cur="USD">USD</button>
+    <button class="cur-btn" data-cur="EUR">EUR</button>
+    <button class="cur-btn" data-cur="SEK">SEK</button>
+  </div>
+</div>
+
+<button class="btn b1" style="width:100%;justify-content:center;margin-top:16px;padding:14px" id="btnCreateCard">Create Virtual Card</button>
+</div>
+</div>
+
+<!-- ============ TOAST ============ -->
 <div class="toast" id="toast"><svg viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5"/></svg><span id="tMsg">OK</span></div>
 
 <script src="app.js"></script>
