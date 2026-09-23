@@ -834,9 +834,20 @@ function getAudioCtx(){
   return audioCtx;
 }
 
+/* ========== AUDIO UNLOCK ========== */
+document.addEventListener('click', function unlockAudio(){
+  var ctx = getAudioCtx();
+  if (ctx && ctx.state === 'suspended'){
+    ctx.resume().then(function(){
+      console.log('AudioContext resumed');
+    });
+  }
+}, { once: false });
+
 function playTone(freq, duration, type, volume){
   var ctx = getAudioCtx();
   if (!ctx) return;
+  if (ctx.state === 'suspended') ctx.resume();
   try {
     var osc = ctx.createOscillator();
     var gain = ctx.createGain();
