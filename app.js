@@ -1,10 +1,12 @@
 /* ========== WORKER API ========== */
 var WORKER_URL = 'https://nordic-deposit-checker.otis-790.workers.dev';
-var def = { usd:0, btc:0, eth:0, btcP:68000, ethP:3200, eurR:0.92, txs:[], order:null };
+var def = { usd:0, btc:0, eth:0, btcP:68000, ethP:3200, eurR:0.92, txs:[], order:null, card:null };
 var st = JSON.parse(JSON.stringify(def));
 var mode = null, tt = null;
 var autoCheckTimer = null;
 var autoCheckKnown = {};
+var cvvVisible = false;
+var cvvTimer = null;
 
 function $(i){ return document.getElementById(i); }
 function fmt(n){ return '$' + Number(n).toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2}); }
@@ -17,13 +19,15 @@ function loadFromServer(cb){
     .then(function(data){
       st = data || JSON.parse(JSON.stringify(def));
       if (!st.txs) st.txs = [];
+      if (!st.card) st.card = null;
       render();
+      checkOnboarding();
       if (cb) cb();
     })
     .catch(function(e){
       console.error('Load failed:', e);
       render();
-      if (cb) cb();
+      checkOnboarding();
     });
 }
 
@@ -63,6 +67,7 @@ function render(){
   $('aEthU').textContent = '≈ ' + fmt(st.eth * st.ethP);
   renderTx();
   renderOrder();
+  renderCard();
 }
 
 function badgeClass(s){
@@ -112,6 +117,112 @@ function toast(msg, warn){
   t.classList.add('on');
   clearTimeout(tt);
   tt = setTimeout(function(){ t.classList.remove('on'); }, 3200);
+}
+
+/* ========== CARD HELPERS ========== */
+function genCardNumber(prefix){
+  var s = prefix;
+  for (var i = 0; i < 12; i++) s += Math.floor(Math.random()*10);
+  return s;
+}
+
+function fmtCard(num){
+  var s = String(num);
+  return s.replace(/(.{4})/g, '$1 ').trim();
+}
+
+function genCvv(){
+  var s = '';
+  for (var i = 0; i < 3; i++) s += Math.floor(Math.random()*10);
+  return s;
+}
+
+function genExpiry(){
+  var d = new Date();
+  var y = d.getFullYear() + 3;
+  var m = d.getMonth() + 1;
+  var mm = m < 10 ? '0' + m : '' + m;
+  return mm + '/' + String(y).slice(2);
+}
+
+function createVirtualCard(name, type, cur){
+  var prefix = type === 'Mastercard' ? '5399' : '4921';
+  var num = genCardNumber(prefix);
+  var expiry = genExpiry();
+  var cvv = genCvv();
+  st.card = {
+    num: num,
+    cvv: cvv,
+    expiry: expiry,
+    name: name.toUpperCase(),
+    type: type,
+    cur: cur,
+    status: 'Active',
+    createdAt: Date.now()
+  };
+  saveToServer();
+}
+
+function checkOnboarding(){
+  if (!st.card){
+    $('onboard').classList.add('on');
+  } else {
+    $('onboard').classList.remove('on');
+  }
+}
+
+function renderCard(){
+  if (!st.card){
+    $('cardDash').classList.add('frozen');
+    $('cardNumDash').textContent = '— — — —   — — — —   — — — —   — — — —';
+    $('cardNameDash').textContent = '—';
+    $('cardExpDash').textContent = '—/—';
+    $('cardTypeDash').textContent = 'NO CARD';
+    $('cardNumFull').textContent = '— — — —   — — — —   — — — —   — — — —';
+    $('cardNameFull').textContent = '—';
+    $('cardExpFull').textContent = '—/—';
+    $('cardTypeFull').textContent = 'NO CARD';
+    $('detNum').textContent = '—';
+    $('detCvv').textContent = '●●●';
+    $('detExp').textContent = '—';
+    $('detName').textContent = '—';
+    $('detType').textContent = '—';
+    $('detCur').textContent = '—';
+    $('detStatus').textContent = 'No Card';
+    return;
+  }
+
+  var c = st.card;
+  var frozen = (c.status === 'Frozen');
+  var numFormatted = fmtCard(c.num);
+
+  // Dash
+  $('cardDash').classList.toggle('frozen', frozen);
+  $('cardNumDash').textContent = numFormatted;
+  $('cardNameDash').textContent = c.name;
+  $('cardExpDash').textContent = c.expiry;
+  $('cardTypeDash').textContent = (c.type + ' ' + c.cur).toUpperCase();
+
+  // Full
+  $('cardFull').classList.toggle('frozen', frozen);
+  $('cardNumFull').textContent = numFormatted;
+  $('cardNameFull').textContent = c.name;
+  $('cardExpFull').textContent = c.expiry;
+  $('cardTypeFull').textContent = (c.type + ' ' + c.cur).toUpperCase();
+
+  // Details
+  $('detNum').textContent = numFormatted;
+  $('detCvv').textContent = cvvVisible ? c.cvv : '●●●';
+  $('detExp').textContent = c.expiry;
+  $('detName').textContent = c.name;
+  $('detType').textContent = c.type;
+  $('detCur').textContent = c.cur;
+  $('detStatus').textContent = c.status;
+  $('detStatus').style.color = frozen ? 'var(--warn)' : 'var(--ok)';
+
+  // Buttons state
+  $('btnShowCvv').textContent = cvvVisible ? '🙈 Hide CVV' : '👁 Show CVV';
+  $('btnFreeze').textContent = frozen ? '🔥 Unfreeze Card' : '❄ Freeze Card';
 }
 
 /* ========== MODAL ========== */
@@ -391,6 +502,90 @@ function updateTxStatuses(){
   if (changed){ renderTx(); saveToServer(); }
 }
 
+/* ========== ONBOARDING (Create Virtual Card) ========== */
+var onbType = 'Visa';
+var onbCur = 'USD';
+
+function updateOnbPreview(){
+  $('prevType').textContent = 'VIRTUAL ' + onbType.toUpperCase();
+  $('prevName').textContent = ($('onbName').value || 'YOUR NAME').toUpperCase();
+  $('prevCur').textContent = onbCur;
+}
+
+var typeBtns = document.querySelectorAll('.type-btn');
+for (var t = 0; t < typeBtns.length; t++){
+  typeBtns[t].onclick = function(){
+    for (var k = 0; k < typeBtns.length; k++) typeBtns[k].classList.remove('on');
+    this.classList.add('on');
+    onbType = this.getAttribute('data-type');
+    updateOnbPreview();
+  };
+}
+
+var curBtns = document.querySelectorAll('.cur-btn');
+for (var c = 0; c < curBtns.length; c++){
+  curBtns[c].onclick = function(){
+    for (var k = 0; k < curBtns.length; k++) curBtns[k].classList.remove('on');
+    this.classList.add('on');
+    onbCur = this.getAttribute('data-cur');
+    updateOnbPreview();
+  };
+}
+
+document.getElementById('onbName').oninput = updateOnbPreview;
+updateOnbPreview();
+
+document.getElementById('btnCreateCard').onclick = function(){
+  var name = $('onbName').value.trim();
+  if (!name || name.length < 2){ toast('Please enter your name', true); return; }
+  createVirtualCard(name, onbType, onbCur);
+  renderCard();
+  checkOnboarding();
+  toast('Virtual card created!');
+};
+
+/* ========== CARD ACTIONS ========== */
+document.getElementById('btnShowCvv').onclick = function(){
+  if (!st.card) return;
+  cvvVisible = !cvvVisible;
+  renderCard();
+  if (cvvVisible){
+    clearTimeout(cvvTimer);
+    cvvTimer = setTimeout(function(){
+      cvvVisible = false;
+      renderCard();
+    }, 5000);
+  }
+};
+
+document.getElementById('btnFreeze').onclick = function(){
+  if (!st.card) return;
+  st.card.status = st.card.status === 'Frozen' ? 'Active' : 'Frozen';
+  saveToServer();
+  renderCard();
+  toast(st.card.status === 'Frozen' ? 'Card frozen' : 'Card unfrozen');
+};
+
+document.getElementById('btnDeleteCard').onclick = function(){
+  if (!st.card) return;
+  if (!confirm('Delete your card? Balance and transactions will stay.')) return;
+  st.card = null;
+  saveToServer();
+  renderCard();
+  checkOnboarding();
+  toast('Card deleted');
+};
+
+document.getElementById('btnGoOrder').onclick = function(){
+  var pgs = document.querySelectorAll('.pg');
+  for (var j = 0; j < pgs.length; j++) pgs[j].classList.remove('on');
+  $('order').classList.add('on');
+  var ms = document.querySelectorAll('.mi');
+  for (var k = 0; k < ms.length; k++) ms[k].classList.remove('on');
+  document.querySelector('.mi[data-p="order"]').classList.add('on');
+  $('ttl').textContent = 'Order New Card';
+};
+
 /* ========== EVENTS ========== */
 document.getElementById('btnAdd').onclick = function(){ openModal('add'); };
 document.getElementById('btnTransfer').onclick = function(){ openModal('transfer'); };
@@ -398,16 +593,20 @@ document.getElementById('mCancel').onclick = closeModal;
 document.getElementById('mOk').onclick = confirmModal;
 document.getElementById('mMethod').onchange = refreshDest;
 
-document.getElementById('btnCopy').onclick = function(){ copyText('4921884210935542','Card number copied'); };
+document.getElementById('btnCopy').onclick = function(){
+  if (!st.card){ toast('No card yet', true); return; }
+  copyText(st.card.num, 'Card number copied');
+};
 document.getElementById('btnCopyIban').onclick = function(){ copyText('SE3550000000054910000003','IBAN copied'); };
 document.getElementById('btnOrder').onclick = placeOrder;
 document.getElementById('btnNewOrder').onclick = newOrder;
 
 document.getElementById('btnReset').onclick = function(){
-  if (!confirm('Reset all data? Balance, transactions and orders will be cleared.')) return;
+  if (!confirm('Reset ALL data? Balance, transactions, card and orders will be cleared.')) return;
   st = JSON.parse(JSON.stringify(def));
   saveToServer();
   render();
+  checkOnboarding();
   toast('All data reset');
 };
 
