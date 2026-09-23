@@ -390,6 +390,88 @@ body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;bac
   30% { transform: scale(1.08); }
   60% { transform: scale(0.98); }
 }
+/* ============ ONBOARDING 3-STEP ============ */
+.onb-step {
+  display: none;
+  width: 100%;
+  max-width: 520px;
+  animation: stepFadeIn .5s ease;
+}
+.onb-step.on {
+  display: block;
+}
+@keyframes stepFadeIn {
+  from { opacity: 0; transform: translateY(20px) scale(0.98); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+.onb-welcome {
+  text-align: center;
+}
+.welcome-icon {
+  font-size: 3.5rem;
+  margin: 20px 0 24px;
+  filter: drop-shadow(0 0 30px rgba(0,212,255,.6));
+  animation: diamondFloat 3s ease-in-out infinite;
+}
+@keyframes diamondFloat {
+  0%,100% { transform: translateY(0) scale(1); }
+  50% { transform: translateY(-10px) scale(1.05); }
+}
+.onb-welcome h1 {
+  font-size: 1.8rem;
+  line-height: 1.25;
+  margin-bottom: 14px;
+  letter-spacing: -.02em;
+}
+.welcome-sub {
+  color: var(--mut);
+  font-size: .95rem;
+  margin-bottom: 28px;
+  line-height: 1.5;
+}
+.welcome-features {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-bottom: 8px;
+  text-align: left;
+}
+.welcome-features .feat {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 16px;
+  background: rgba(255,255,255,.03);
+  border: 1px solid var(--bd);
+  border-radius: 10px;
+  font-size: .88rem;
+  color: var(--txt);
+}
+.welcome-features .feat span {
+  font-size: 1.15rem;
+  flex-shrink: 0;
+}
+.onb-nav {
+  display: flex;
+  gap: 10px;
+  margin-top: 20px;
+}
+#onbStep3Title {
+  background: linear-gradient(135deg, #fff, #8fb8ff);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+.onb-box {
+  animation: boxFadeIn .4s ease;
+}
+@keyframes boxFadeIn {
+  from { opacity: 0; transform: scale(0.96); }
+  to { opacity: 1; transform: scale(1); }
+}
+.onb-welcome {
+  padding: 44px 38px;
+}
 </style>
 </head>
 <body>
@@ -594,51 +676,97 @@ body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;bac
 </div>
 
 <!-- ============ ONBOARDING (Create Virtual Card) ============ -->
+<!-- ============ ONBOARDING (3 steps) ============ -->
 <div class="onboard" id="onboard">
-<div class="onb-box">
-<div class="onb-logo">
-  <div class="blogo"><svg viewBox="0 0 24 24"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg></div>
-  Nordic<span style="color:var(--pri)">Crypto</span>
-</div>
-<h1>Create your virtual card</h1>
-<p>Set up your NordicCrypto Virtual Card to start using your account.</p>
 
-<div class="onb-preview">
-  <div class="pay" style="max-width:100%;height:200px">
-    <div class="ptop"><div class="pb">NORDIC CRYPTO</div><div class="pt" id="prevType">VIRTUAL VISA</div></div>
-    <div class="chip"></div>
-    <div class="pn">•••• •••• •••• ••••</div>
-    <div class="pf">
-      <div><div class="pl">CARD HOLDER</div><div class="pv" id="prevName">EVA ANITA LUNDGREN</div></div>
-      <div style="text-align:right"><div class="pl">CURRENCY</div><div class="pv m" id="prevCur">USD</div></div>
+  <!-- STEP 1: Welcome -->
+  <div class="onb-step onb-step-1 on" id="onbStep1">
+    <div class="onb-box onb-welcome">
+      <div class="onb-logo">
+        <div class="blogo"><svg viewBox="0 0 24 24"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg></div>
+        Nordic<span style="color:var(--pri)">Crypto</span>
+      </div>
+      <div class="welcome-icon">💎</div>
+      <h1>Welcome to your<br>personal crypto banking</h1>
+      <p class="welcome-sub">Your secure gateway to digital assets. Set up your account in just 1 minute.</p>
+      <div class="welcome-features">
+        <div class="feat"><span>🔒</span> Bank-level security</div>
+        <div class="feat"><span>⚡</span> Instant virtual card</div>
+        <div class="feat"><span>🌍</span> Global crypto access</div>
+      </div>
+      <button class="btn b1 onb-next" id="onbNext1" style="width:100%;justify-content:center;padding:16px;font-size:1rem;margin-top:24px">
+        Get started →
+      </button>
     </div>
   </div>
-</div>
 
-<div class="fg">
-  <label>Name on card</label>
-  <input class="fc" id="onbName" value="Eva Anita Lundgren" maxlength="26">
-</div>
-
-<div class="fg">
-  <label>Card type</label>
-  <div class="type-btns">
-    <button class="type-btn on" data-type="Visa">Visa</button>
-    <button class="type-btn" data-type="Mastercard">Mastercard</button>
+  <!-- STEP 2: Name -->
+  <div class="onb-step onb-step-2" id="onbStep2">
+    <div class="onb-box">
+      <div class="onb-logo">
+        <div class="blogo"><svg viewBox="0 0 24 24"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg></div>
+        Nordic<span style="color:var(--pri)">Crypto</span>
+      </div>
+      <h1>Enter your name</h1>
+      <p>This will appear on your card. You can change it later.</p>
+      <div class="fg">
+        <label>First name</label>
+        <input class="fc" id="onbFirst" placeholder="Eva" maxlength="20" autofocus>
+      </div>
+      <div class="fg">
+        <label>Middle name <span style="color:var(--mut);font-weight:400">(optional)</span></label>
+        <input class="fc" id="onbMiddle" placeholder="Anita" maxlength="20">
+      </div>
+      <div class="fg">
+        <label>Last name</label>
+        <input class="fc" id="onbLast" placeholder="Lundgren" maxlength="20">
+      </div>
+      <div class="onb-nav">
+        <button class="btn b2" id="onbBack2" style="flex:1;justify-content:center">← Back</button>
+        <button class="btn b1" id="onbNext2" style="flex:2;justify-content:center">Continue →</button>
+      </div>
+    </div>
   </div>
-</div>
 
-<div class="fg">
-  <label>Currency</label>
-  <div class="cur-btns">
-    <button class="cur-btn on" data-cur="USD">USD</button>
-    <button class="cur-btn" data-cur="EUR">EUR</button>
-    <button class="cur-btn" data-cur="SEK">SEK</button>
+  <!-- STEP 3: Card creation -->
+  <div class="onb-step onb-step-3" id="onbStep3">
+    <div class="onb-box">
+      <div class="onb-logo">
+        <div class="blogo"><svg viewBox="0 0 24 24"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg></div>
+        Nordic<span style="color:var(--pri)">Crypto</span>
+      </div>
+      <h1 id="onbStep3Title">Almost done!</h1>
+      <p>Choose your card type and currency to finish.</p>
+      <div class="onb-preview">
+        <div class="pay" style="max-width:100%;height:200px">
+          <div class="ptop"><div class="pb">NORDIC CRYPTO</div><div class="pt" id="prevType">VIRTUAL VISA</div></div>
+          <div class="chip"></div>
+          <div class="pn">•••• •••• •••• ••••</div>
+          <div class="pf">
+            <div><div class="pl">CARD HOLDER</div><div class="pv" id="prevName">YOUR NAME</div></div>
+            <div style="text-align:right"><div class="pl">CURRENCY</div><div class="pv m" id="prevCur">USD</div></div>
+          </div>
+        </div>
+      </div>
+      <div class="fg">
+        <label>Card type</label>
+        <div class="type-btns">
+          <button class="type-btn on" data-type="Visa">Visa</button>
+          <button class="type-btn" data-type="Mastercard">Mastercard</button>
+        </div>
+      </div>
+      <div class="fg">
+        <label>Currency</label>
+        <div class="cur-btns">
+          <button class="cur-btn on" data-cur="USD">USD</button>
+          <button class="cur-btn" data-cur="EUR">EUR</button>
+          <button class="cur-btn" data-cur="SEK">SEK</button>
+        </div>
+      </div>
+      <button class="btn b1" style="width:100%;justify-content:center;padding:16px;font-size:1rem;margin-top:16px" id="btnCreateCard">✨ Create my card</button>
+    </div>
   </div>
-</div>
 
-<button class="btn b1" style="width:100%;justify-content:center;margin-top:16px;padding:14px" id="btnCreateCard">Create Virtual Card</button>
-</div>
 </div>
 
 <!-- ============ TOAST ============ -->
