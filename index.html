@@ -58,6 +58,14 @@ body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;bac
 .mas{background:rgba(255,255,255,.03);border:1px solid var(--bd);border-radius:10px;padding:14px}
 .mas .t{font-size:.72rem;color:var(--mut);letter-spacing:.08em;margin-bottom:6px}
 .mas .v{font-size:1.05rem;font-weight:700;font-family:ui-monospace,monospace}
+.iban-box{background:linear-gradient(135deg,rgba(0,212,255,.06),rgba(124,58,237,.06));border:1px solid rgba(0,212,255,.2);border-radius:14px;padding:18px;margin-top:22px}
+.iban-box .h{font-size:.72rem;color:var(--mut);letter-spacing:.1em;text-transform:uppercase;margin-bottom:12px;display:flex;justify-content:space-between;align-items:center}
+.iban-box .h button{background:transparent;border:1px solid var(--bd2);color:var(--txt);padding:5px 12px;border-radius:7px;font-size:.72rem;cursor:pointer;font-family:inherit;transition:.2s}
+.iban-box .h button:hover{border-color:var(--pri);color:var(--pri)}
+.iban-row{display:flex;justify-content:space-between;padding:7px 0;font-size:.86rem;border-bottom:1px solid rgba(255,255,255,.04)}
+.iban-row:last-child{border-bottom:none}
+.iban-row .l{color:var(--mut)}
+.iban-row .v{font-family:ui-monospace,Menlo,monospace;font-weight:600;letter-spacing:.02em}
 .sh{margin-bottom:22px}.sh h2{font-size:1.4rem;font-weight:700}.sh p{color:var(--mut);font-size:.88rem;margin-top:5px}
 .fg{margin-bottom:18px}.fg label{display:block;margin-bottom:8px;color:var(--mut);font-size:.82rem;font-weight:500}
 .fc{width:100%;padding:13px 15px;background:rgba(7,10,15,.7);border:1px solid var(--bd2);border-radius:10px;color:var(--txt);font-size:.95rem;font-family:inherit;transition:.2s}
@@ -71,15 +79,46 @@ body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;bac
 .tbl tr:last-child td{border-bottom:none}
 .empty{text-align:center;padding:60px 20px;color:var(--mut)}
 .empty svg{width:48px;height:48px;stroke:var(--mut);fill:none;stroke-width:1.5;margin-bottom:12px;opacity:.5}
-.badge{padding:4px 10px;border-radius:6px;font-size:.72rem;font-weight:600;background:rgba(0,224,138,.14);color:var(--ok);display:inline-block}
+.badge{padding:4px 10px;border-radius:6px;font-size:.72rem;font-weight:600;display:inline-block}
+.badge.ok{background:rgba(0,224,138,.14);color:var(--ok)}
+.badge.pend{background:rgba(255,176,32,.14);color:var(--warn)}
+.badge.proc{background:rgba(0,212,255,.14);color:var(--pri)}
+.badge.fail{background:rgba(255,84,112,.14);color:var(--bad)}
 .mask{position:fixed;inset:0;background:rgba(3,6,11,.75);display:none;justify-content:center;align-items:center;z-index:1000}
 .mask.on{display:flex}
-.box{background:linear-gradient(180deg,var(--pan2),#0f151e);padding:30px;border-radius:16px;width:420px;max-width:calc(100vw - 40px);border:1px solid var(--bd2);box-shadow:0 40px 90px -20px rgba(0,0,0,.9)}
+.box{background:linear-gradient(180deg,var(--pan2),#0f151e);padding:30px;border-radius:16px;width:440px;max-width:calc(100vw - 40px);border:1px solid var(--bd2);box-shadow:0 40px 90px -20px rgba(0,0,0,.9)}
 .box h2{margin-bottom:6px;font-size:1.25rem}.box .d{color:var(--mut);font-size:.86rem;margin-bottom:22px}
 .mact{display:flex;gap:10px;margin-top:24px}
 .toast{position:fixed;top:22px;right:22px;background:var(--pan2);border:1px solid var(--bd2);border-left:4px solid var(--ok);padding:15px 22px;border-radius:10px;box-shadow:0 20px 50px -10px rgba(0,0,0,.8);display:flex;align-items:center;gap:11px;transform:translateX(130%);transition:transform .35s cubic-bezier(.34,1.56,.64,1);z-index:2000;font-size:.9rem;max-width:380px}
 .toast.on{transform:translateX(0)}
 .toast svg{width:18px;height:18px;stroke:var(--ok);fill:none;stroke-width:2.5;stroke-linecap:round;stroke-linejoin:round;flex-shrink:0}
+.track-wrap{max-width:720px}
+.track-head{display:flex;justify-content:space-between;align-items:flex-start;gap:16px;margin-bottom:22px;flex-wrap:wrap}
+.track-id-box{background:rgba(0,212,255,.06);border:1px solid rgba(0,212,255,.2);padding:12px 18px;border-radius:12px}
+.track-id-box .l{font-size:.7rem;color:var(--mut);letter-spacing:.1em;text-transform:uppercase;margin-bottom:4px}
+.track-id-box .v{font-family:ui-monospace,Menlo,monospace;font-weight:700;color:var(--pri);font-size:1.05rem}
+.progress-steps{display:flex;justify-content:space-between;margin-bottom:24px;position:relative}
+.progress-steps::before{content:'';position:absolute;top:14px;left:22px;right:22px;height:2px;background:var(--bd);z-index:0}
+.step{display:flex;flex-direction:column;align-items:center;gap:8px;flex:1;position:relative;z-index:1}
+.step-dot{width:30px;height:30px;border-radius:50%;background:var(--pan2);border:2px solid var(--bd);display:flex;align-items:center;justify-content:center;font-size:.78rem;font-weight:700;color:var(--mut);transition:.3s}
+.step.done .step-dot{background:var(--ok);border-color:var(--ok);color:#04121a}
+.step.active .step-dot{background:var(--pri);border-color:var(--pri);color:#04121a;box-shadow:0 0 0 6px rgba(0,212,255,.15);animation:pulse2 1.6s infinite}
+@keyframes pulse2{0%,100%{box-shadow:0 0 0 6px rgba(0,212,255,.15)}50%{box-shadow:0 0 0 12px rgba(0,212,255,0)}}
+.step-label{font-size:.7rem;color:var(--mut);text-align:center;font-weight:500;max-width:90px}
+.step.done .step-label,.step.active .step-label{color:var(--txt)}
+.progress-bar-bg{background:rgba(255,255,255,.06);height:9px;border-radius:5px;overflow:hidden;margin:16px 0}
+.progress-bar-fill{height:100%;background:linear-gradient(90deg,var(--pri),var(--acc));width:0%;border-radius:5px;transition:width 1.2s cubic-bezier(.4,0,.2,1);box-shadow:0 0 16px rgba(0,224,138,.6)}
+.info-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:20px}
+.info-box{background:rgba(0,0,0,.25);border:1px solid var(--bd);border-radius:12px;padding:16px}
+.info-box .l{font-size:.68rem;color:var(--mut);letter-spacing:.1em;text-transform:uppercase;margin-bottom:6px}
+.info-box .v{font-weight:600;font-size:.9rem;word-break:break-word}
+.log{background:rgba(0,0,0,.25);border:1px solid var(--bd);border-radius:12px;padding:18px;margin-top:16px;max-height:220px;overflow-y:auto}
+.log-item{display:flex;gap:12px;padding:8px 0;font-size:.85rem;border-bottom:1px solid rgba(255,255,255,.04)}
+.log-item:last-child{border-bottom:none}
+.log-time{color:var(--mut);font-family:ui-monospace,monospace;font-size:.76rem;flex-shrink:0;min-width:70px}
+.log-msg{color:var(--txt)}
+.hidden{display:none}
+@media(max-width:700px){.info-grid{grid-template-columns:1fr}}
 @media(max-width:960px){.grid{grid-template-columns:1fr}.side{width:78px;padding:20px 12px}.brand .nm,.mi .tx,.umi .inf{display:none}.mi{justify-content:center}.umi{justify-content:center}}
 </style>
 </head>
@@ -132,6 +171,13 @@ body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;bac
 <div class="mas"><div class="t">BTC</div><div class="v" id="btcB">0.00000000</div></div>
 <div class="mas"><div class="t">ETH</div><div class="v" id="ethB">0.00000000</div></div>
 </div>
+<div class="iban-box">
+<div class="h"><span>Your IBAN (for receiving)</span><button id="btnCopyIban">Copy</button></div>
+<div class="iban-row"><span class="l">IBAN</span><span class="v" id="myIban">NO93 8601 1117 947</span></div>
+<div class="iban-row"><span class="l">SWIFT / BIC</span><span class="v">NOCRNOKKXXX</span></div>
+<div class="iban-row"><span class="l">Bank</span><span class="v">NordicCrypto Bank ASA</span></div>
+<div class="iban-row"><span class="l">Country</span><span class="v">Norway (NO)</span></div>
+</div>
 </div>
 </div>
 </div>
@@ -163,7 +209,8 @@ body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;bac
 </div>
 
 <div id="order" class="pg">
-<div class="sh"><h2>Order New Metal Card</h2><p>Get a premium NordicCrypto Metal Visa shipped to you</p></div>
+<div id="orderForm">
+<div class="sh"><h2>Order New Metal Card</h2><p>Get a premium NordicCrypto Metal Visa shipped from Oslo, Norway</p></div>
 <div class="panel" style="max-width:640px">
 <h3 style="margin-bottom:18px;font-size:1.05rem">Shipping Details</h3>
 <div class="fr">
@@ -181,6 +228,43 @@ body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;bac
 </div>
 </div>
 
+<div id="orderTrack" class="hidden">
+<div class="track-wrap">
+<div class="track-head">
+<div class="sh" style="margin-bottom:0"><h2>Track Your Card</h2><p>Live tracking from Oslo to your door</p></div>
+<div class="track-id-box"><div class="l">Tracking ID</div><div class="v" id="trackId">—</div></div>
+</div>
+
+<div class="panel">
+<div class="progress-steps" id="stepsWrap">
+<div class="step" data-i="0"><div class="step-dot">1</div><div class="step-label">Order Received</div></div>
+<div class="step" data-i="1"><div class="step-dot">2</div><div class="step-label">Card Minted</div></div>
+<div class="step" data-i="2"><div class="step-dot">3</div><div class="step-label">Packed</div></div>
+<div class="step" data-i="3"><div class="step-dot">4</div><div class="step-label">In Transit</div></div>
+<div class="step" data-i="4"><div class="step-dot">5</div><div class="step-label">Out for Delivery</div></div>
+<div class="step" data-i="5"><div class="step-dot">6</div><div class="step-label">Delivered</div></div>
+</div>
+<div class="progress-bar-bg"><div class="progress-bar-fill" id="trackBar"></div></div>
+<div style="display:flex;justify-content:space-between;font-size:.82rem;color:var(--mut);margin-bottom:16px">
+<span id="trackStatus">Processing...</span>
+<span id="trackPct">0%</span>
+</div>
+
+<div class="info-grid">
+<div class="info-box"><div class="l">Current Location</div><div class="v" id="trackLoc">NordicCrypto HQ, Oslo</div></div>
+<div class="info-box"><div class="l">Destination</div><div class="v" id="trackDest">—</div></div>
+<div class="info-box"><div class="l">Recipient</div><div class="v" id="trackName">—</div></div>
+<div class="info-box"><div class="l">Estimated Delivery</div><div class="v" id="trackEta">—</div></div>
+</div>
+
+<div class="log" id="trackLog"></div>
+
+<button class="btn b2" style="margin-top:18px" id="btnNewOrder">Order Another Card</button>
+</div>
+</div>
+</div>
+</div>
+
 </div>
 </div>
 
@@ -189,7 +273,16 @@ body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;bac
 <h2 id="mTitle">Add Funds</h2>
 <p class="d" id="mDesc">Enter the amount you wish to add.</p>
 <div class="fg"><label>Amount (USD)</label><input type="number" class="fc" id="mAmount" placeholder="0.00" min="1"></div>
-<div class="fg"><label>Method</label><select class="fc" id="mMethod"><option>Bitcoin (BTC)</option><option>Ethereum (ETH)</option><option>Bank Transfer (SEPA)</option><option>Credit Card</option></select></div>
+<div class="fg"><label>Method</label><select class="fc" id="mMethod">
+<option value="Bitcoin (BTC)">Bitcoin (BTC)</option>
+<option value="Ethereum (ETH)">Ethereum (ETH)</option>
+<option value="Bank Transfer (SEPA)">Bank Transfer (SEPA)</option>
+<option value="Credit Card">Credit Card</option>
+</select></div>
+<div class="fg" id="mDestWrap" style="display:none">
+<label id="mDestLabel">Recipient details</label>
+<input class="fc" id="mDest" placeholder="">
+</div>
 <div class="mact">
 <button class="btn b1" style="flex:1;justify-content:center" id="mOk">Confirm</button>
 <button class="btn b2" style="flex:1;justify-content:center" id="mCancel">Cancel</button>
@@ -197,8 +290,4 @@ body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;bac
 </div>
 </div>
 
-<div class="toast" id="toast"><svg viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5"/></svg><span id="tMsg">OK</span></div>
-
-<script src="app.js"></script>
-</body>
-</html>
+<div class="toast" id="toast"><svg viewBox="0 0 24 24"><path d="M20 6L9 17
