@@ -630,6 +630,160 @@ document.getElementById('btnReset').onclick = function(){
 /* ========== TIMERS ========== */
 setInterval(function(){ updateTxStatuses(); renderOrder(); }, 5000);
 
+/* ========== CARD CREATION ANIMATION ========== */
+function playCardCreationAnimation(cardData, onComplete){
+  var stage = document.getElementById('animStage');
+  var card = document.getElementById('animCard');
+  var numLine = document.getElementById('animNum');
+  var nameEl = document.getElementById('animName');
+  var expEl = document.getElementById('animExp');
+  var brandEl = document.getElementById('animBrand');
+  var typeEl = document.getElementById('animType');
+  var readyText = document.getElementById('readyText');
+
+  if (!stage || !card){
+    if (onComplete) onComplete();
+    return;
+  }
+
+  stage.classList.add('on');
+  card.classList.remove('visible', 'glow', 'flash', 'exit');
+  card.classList.add('visible');
+  readyText.classList.remove('show');
+  numLine.textContent = '';
+  numLine.classList.remove('typing');
+  nameEl.classList.remove('show');
+  expEl.classList.remove('show');
+  nameEl.textContent = '—';
+  expEl.textContent = '—/—';
+  brandEl.textContent = 'NORDIC CRYPTO';
+  typeEl.textContent = 'VIRTUAL ' + (cardData.type || 'VISA').toUpperCase();
+
+  setTimeout(function(){ playTone(880, 0.08, 'sine', 0.06); }, 50);
+
+  setTimeout(function(){
+    card.classList.add('glow');
+  }, 800);
+
+  var numStr = cardData.num.replace(/(.{4})/g, '$1 ').trim();
+  setTimeout(function(){
+    numLine.classList.add('typing');
+    var i = 0;
+    var typeTimer = setInterval(function(){
+      if (i >= numStr.length){
+        clearInterval(typeTimer);
+        numLine.classList.remove('typing');
+        return;
+      }
+      numLine.textContent += numStr[i];
+      i++;
+      playTone(1200 + Math.random() * 200, 0.02, 'square', 0.02);
+    }, 55);
+  }, 1200);
+
+  setTimeout(function(){
+    nameEl.textContent = cardData.name || 'CARD HOLDER';
+    expEl.textContent = cardData.expiry || '09/28';
+    nameEl.classList.add('show');
+    expEl.classList.add('show');
+  }, 2200);
+
+  setTimeout(function(){
+    card.classList.add('flash');
+    playChime();
+    spawnConfetti();
+  }, 2600);
+
+  setTimeout(function(){
+    readyText.classList.add('show');
+  }, 3000);
+
+  setTimeout(function(){
+    card.classList.add('exit');
+  }, 3600);
+
+  setTimeout(function(){
+    stage.classList.remove('on');
+    card.classList.remove('visible', 'glow', 'flash', 'exit');
+    readyText.classList.remove('show');
+    if (onComplete) onComplete();
+  }, 4300);
+}
+
+/* ========== SOUND (Web Audio API) ========== */
+var audioCtx = null;
+function getAudioCtx(){
+  if (!audioCtx){
+    try {
+      audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    } catch(e){ return null; }
+  }
+  return audioCtx;
+}
+
+function playTone(freq, duration, type, volume){
+  var ctx = getAudioCtx();
+  if (!ctx) return;
+  try {
+    var osc = ctx.createOscillator();
+    var gain = ctx.createGain();
+    osc.type = type || 'sine';
+    osc.frequency.value = freq;
+    gain.gain.value = volume || 0.05;
+    gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + duration);
+    osc.connect(gain);
+    gain.connect(ctx.destination);
+    osc.start();
+    osc.stop(ctx.currentTime + duration);
+  } catch(e){}
+}
+
+function playChime(){
+  playTone(880, 0.4, 'sine', 0.08);
+  setTimeout(function(){ playTone(1108, 0.4, 'sine', 0.07); }, 80);
+  setTimeout(function(){ playTone(1318, 0.5, 'sine', 0.06); }, 160);
+}
+
+/* ========== CONFETTI ========== */
+function spawnConfetti(){
+  var wrap = document.getElementById('confettiWrap');
+  if (!wrap) return;
+  wrap.innerHTML = '';
+
+  var total = 60;
+  var types = ['coin', 'spark', 'crystal', 'star'];
+  var symbols = ['₿', 'Ξ', '', ''];
+
+  for (var i = 0; i < total; i++){
+    var p = document.createElement('div');
+    var t = types[Math.floor(Math.random() * types.length)];
+    p.className = 'confetti-piece ' + t;
+
+    if (t === 'coin'){
+      p.textContent = symbols[Math.floor(Math.random() * 2)];
+    }
+
+    var size = 10 + Math.random() * 12;
+    p.style.width = size + 'px';
+    p.style.height = size + 'px';
+
+    var angle = Math.random() * Math.PI * 2;
+    var distance = 200 + Math.random() * 400;
+    var tx = Math.cos(angle) * distance;
+    var ty = Math.sin(angle) * distance - 100;
+
+    p.style.setProperty('--tx', tx + 'px');
+    p.style.setProperty('--ty', ty + 'px');
+    p.style.setProperty('--rot', (Math.random() * 720 - 360) + 'deg');
+
+    p.style.animation = 'confettiFly ' + (1.2 + Math.random() * 0.8) + 's cubic-bezier(.2,.8,.4,1) forwards';
+    p.style.animationDelay = (Math.random() * 0.3) + 's';
+
+    wrap.appendChild(p);
+  }
+
+  setTimeout(function(){ wrap.innerHTML = ''; }, 2500);
+}
 /* ========== INIT ========== */
 loadFromServer(function(){
   loadPrices();
