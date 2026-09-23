@@ -395,7 +395,7 @@ function startVerification(){
   // Уведомление о старте
   addNotification('Identity verification started', '🔍');
 
-  var totalSeconds = 120; // 2 минуты
+  var totalSeconds = 10;
   verifyData.startedAt = Date.now();
 
   var timerEl = document.getElementById('verifyTimer');
@@ -789,7 +789,16 @@ var STEPS = [
   { name:'Out for Delivery', loc:'Local Courier' },
   { name:'Delivered',        loc:'Destination' }
 ];
-var STEP_DURATION = 20 * 1000;
+// Delivery steps: indices in days
+var STEP_DELAYS = [
+  0,          // Order Received — now
+  3,          // Card Minted — 3 days
+  5,          // Packed — 5 days
+  14,         // In Transit — 2 weeks
+  35,         // Out for Delivery — 35 days
+  50          // Delivered — 50 days (~1.5 months)
+];
+var STEP_DURATION = 24 * 60 * 60 * 1000; // 1 day in ms
 
 function genTrackId(){
   var s = 'NC-' + new Date().getFullYear() + '-';
