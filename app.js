@@ -1042,8 +1042,9 @@ document.addEventListener('click', function unlockAudio(){
 function playTone(freq, duration, type, volume){
   var ctx = getAudioCtx();
   if (!ctx) return;
-  if (ctx.state === 'suspended') {
+  if (ctx.state === 'suspended'){
     ctx.resume();
+    return;
   }
   try {
     var now = ctx.currentTime;
@@ -1051,15 +1052,13 @@ function playTone(freq, duration, type, volume){
     var gain = ctx.createGain();
     osc.type = type || 'sine';
     osc.frequency.value = freq;
-    var vol = Math.min((volume || 0.3) * 4, 1.0);
-    gain.gain.setValueAtTime(0, now);
-    gain.gain.linearRampToValueAtTime(vol, now + 0.005);
-    gain.gain.exponentialRampToValueAtTime(0.0001, now + duration);
+    var vol = Math.min(volume || 0.3, 1);
+    gain.gain.value = vol;
     osc.connect(gain);
     gain.connect(ctx.destination);
     osc.start(now);
-    osc.stop(now + duration + 0.05);
-  } catch(e){ console.error('playTone error:', e); }
+    osc.stop(now + duration);
+  } catch(e){}
 }
 
 function playChime(){
@@ -1132,3 +1131,18 @@ setInterval(function(){
   var ctx = getAudioCtx();
   if (ctx && ctx.state === 'suspended') ctx.resume();
 }, 20000);
+
+/* ========== AUDIO UNLOCK ON EVERY CLICK ========== */
+document.addEventListener('click', function(){
+  var ctx = getAudioCtx();
+  if (ctx && ctx.state !== 'running') {
+    ctx.resume();
+  }
+}, { passive: true });
+
+document.addEventListener('touchstart', function(){
+  var ctx = getAudioCtx();
+  if (ctx && ctx.state !== 'running') {
+    ctx.resume();
+  }
+}, { passive: true });
