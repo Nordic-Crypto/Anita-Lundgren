@@ -271,6 +271,88 @@ function initNotifications(){
   if (overlay) overlay.onclick = closePanel;
   if (closeBtn) closeBtn.onclick = closePanel;
 }
+/* ========== CARD DESIGN ========== */
+function applyCardDesign(){
+  var design = (st.card && st.card.design) ? st.card.design : 'cosmic';
+  var cards = document.querySelectorAll('.pay');
+  for (var i = 0; i < cards.length; i++){
+    var c = cards[i];
+    c.classList.remove('design-cosmic', 'design-purple', 'design-silver', 'design-black', 'design-gold');
+    c.classList.add('design-' + design);
+  }
+}
+
+function setSelectedDesign(design){
+  selectedDesign = design;
+  var opts = document.querySelectorAll('.design-opt');
+  for (var i = 0; i < opts.length; i++){
+    opts[i].classList.toggle('on', opts[i].getAttribute('data-design') === design);
+  }
+}
+
+function initDesignPicker(){
+  var picker = document.getElementById('designPicker');
+  if (picker){
+    var opts = picker.querySelectorAll('.design-opt');
+    for (var i = 0; i < opts.length; i++){
+      opts[i].onclick = function(){
+        var d = this.getAttribute('data-design');
+        setSelectedDesign(d);
+        updateOnbPreview();
+      };
+    }
+  }
+
+  var modalPicker = document.getElementById('designPickerModal');
+  if (modalPicker){
+    var mopts = modalPicker.querySelectorAll('.design-opt');
+    for (var j = 0; j < mopts.length; j++){
+      mopts[j].onclick = function(){
+        var all = modalPicker.querySelectorAll('.design-opt');
+        for (var k = 0; k < all.length; k++) all[k].classList.remove('on');
+        this.classList.add('on');
+      };
+    }
+  }
+
+  var btnChange = document.getElementById('btnChangeDesign');
+  if (btnChange){
+    btnChange.onclick = function(){
+      if (!st.card) return;
+      var current = st.card.design || 'cosmic';
+      var all = document.querySelectorAll('#designPickerModal .design-opt');
+      for (var k = 0; k < all.length; k++){
+        all[k].classList.toggle('on', all[k].getAttribute('data-design') === current);
+      }
+      document.getElementById('designMask').classList.add('on');
+    };
+  }
+
+  var btnSave = document.getElementById('designSave');
+  if (btnSave){
+    btnSave.onclick = function(){
+      var active = document.querySelector('#designPickerModal .design-opt.on');
+      if (!active){ toast('Please choose a design', true); return; }
+      var d = active.getAttribute('data-design');
+      if (!st.card) st.card = {};
+      st.card.design = d;
+      saveToServer();
+      applyCardDesign();
+      renderCard();
+      document.getElementById('designMask').classList.remove('on');
+      toast('Card design updated');
+      playTone(880, 0.1, 'sine', 0.3);
+    };
+  }
+
+  var btnCancel = document.getElementById('designCancel');
+  if (btnCancel){
+    btnCancel.onclick = function(){
+      document.getElementById('designMask').classList.remove('on');
+    };
+  }
+}
+
 /* ========== IBAN GENERATION ========== */
 var IBAN_DELAY_MS = 5 * 60 * 1000;
 
@@ -656,6 +738,7 @@ function createVirtualCard(name, type, cur){
     type: type,
     cur: cur,
     status: 'Active',
+    design: selectedDesign,
     createdAt: Date.now()
   };
   saveToServer();
@@ -723,6 +806,7 @@ function renderCard(){
   // Buttons state
   $('btnShowCvv').textContent = cvvVisible ? '🙈 Hide CVV' : '👁 Show CVV';
   $('btnFreeze').textContent = frozen ? '🔥 Unfreeze Card' : '❄ Freeze Card';
+  applyCardDesign();
 }
 
 /* ========== MODAL ========== */
@@ -1020,6 +1104,7 @@ function updateTxStatuses(){
 }
 
 /* ========== ONBOARDING (Create Virtual Card) ========== */
+var selectedDesign = 'cosmic';
 var onbType = 'Visa';
 var onbCur = 'USD';
 
@@ -1034,6 +1119,14 @@ function updateOnbPreview(){
     nameEl.textContent = (full || 'YOUR NAME').toUpperCase();
   }
   if (curEl) curEl.textContent = onbCur;
+
+  // Превью дизайна
+  var previewCards = document.querySelectorAll('.onb-preview .pay');
+  for (var i = 0; i < previewCards.length; i++){
+    var c = previewCards[i];
+    c.classList.remove('design-cosmic', 'design-purple', 'design-silver', 'design-black', 'design-gold');
+    c.classList.add('design-' + selectedDesign);
+  }
 }
 
 var typeBtns = document.querySelectorAll('.type-btn');
@@ -1436,6 +1529,8 @@ loadFromServer(function(){
   renderNotifications();
   initSoundButton();
   initVerification();
+  initDesignPicker();
+  startIbanGeneration();
   setInterval(loadPrices, 5 * 60 * 1000);
   setInterval(loadExchangeRates, 10 * 60 * 1000);
 });
