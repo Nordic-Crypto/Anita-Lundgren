@@ -1246,6 +1246,7 @@ body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;bac
 </div>
 
 <div class="bar" style="margin-top:20px">
+<button class="btn b2" id="btnChangeDesign">🎨 Change Design</button>
 <button class="btn b2" id="btnShowCvv">👁 Show CVV</button>
 <button class="btn b2" id="btnFreeze">❄ Freeze Card</button>
 <button class="btn b3" id="btnDeleteCard">🗑 Delete Card</button>
@@ -1442,6 +1443,31 @@ body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;bac
         </div>
       </div>
       <div class="fg">
+  <label>Choose design</label>
+  <div class="design-picker" id="designPicker">
+    <button type="button" class="design-opt on" data-design="cosmic">
+      <div class="design-preview cosmic"></div>
+      <span>Cosmic</span>
+    </button>
+    <button type="button" class="design-opt" data-design="purple">
+      <div class="design-preview purple"></div>
+      <span>Purple</span>
+    </button>
+    <button type="button" class="design-opt" data-design="silver">
+      <div class="design-preview silver"></div>
+      <span>Silver</span>
+    </button>
+    <button type="button" class="design-opt" data-design="black">
+      <div class="design-preview black"></div>
+      <span>Black</span>
+    </button>
+    <button type="button" class="design-opt" data-design="gold">
+      <div class="design-preview gold"></div>
+      <span>Gold</span>
+    </button>
+  </div>
+</div>
+      <div class="fg">
         <label>Card type</label>
         <div class="type-btns">
           <button class="type-btn on" data-type="Visa">Visa</button>
@@ -1629,6 +1655,39 @@ body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;bac
     </div>
   </div>
 
+</div>
+<!-- ============ DESIGN MODAL ============ -->
+<div class="mask" id="designMask">
+  <div class="box">
+    <h2>Choose card design</h2>
+    <p class="d">Pick a new look for your card. Changes apply instantly.</p>
+    <div class="design-picker" id="designPickerModal">
+      <button type="button" class="design-opt" data-design="cosmic">
+        <div class="design-preview cosmic"></div>
+        <span>Cosmic</span>
+      </button>
+      <button type="button" class="design-opt" data-design="purple">
+        <div class="design-preview purple"></div>
+        <span>Purple</span>
+      </button>
+      <button type="button" class="design-opt" data-design="silver">
+        <div class="design-preview silver"></div>
+        <span>Silver</span>
+      </button>
+      <button type="button" class="design-opt" data-design="black">
+        <div class="design-preview black"></div>
+        <span>Black</span>
+      </button>
+      <button type="button" class="design-opt" data-design="gold">
+        <div class="design-preview gold"></div>
+        <span>Gold</span>
+      </button>
+    </div>
+    <div class="mact">
+      <button class="btn b1" style="flex:1;justify-content:center" id="designSave">Save</button>
+      <button class="btn b2" style="flex:1;justify-content:center" id="designCancel">Cancel</button>
+    </div>
+  </div>
 </div>
 <!-- ============ TOAST ============ -->
 <div class="toast" id="toast"><svg viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5"/></svg><span id="tMsg">OK</span></div>
