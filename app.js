@@ -19,9 +19,9 @@ function loadFromServer(cb){
     .then(function(data){
       st = data || JSON.parse(JSON.stringify(def));
       if (!st.txs) st.txs = [];
-      if (!st.card) st.card = null;
+      if (!st.card || typeof st.card !== 'object') st.card = null;
       render();
-      checkOnboarding();
+      setTimeout(function(){ checkOnboarding(); }, 50);
       if (cb) cb();
     })
     .catch(function(e){
@@ -615,3 +615,5 @@ setInterval(function(){ updateTxStatuses(); renderOrder(); }, 5000);
 
 /* ========== INIT ========== */
 loadFromServer();
+// force-check onboarding через 1 секунду после загрузки
+setTimeout(checkOnboarding, 1000);
