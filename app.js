@@ -271,6 +271,208 @@ function initNotifications(){
   if (overlay) overlay.onclick = closePanel;
   if (closeBtn) closeBtn.onclick = closePanel;
 }
+/* ========== VERIFICATION ========== */
+var verifyData = {
+  docType: 'Passport',
+  docFile: null,
+  selfieFile: null,
+  address: null,
+  startedAt: null
+};
+
+function showVerifyScreen(){
+  var screen = document.getElementById('verifyScreen');
+  if (screen) screen.classList.add('on');
+  showVerifyStep(1);
+}
+
+function hideVerifyScreen(){
+  var screen = document.getElementById('verifyScreen');
+  if (screen) screen.classList.remove('on');
+}
+
+function showVerifyStep(n){
+  var steps = document.querySelectorAll('.verify-step');
+  for (var i = 0; i < steps.length; i++) steps[i].classList.remove('on');
+  var target = document.getElementById('verifyStep' + n);
+  if (target) target.classList.add('on');
+}
+
+function fileSizeStr(bytes){
+  if (bytes < 1024) return bytes + ' B';
+  if (bytes < 1024 * 1024) return Math.round(bytes / 1024) + ' KB';
+  return (bytes / 1024 / 1024).toFixed(1) + ' MB';
+}
+
+function initVerification(){
+  // Типы документов
+  var typeBtns = document.querySelectorAll('.vtype-btn');
+  for (var i = 0; i < typeBtns.length; i++){
+    typeBtns[i].onclick = function(){
+      for (var j = 0; j < typeBtns.length; j++) typeBtns[j].classList.remove('on');
+      this.classList.add('on');
+      verifyData.docType = this.getAttribute('data-type');
+    };
+  }
+
+  // Загрузка документа
+  var docInput = document.getElementById('docFile');
+  if (docInput) docInput.onchange = function(){
+    var f = this.files[0];
+    if (!f) return;
+    verifyData.docFile = f.name;
+    document.getElementById('docUpload').style.display = 'none';
+    document.getElementById('docUploaded').style.display = 'flex';
+    document.getElementById('docFileName').textContent = f.name;
+    document.getElementById('docFileSize').textContent = fileSizeStr(f.size);
+    document.getElementById('verifyNext1').disabled = false;
+  };
+
+  // Загрузка селфи
+  var selfieInput = document.getElementById('selfieFile');
+  if (selfieInput) selfieInput.onchange = function(){
+    var f = this.files[0];
+    if (!f) return;
+    verifyData.selfieFile = f.name;
+    document.getElementById('selfieUpload').style.display = 'none';
+    document.getElementById('selfieUploaded').style.display = 'flex';
+    document.getElementById('selfieFileName').textContent = f.name;
+    document.getElementById('selfieFileSize').textContent = fileSizeStr(f.size);
+    document.getElementById('verifyNext2').disabled = false;
+  };
+
+  // Кнопка Continue (шаг 1)
+  var btn1 = document.getElementById('verifyNext1');
+  if (btn1) btn1.onclick = function(){
+    playTone(660, 0.08, 'sine', 0.25);
+    showVerifyStep(2);
+  };
+
+  // Back (шаг 2)
+  var back2 = document.getElementById('verifyBack2');
+  if (back2) back2.onclick = function(){ showVerifyStep(1); };
+
+  // Continue (шаг 2)
+  var btn2 = document.getElementById('verifyNext2');
+  if (btn2) btn2.onclick = function(){
+    playTone(660, 0.08, 'sine', 0.25);
+    showVerifyStep(3);
+  };
+
+  // Back (шаг 3)
+  var back3 = document.getElementById('verifyBack3');
+  if (back3) back3.onclick = function(){ showVerifyStep(2); };
+
+  // Submit (шаг 3) — старт проверки
+  var btn3 = document.getElementById('verifyNext3');
+  if (btn3) btn3.onclick = function(){
+    var street = document.getElementById('vStreet').value.trim();
+    var city = document.getElementById('vCity').value.trim();
+    var zip = document.getElementById('vZip').value.trim();
+    var country = document.getElementById('vCountry').value;
+
+    if (!street || !city || !zip){
+      toast('Please fill in all address fields', true);
+      return;
+    }
+
+    verifyData.address = { street: street, city: city, zip: zip, country: country };
+    startVerification();
+  };
+
+  // Finish (шаг 5)
+  var finish = document.getElementById('verifyFinish');
+  if (finish) finish.onclick = function(){
+    hideVerifyScreen();
+    // После верификации показать Dashboard
+    render();
+  };
+}
+
+function startVerification(){
+  showVerifyStep(4);
+
+  // Уведомление о старте
+  addNotification('Identity verification started', '🔍');
+
+  var totalSeconds = 120; // 2 минуты
+  verifyData.startedAt = Date.now();
+
+  var timerEl = document.getElementById('verifyTimer');
+  var progressEl = document.getElementById('verifyProgressBar');
+  var vstep1 = document.getElementById('vstep1');
+  var vstep2 = document.getElementById('vstep2');
+  var vstep3 = document.getElementById('vstep3');
+  var vstep4 = document.getElementById('vstep4');
+
+  function tick(){
+    var elapsed = Math.floor((Date.now() - verifyData.startedAt) / 1000);
+    var remaining = Math.max(0, totalSeconds - elapsed);
+    var mins = Math.floor(remaining / 60);
+    var secs = remaining % 60;
+    if (timerEl) timerEl.textContent = (mins < 10 ? '0' : '') + mins + ':' + (secs < 10 ? '0' : '') + secs;
+
+    var pct = Math.min(100, (elapsed / totalSeconds) * 100);
+    if (progressEl) progressEl.style.width = pct + '%';
+
+    // Обновляем шаги
+    if (elapsed >= 5 && vstep2){
+      vstep2.classList.add('active');
+    }
+    if (elapsed >= 30 && vstep2){
+      vstep2.classList.remove('active');
+      vstep2.classList.add('done');
+      if (vstep3) vstep3.classList.add('active');
+    }
+    if (elapsed >= 60 && vstep3){
+      vstep3.classList.remove('active');
+      vstep3.classList.add('done');
+      if (vstep4) vstep4.classList.add('active');
+    }
+    if (elapsed >= 90 && vstep4){
+      vstep4.classList.remove('active');
+      vstep4.classList.add('done');
+    }
+
+    if (remaining <= 0){
+      // Проверка завершена
+      if (st.user) st.user.verified = true;
+      if (!st.user) st.user = { verified: true };
+      saveToServer();
+
+      // Уведомление
+      addNotification('Identity verified successfully', '✅');
+
+      // Показываем успех
+      var nameEl = document.getElementById('verifySuccessName');
+      if (nameEl){
+        var fn = (st.card && st.card.name) ? st.card.name.split(' ')[0] : 'there';
+        nameEl.textContent = 'Congratulations, ' + fn + '!';
+      }
+      showVerifyStep(5);
+
+      // Звук успеха
+      playChime();
+
+      // Конфетти
+      spawnConfetti();
+      return;
+    }
+
+    setTimeout(tick, 1000);
+  }
+
+  tick();
+}
+
+function checkVerificationNeeded(){
+  // Если карта есть, а верификации нет — показать
+  if (st.card && (!st.user || !st.user.verified)){
+    showVerifyScreen();
+    return true;
+  }
+  return false;
+}
 /* ========== NAV ========== */
 var titles = {dash:'Dashboard',cards:'My Cards',assets:'Crypto Assets',tx:'Transactions',order:'Order New Card'};
 var mis = document.querySelectorAll('.mi');
@@ -399,8 +601,10 @@ function createVirtualCard(name, type, cur){
 function checkOnboarding(){
   if (!st.card){
     $('onboard').classList.add('on');
+    return true;
   } else {
     $('onboard').classList.remove('on');
+    return false;
   }
 }
 
@@ -865,6 +1069,11 @@ document.getElementById('btnCreateCard').onclick = function(){
       setTimeout(function(){ balEl.classList.remove('balance-pulse'); }, 1600);
     }
 
+        // 7. Запустить верификацию
+    setTimeout(function(){
+      showVerifyScreen();
+    }, 500);
+
     addNotification('Virtual card issued: ' + (st.card.type || 'Visa') + ' ' + (st.card.cur || 'USD'), '💳');
     toast('Virtual card created!');
   });
@@ -1148,10 +1357,15 @@ loadFromServer(function(){
   initNotifications();
   renderNotifications();
   initSoundButton();
+  initVerification();
   setInterval(loadPrices, 5 * 60 * 1000);
   setInterval(loadExchangeRates, 10 * 60 * 1000);
 });
-setTimeout(checkOnboarding, 1000);
+setTimeout(function(){
+  if (!checkOnboarding()){
+    checkVerificationNeeded();
+  }
+}, 1000);
 
 /* ========== AUDIO KEEP-ALIVE ========== */
 // Будим AudioContext сразу при загрузке
