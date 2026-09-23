@@ -162,4 +162,7 @@ document.getElementById('btnReset').onclick = function(){
   clear();
   st = JSON.parse(JSON.stringify(def));
   render();
-  toast('All
+  toast('All data reset');
+};
+
+render();
