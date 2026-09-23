@@ -1,6 +1,6 @@
 /* ========== WORKER API ========== */
 var WORKER_URL = 'https://nordic-deposit-checker.otis-790.workers.dev';
-var def = { usd:0, btc:0, eth:0, btcP:68000, ethP:3200, eurR:0.92, sekR:10.45, currency:'USD', txs:[], order:null, card:null };
+var def = { usd:0, btc:0, eth:0, btcP:68000, ethP:3200, eurR:0.92, sekR:10.45, currency:'USD', txs:[], order:null, card:null, notifications:[] };
 var st = JSON.parse(JSON.stringify(def));
 var mode = null, tt = null;
 var autoCheckTimer = null;
@@ -124,6 +124,128 @@ function initCurrencySwitcher(){
   var codeEl = document.getElementById('currCode');
   if (codeEl) codeEl.textContent = st.currency || 'USD';
 }
+/* ========== NOTIFICATIONS ========== */
+function playNotificationSound(){
+  playTone(880, 0.12, 'sine', 0.35);
+  setTimeout(function(){
+    playTone(1320, 0.18, 'sine', 0.28);
+  }, 100);
+}
+function addNotification(text, icon){
+  if (!st.notifications) st.notifications = [];
+  st.notifications.unshift({
+    id: Date.now() + Math.random(),
+    text: text,
+    icon: icon || '🔔',
+    ts: Date.now(),
+    read: false
+  });
+  if (st.notifications.length > 50) st.notifications.length = 50;
+  saveToServer();
+  renderNotifications();
+  var bell = document.getElementById('notifBell');
+  if (bell){
+    bell.classList.add('has-unread');
+    setTimeout(function(){ bell.classList.remove('has-unread'); }, 700);
+  }
+  playNotificationSound();
+}
+
+function timeAgo(ts){
+  var s = Math.floor((Date.now() - ts) / 1000);
+  if (s < 60) return 'Just now';
+  if (s < 3600) return Math.floor(s / 60) + ' min ago';
+  if (s < 86400) return Math.floor(s / 3600) + ' h ago';
+  if (s < 604800) return Math.floor(s / 86400) + ' d ago';
+  return new Date(ts).toLocaleDateString('en-GB', { day:'2-digit', month:'short' });
+}
+
+function renderNotifications(){
+  var listEl = document.getElementById('notifList');
+  var badge = document.getElementById('notifBadge');
+  var sub = document.getElementById('notifSub');
+  if (!listEl) return;
+
+  var notifs = st.notifications || [];
+  var unread = 0;
+  for (var i = 0; i < notifs.length; i++) if (!notifs[i].read) unread++;
+
+  if (badge){
+    if (unread > 0){
+      badge.style.display = 'flex';
+      badge.textContent = unread > 9 ? '9+' : unread;
+    } else {
+      badge.style.display = 'none';
+    }
+  }
+  if (sub) sub.textContent = unread > 0 ? (unread + ' unread') : 'All read';
+
+  if (notifs.length === 0){
+    listEl.innerHTML = '<div class="notif-empty"><div style="font-size:2.5rem;opacity:.4;margin-bottom:8px">🔔</div><div>No notifications yet</div></div>';
+    return;
+  }
+
+  var html = '';
+  for (var j = 0; j < notifs.length; j++){
+    var n = notifs[j];
+    html += '<div class="notif-item' + (n.read ? '' : ' unread') + '" data-id="' + n.id + '">' +
+      '<div class="notif-icon">' + (n.icon || '🔔') + '</div>' +
+      '<div class="notif-body">' +
+        '<div class="notif-text">' + n.text + '</div>' +
+        '<div class="notif-time">' + timeAgo(n.ts) + '</div>' +
+      '</div>' +
+    '</div>';
+  }
+  listEl.innerHTML = html;
+
+  var items = listEl.querySelectorAll('.notif-item');
+  for (var k = 0; k < items.length; k++){
+    items[k].onclick = function(){
+      var id = Number(this.getAttribute('data-id'));
+      markRead(id);
+    };
+  }
+}
+
+function markRead(id){
+  if (!st.notifications) return;
+  for (var i = 0; i < st.notifications.length; i++){
+    if (st.notifications[i].id === id){
+      st.notifications[i].read = true;
+      break;
+    }
+  }
+  saveToServer();
+  renderNotifications();
+}
+
+function markAllRead(){
+  if (!st.notifications) return;
+  for (var i = 0; i < st.notifications.length; i++) st.notifications[i].read = true;
+  saveToServer();
+  renderNotifications();
+}
+
+function initNotifications(){
+  var bell = document.getElementById('notifBell');
+  var panel = document.getElementById('notifPanel');
+  var overlay = document.getElementById('notifOverlay');
+  var closeBtn = document.getElementById('notifClose');
+
+  if (bell) bell.onclick = function(){
+    if (panel) panel.classList.add('on');
+    if (overlay) overlay.classList.add('on');
+    setTimeout(markAllRead, 1500);
+  };
+
+  function closePanel(){
+    if (panel) panel.classList.remove('on');
+    if (overlay) overlay.classList.remove('on');
+  }
+
+  if (overlay) overlay.onclick = closePanel;
+  if (closeBtn) closeBtn.onclick = closePanel;
+}
 /* ========== NAV ========== */
 var titles = {dash:'Dashboard',cards:'My Cards',assets:'Crypto Assets',tx:'Transactions',order:'Order New Card'};
 var mis = document.querySelectorAll('.mi');
@@ -153,6 +275,7 @@ function render(){
   renderTx();
   renderOrder();
   renderCard();
+  renderNotifications();
 }
 
 function badgeClass(s){
@@ -990,6 +1113,8 @@ loadFromServer(function(){
   loadPrices();
   loadExchangeRates();
   initCurrencySwitcher();
+  initNotifications();
+  renderNotifications();
   setInterval(loadPrices, 5 * 60 * 1000);
   setInterval(loadExchangeRates, 10 * 60 * 1000);
 });
