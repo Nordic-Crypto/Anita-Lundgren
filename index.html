@@ -1,0 +1,248 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>NordicCrypto</title><style>
+:root{--pri:#00d4ff;--pri2:#7c3aed;--acc:#00ffa3;--bg:#070a0f;--pan:rgba(22,30,42,.75);--pan2:#161e2a;--txt:#eef4ff;--mut:#7d8ba3;--bd:rgba(255,255,255,.07);--bd2:rgba(255,255,255,.14);--ok:#00e08a;--bad:#ff5470;--warn:#ffb020}
+*{box-sizing:border-box;margin:0;padding:0}html,body{height:100%}
+body{font-family:-apple-system,'Segoe UI',Roboto,sans-serif;background:var(--bg);color:var(--txt);display:flex;overflow:hidden}
+body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;background:radial-gradient(900px 500px at 15% -10%,rgba(0,212,255,.10),transparent 60%),radial-gradient(800px 500px at 100% 110%,rgba(124,58,237,.12),transparent 60%)}
+.side{width:250px;background:linear-gradient(180deg,rgba(19,26,36,.95),rgba(13,18,25,.95));border-right:1px solid var(--bd);display:flex;flex-direction:column;padding:24px 18px;position:relative;z-index:2}
+.brand{font-size:1.3rem;font-weight:800;margin-bottom:34px;display:flex;align-items:center;gap:11px}
+.blogo{width:34px;height:34px;border-radius:10px;background:linear-gradient(135deg,var(--pri),var(--pri2));display:flex;align-items:center;justify-content:center;font-size:1.05rem}
+.brand span{color:var(--pri)}
+.menu{list-style:none;flex:1;display:flex;flex-direction:column;gap:4px}
+.mi{padding:12px 14px;border-radius:10px;cursor:pointer;color:var(--mut);font-weight:500;font-size:.92rem;transition:.2s;display:flex;align-items:center;gap:13px;position:relative;user-select:none}
+.mi:hover{background:rgba(255,255,255,.045);color:var(--txt)}
+.mi.on{background:linear-gradient(90deg,rgba(0,212,255,.14),rgba(0,212,255,.03));color:var(--pri);box-shadow:inset 0 0 0 1px rgba(0,212,255,.18)}
+.mi.on::before{content:'';position:absolute;left:-18px;top:50%;transform:translateY(-50%);width:3px;height:22px;background:var(--pri);border-radius:0 3px 3px 0}
+.umi{border-top:1px solid var(--bd);padding-top:18px;display:flex;align-items:center;gap:12px}
+.av{width:42px;height:42px;background:linear-gradient(135deg,var(--pri),var(--pri2));border-radius:12px;display:flex;justify-content:center;align-items:center;font-weight:700;font-size:.9rem;color:#05070a;flex-shrink:0}
+.umi h4{font-size:.86rem;font-weight:600}.umi p{font-size:.72rem;color:var(--ok);margin-top:2px}
+.main{flex:1;display:flex;flex-direction:column;overflow:hidden;position:relative;z-index:1}
+.top{height:74px;background:rgba(13,18,25,.7);border-bottom:1px solid var(--bd);display:flex;justify-content:space-between;align-items:center;padding:0 32px;flex-shrink:0}
+.ttl{font-size:1.25rem;font-weight:700}
+.st{display:flex;align-items:center;gap:8px;font-size:.8rem;color:var(--mut);background:rgba(0,224,138,.07);border:1px solid rgba(0,224,138,.18);padding:7px 14px;border-radius:999px}
+.dot{width:8px;height:8px;border-radius:50%;background:var(--ok);box-shadow:0 0 10px var(--ok)}
+.body{flex:1;padding:32px;overflow-y:auto}
+.pg{display:none;animation:fade .35s ease}.pg.on{display:block}
+@keyframes fade{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+.grid{display:grid;grid-template-columns:1.6fr 1fr;gap:24px;align-items:start}
+.panel{background:var(--pan);border:1px solid var(--bd);border-radius:16px;padding:24px;box-shadow:0 20px 50px -20px rgba(0,0,0,.7)}
+.pay{background:radial-gradient(500px 200px at 100% 0%,rgba(0,212,255,.18),transparent 60%),linear-gradient(135deg,#1b2533 0%,#0a0e15 100%);border:1px solid rgba(255,255,255,.09);border-radius:20px;padding:26px;height:226px;display:flex;flex-direction:column;justify-content:space-between;box-shadow:0 30px 60px -30px rgba(0,0,0,.9);position:relative;overflow:hidden;margin-bottom:24px}
+.pay::after{content:'';position:absolute;top:-60%;right:-20%;width:340px;height:340px;background:radial-gradient(circle,rgba(124,58,237,.25),transparent 65%);pointer-events:none}
+.ptop{display:flex;justify-content:space-between;align-items:flex-start;position:relative;z-index:1}
+.pb{font-weight:800;letter-spacing:.14em;font-size:.82rem}
+.pt{font-size:.7rem;color:var(--mut);letter-spacing:.12em}
+.chip{width:46px;height:34px;background:linear-gradient(135deg,#ffd97a,#c98a12);border-radius:6px;position:relative;z-index:1}
+.pn{font-family:ui-monospace,Menlo,monospace;font-size:1.42rem;letter-spacing:.16em;position:relative;z-index:1}
+.pf{display:flex;justify-content:space-between;align-items:flex-end;position:relative;z-index:1}
+.pl{font-size:.62rem;color:var(--mut);letter-spacing:.14em;margin-bottom:4px}
+.pv{font-weight:600;font-size:.9rem;text-transform:uppercase}.pv.m{font-family:ui-monospace,Menlo,monospace}
+.bar{display:flex;gap:12px;flex-wrap:wrap}
+.btn{padding:12px 20px;border-radius:10px;border:none;font-weight:600;font-size:.9rem;cursor:pointer;transition:.2s;font-family:inherit;display:inline-flex;align-items:center;gap:8px}
+.btn:active{transform:scale(.97)}
+.b1{background:linear-gradient(135deg,var(--pri),#0090c9);color:#04121a;box-shadow:0 10px 24px -10px rgba(0,212,255,.8)}
+.b1:hover{filter:brightness(1.1)}
+.b2{background:rgba(255,255,255,.03);border:1px solid var(--bd2);color:var(--txt)}
+.b2:hover{background:rgba(255,255,255,.07)}
+.bl{color:var(--mut);font-size:.82rem;margin-bottom:10px;letter-spacing:.05em;text-transform:uppercase}
+.bv{font-size:2.6rem;font-weight:800;line-height:1;background:linear-gradient(135deg,#fff,#8fb8ff);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+.be{color:var(--mut);margin-top:10px;font-size:.95rem}
+.ma{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:22px}
+.mas{background:rgba(255,255,255,.03);border:1px solid var(--bd);border-radius:10px;padding:14px}
+.mas .t{font-size:.72rem;color:var(--mut);letter-spacing:.08em;margin-bottom:6px}
+.mas .v{font-size:1.05rem;font-weight:700;font-family:ui-monospace,monospace}
+.sh{margin-bottom:22px}.sh h2{font-size:1.4rem;font-weight:700}.sh p{color:var(--mut);font-size:.88rem;margin-top:5px}
+.fg{margin-bottom:18px}.fg label{display:block;margin-bottom:8px;color:var(--mut);font-size:.82rem;font-weight:500}
+.fc{width:100%;padding:13px 15px;background:rgba(7,10,15,.7);border:1px solid var(--bd2);border-radius:10px;color:var(--txt);font-size:.95rem;font-family:inherit;transition:.2s}
+.fc:focus{outline:none;border-color:var(--pri);box-shadow:0 0 0 4px rgba(0,212,255,.12)}
+.fc::placeholder{color:#4b5769}
+.fr{display:flex;gap:14px}
+.tbl{background:var(--pan);border:1px solid var(--bd);border-radius:16px;overflow:hidden}
+.tbl table{width:100%;border-collapse:collapse}
+.tbl th{text-align:left;color:var(--mut);font-size:.72rem;letter-spacing:.1em;text-transform:uppercase;padding:16px 22px;border-bottom:1px solid var(--bd);font-weight:600}
+.tbl td{padding:16px 22px;border-bottom:1px solid rgba(255,255,255,.04);font-size:.9rem}
+.tbl tr:last-child td{border-bottom:none}
+.empty{text-align:center;padding:60px 20px;color:var(--mut)}
+.badge{padding:4px 10px;border-radius:6px;font-size:.72rem;font-weight:600;background:rgba(0,224,138,.14);color:var(--ok);display:inline-block}
+.mask{position:fixed;inset:0;background:rgba(3,6,11,.75);display:none;justify-content:center;align-items:center;z-index:1000}
+.mask.on{display:flex}
+.box{background:linear-gradient(180deg,var(--pan2),#0f151e);padding:30px;border-radius:16px;width:420px;max-width:calc(100vw - 40px);border:1px solid var(--bd2);box-shadow:0 40px 90px -20px rgba(0,0,0,.9)}
+.box h2{margin-bottom:6px;font-size:1.25rem}.box .d{color:var(--mut);font-size:.86rem;margin-bottom:22px}
+.mact{display:flex;gap:10px;margin-top:24px}
+.toast{position:fixed;top:22px;right:22px;background:var(--pan2);border:1px solid var(--bd2);border-left:4px solid var(--ok);padding:15px 22px;border-radius:10px;box-shadow:0 20px 50px -10px rgba(0,0,0,.8);display:flex;align-items:center;gap:11px;transform:translateX(130%);transition:transform .35s cubic-bezier(.34,1.56,.64,1);z-index:2000;font-size:.9rem;max-width:380px}
+.toast.on{transform:translateX(0)}.toast .ic{font-size:1.1rem}
+@media(max-width:960px){.grid{grid-template-columns:1fr}.side{width:78px;padding:20px 12px}.brand .nm,.mi span:not(.ic),.umi .inf{display:none}.mi{justify-content:center}.umi{justify-content:center}}
+</style></head><body>
+
+<div class="side">
+<div class="brand"><div class="blogo">?</div><div class="nm">Nordic<span>Crypto</span></div></div>
+<ul class="menu">
+<li class="mi on" data-p="dash"><span class="ic">??</span><span>Dashboard</span></li>
+<li class="mi" data-p="cards"><span class="ic">??</span><span>My Cards</span></li>
+<li class="mi" data-p="assets"><span class="ic">??</span><span>Crypto Assets</span></li>
+<li class="mi" data-p="tx"><span class="ic">??</span><span>Transactions</span></li>
+<li class="mi" data-p="order"><span class="ic">??</span><span>Order New Card</span></li>
+</ul>
+<div class="umi"><div class="av">EL</div><div class="inf"><h4>Eva A. Lundgren</h4><p>? Premium Metal</p></div></div>
+</div>
+
+<div class="main">
+<div class="top"><div class="ttl" id="ttl">Dashboard</div><div class="st"><span class="dot"></span> Online</div></div>
+<div class="body">
+
+<div id="dash" class="pg on">
+<div class="grid">
+<div>
+<div class="pay">
+<div class="ptop"><div class="pb">NORDIC CRYPTO</div><div class="pt">METAL VISA</div></div>
+<div class="chip"></div>
+<div class="pn">4921 8842 1093 5542</div>
+<div class="pf">
+<div><div class="pl">CARD HOLDER</div><div class="pv">Eva Anita Lundgren</div></div>
+<div style="text-align:right"><div class="pl">EXPIRES</div><div class="pv m">09/28</div></div>
+</div>
+</div>
+<div class="sh"><h2>Quick Actions</h2></div>
+<div class="bar">
+<button class="btn b1" id="btnAdd">+ Add Funds</button>
+<button class="btn b2" id="btnTransfer">? Transfer</button>
+<button class="btn b2" id="btnCopy">? Copy Card</button>
+</div>
+</div>
+<div class="panel">
+<div class="bl">Total Balance</div>
+<div class="bv" id="bal">$0.00</div>
+<div class="be" id="balEur">˜ €0.00</div>
+<div class="ma">
+<div class="mas"><div class="t">BTC</div><div class="v" id="btcB">0.00000000</div></div>
+<div class="mas"><div class="t">ETH</div><div class="v" id="ethB">0.00000000</div></div>
+</div>
+</div>
+</div>
+</div>
+
+<div id="cards" class="pg">
+<div class="sh"><h2>My Payment Cards</h2><p>Manage your NordicCrypto Metal Visa card</p></div>
+<div class="pay" style="max-width:420px">
+<div class="ptop"><div class="pb">NORDIC CRYPTO</div><div class="pt">METAL VISA</div></div>
+<div class="chip"></div>
+<div class="pn">4921 8842 1093 5542</div>
+<div class="pf">
+<div><div class="pl">CARD HOLDER</div><div class="pv">Eva Anita Lundgren</div></div>
+<div style="text-align:right"><div class="pl">CVV</div><div class="pv m">842</div></div>
+</div>
+</div>
+</div>
+
+<div id="assets" class="pg">
+<div class="sh"><h2>Crypto Portfolio</h2><p>Your crypto holdings</p></div>
+<div class="ma" style="grid-template-columns:repeat(auto-fit,minmax(240px,1fr))">
+<div class="panel"><div class="t" style="font-size:.72rem;color:var(--mut)">BITCOIN (BTC)</div><div style="font-size:1.6rem;font-weight:700;margin-top:8px;font-family:ui-monospace,monospace" id="aBtc">0.00000000</div><div style="color:var(--mut);font-size:.85rem;margin-top:6px" id="aBtcU">˜ $0.00</div></div>
+<div class="panel"><div class="t" style="font-size:.72rem;color:var(--mut)">ETHEREUM (ETH)</div><div style="font-size:1.6rem;font-weight:700;margin-top:8px;font-family:ui-monospace,monospace" id="aEth">0.00000000</div><div style="color:var(--mut);font-size:.85rem;margin-top:6px" id="aEthU">˜ $0.00</div></div>
+</div>
+</div>
+
+<div id="tx" class="pg">
+<div class="sh"><h2>Transaction History</h2><p>All activity on your account</p></div>
+<div class="tbl"><table><thead><tr><th>Date</th><th>Description</th><th>Amount</th><th>Status</th></tr></thead><tbody id="txB"><tr><td colspan="4"><div class="empty"><div style="font-size:2.6rem;margin-bottom:12px;opacity:.5">??</div><div>No transactions yet</div></div></td></tr></tbody></table></div>
+</div>
+
+<div id="order" class="pg">
+<div class="sh"><h2>Order New Metal Card</h2><p>Get a premium NordicCrypto Metal Visa shipped to you</p></div>
+<div class="panel" style="max-width:640px">
+<h3 style="margin-bottom:18px;font-size:1.05rem">Shipping Details</h3>
+<div class="fr">
+<div class="fg" style="flex:2"><label>Full Name</label><input class="fc" id="oName" value="Eva Anita Lundgren"></div>
+<div class="fg" style="flex:1"><label>Card Type</label><select class="fc" id="oType"><option>Metal (Free)</option><option>Gold (+$100)</option></select></div>
+</div>
+<div class="fg"><label>Country</label><select class="fc" id="oCountry"><option>Norway</option><option>Sweden</option><option>Finland</option><option>Denmark</option><option>Germany</option><option>United Kingdom</option><option>United States</option></select></div>
+<div class="fg"><label>City</label><input class="fc" id="oCity" placeholder="e.g. Oslo"></div>
+<div class="fg"><label>Street Address</label><input class="fc" id="oStreet" placeholder="e.g. Karl Johans gate 1"></div>
+<div class="fr">
+<div class="fg" style="flex:1"><label>Postal Code</label><input class="fc" id="oZip" placeholder="0154"></div>
+<div class="fg" style="flex:1"><label>Phone</label><input class="fc" id="oPhone" placeholder="+47 ..."></div>
+</div>
+<button class="btn b1" style="width:100%;justify-content:center" id="btnOrder">Place Order</button>
+</div>
+</div>
+
+</div>
+</div>
+
+<div class="mask" id="mask">
+<div class="box">
+<h2 id="mTitle">Add Funds</h2>
+<p class="d" id="mDesc">Enter the amount you wish to add.</p>
+<div class="fg"><label>Amount (USD)</label><input type="number" class="fc" id="mAmount" placeholder="0.00" min="1"></div>
+<div class="fg"><label>Method</label><select class="fc" id="mMethod"><option>Bitcoin (BTC)</option><option>Ethereum (ETH)</option><option>Bank Transfer (SEPA)</option><option>Credit Card</option></select></div>
+<div class="mact">
+<button class="btn b1" style="flex:1;justify-content:center" id="mOk">Confirm</button>
+<button class="btn b2" style="flex:1;justify-content:center" id="mCancel">Cancel</button>
+</div>
+</div>
+</div>
+
+<div class="toast" id="toast"><span class="ic">?</span><span id="tMsg">OK</span></div>
+
+<script>
+var st={usd:0,btc:0,eth:0,btcP:68000,ethP:3200,eurR:.92,txs:[]};
+var mode=null,tt=null;
+function $(i){return document.getElementById(i)}
+function fmt(n){return '$'+Number(n).toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2})}
+function eurF(n){return '˜ €'+Number(n).toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2})}
+var titles={dash:'Dashboard',cards:'My Cards',assets:'Crypto Assets',tx:'Transactions',order:'Order New Card'};
+var mis=document.querySelectorAll('.mi');
+for(var i=0;i<mis.length;i++){mis[i].onclick=function(){
+  var p=this.getAttribute('data-p');
+  var pgs=document.querySelectorAll('.pg');
+  for(var j=0;j<pgs.length;j++)pgs[j].classList.remove('on');
+  $(p).classList.add('on');
+  var ms=document.querySelectorAll('.mi');
+  for(var k=0;k<ms.length;k++)ms[k].classList.remove('on');
+  this.classList.add('on');
+  $('ttl').textContent=titles[p];
+}}
+function render(){
+  $('bal').textContent=fmt(st.usd);
+  $('balEur').textContent=eurF(st.usd*st.eurR);
+  $('btcB').textContent=st.btc.toFixed(8);
+  $('ethB').textContent=st.eth.toFixed(8);
+  $('aBtc').textContent=st.btc.toFixed(8);
+  $('aEth').textContent=st.eth.toFixed(8);
+  $('aBtcU').textContent='˜ '+fmt(st.btc*st.btcP);
+  $('aEthU').textContent='˜ '+fmt(st.eth*st.ethP);
+  renderTx();
+}
+function renderTx(){
+  var b=$('txB');
+  if(st.txs.length===0){b.innerHTML='<tr><td colspan="4"><div class="empty"><div style="font-size:2.6rem;margin-bottom:12px;opacity:.5">??</div><div>No transactions yet</div></div></td></tr>';return}
+  var h='';
+  for(var i=0;i<st.txs.length;i++){var t=st.txs[i];var c=t.amt>=0?'var(--ok)':'var(--bad)';var s=t.amt>=0?'+':'';h+='<tr><td>'+t.date+'</td><td>'+t.desc+'</td><td style="color:'+c+';font-weight:600">'+s+fmt(t.amt)+'</td><td><span class="badge">'+t.status+'</span></td></tr>'}
+  b.innerHTML=h;
+}
+function addTx(d,a){st.txs.unshift({date:new Date().toISOString().slice(0,10),desc:d,amt:a,status:'Completed'});renderTx()}
+function openModal(m){mode=m;$('mTitle').textContent=m==='add'?'Add Funds':'Transfer Funds';$('mDesc').textContent=m==='add'?'Enter the amount you wish to deposit.':'Enter the amount you wish to send.';$('mAmount').value='';$('mask').classList.add('on');setTimeout(function(){$('mAmount').focus()},100)}
+function closeModal(){$('mask').classList.remove('on');mode=null}
+function toast(msg,warn){var t=$('toast');var ic=t.querySelector('.ic');$('tMsg').textContent=msg;if(warn){t.style.borderLeftColor='var(--warn)';ic.style.color='var(--warn)';ic.textContent='?'}else{t.style.borderLeftColor='var(--ok)';ic.style.color='var(--ok)';ic.textContent='?'}t.classList.add('on');clearTimeout(tt);tt=setTimeout(function(){t.classList.remove('on')},3200)}
+document.getElementById('btnAdd').onclick=function(){openModal('add')};
+document.getElementById('btnTransfer').onclick=function(){openModal('transfer')};
+document.getElementById('mCancel').onclick=closeModal;
+document.getElementById('mOk').onclick=function(){
+  var a=Number($('mAmount').value);var m=$('mMethod').value;
+  if(!a||a<=0){toast('Please enter a valid amount',true);return}
+  if(mode==='add'){st.usd+=a;addTx('Deposit via '+m,a);toast('Added '+fmt(a))}
+  else{if(a>st.usd){toast('Insufficient balance',true);return}st.usd-=a;addTx('Transfer via '+m,-a);toast('Sent '+fmt(a))}
+  closeModal();render();
+};
+document.getElementById('btnCopy').onclick=function(){
+  var n='4921884210935542';
+  if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(n).then(function(){toast('Card number copied')}).catch(function(){toast('Card number copied')})}
+  else{toast('Card number copied')}
+};
+document.getElementById('btnOrder').onclick=function(){
+  var n=$('oName').value.trim();var c=$('oCity').value.trim();var s=$('oStreet').value.trim();var z=$('oZip').value.trim();var p=$('oPhone').value.trim();
+  if(!n||!c||!s||!z||!p){toast('Please fill in all fields',true);return}
+  toast('Order placed! Card is on the way.');
+  $('oCity').value='';$('oStreet').value='';$('oZip').value='';$('oPhone').value='';
+};
+render();
+</script>
+</body></html>
