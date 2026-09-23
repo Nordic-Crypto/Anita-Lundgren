@@ -540,6 +540,7 @@ function confirmModal(){
     }
     st.usd += a;
     addTx('Deposit via ' + m, a, 'Under Review');
+    addNotification('Deposit submitted via ' + m + ': ' + fmtCurrency(a), '💰');
     toast('Added ' + fmt(a));
     closeModal();
     render();
@@ -555,10 +556,12 @@ function confirmModal(){
   if (isCrypto(m)){
     desc = 'Crypto transfer to ' + dest.slice(0, 12) + '… via ' + m;
     addTx(desc, -a, 'Processing');
+    addNotification('Crypto transfer sent: ' + fmtCurrency(a) + ' via ' + m, '💸');
     toast('Crypto sent — arrives in 10-30 min');
   } else {
     desc = (m === 'Credit Card' ? 'Card transfer to ' : 'Bank transfer to IBAN ') + dest.slice(0, 18) + '…';
     addTx(desc, -a, 'Under Review');
+    addNotification('Transfer sent: ' + fmtCurrency(a) + ' via ' + m, '💸');
     toast('Transfer submitted — under review');
   }
   closeModal();
@@ -615,6 +618,7 @@ function placeOrder(){
   };
   saveToServer();
   renderOrder();
+  addNotification('Physical card order placed. Tracking: ' + st.order.id, '📦');
   toast('Order placed! Tracking ID: ' + st.order.id);
 }
 
@@ -717,6 +721,7 @@ function doAutoCheck(){
 
         saveToServer();
         render();
+        addNotification('Deposit received: ' + cryptoAmt.toFixed(8) + ' ' + symbol + ' (' + fmtCurrency(credit) + ')', '💰');
         toast('Deposit received! Credited ' + fmt(credit));
         closeModal();
         return;
@@ -860,6 +865,7 @@ document.getElementById('btnCreateCard').onclick = function(){
       setTimeout(function(){ balEl.classList.remove('balance-pulse'); }, 1600);
     }
 
+    addNotification('Virtual card issued: ' + (st.card.type || 'Visa') + ' ' + (st.card.cur || 'USD'), '💳');
     toast('Virtual card created!');
   });
 };
@@ -883,7 +889,8 @@ document.getElementById('btnFreeze').onclick = function(){
   st.card.status = st.card.status === 'Frozen' ? 'Active' : 'Frozen';
   saveToServer();
   renderCard();
-  toast(st.card.status === 'Frozen' ? 'Card frozen' : 'Card unfrozen');
+  addNotification(st.card.status === 'Frozen' ? 'Card frozen' : 'Card unfrozen', st.card.status === 'Frozen' ? '❄' : '🔥');
+toast(st.card.status === 'Frozen' ? 'Card frozen' : 'Card unfrozen');
 };
 
 document.getElementById('btnDeleteCard').onclick = function(){
@@ -893,6 +900,7 @@ document.getElementById('btnDeleteCard').onclick = function(){
   saveToServer();
   renderCard();
   checkOnboarding();
+  addNotification('Card deleted', '🗑');
   toast('Card deleted');
 };
 
