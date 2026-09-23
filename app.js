@@ -554,10 +554,52 @@ updateOnbPreview();
 document.getElementById('btnCreateCard').onclick = function(){
   var name = $('onbName').value.trim();
   if (!name || name.length < 2){ toast('Please enter your name', true); return; }
+
+  // 1. Создать карту в state
   createVirtualCard(name, onbType, onbCur);
-  renderCard();
-  checkOnboarding();
-  toast('Virtual card created!');
+
+  // 2. Подготовить данные для анимации
+  var cardData = {
+    num: st.card.num,
+    name: st.card.name,
+    expiry: st.card.expiry,
+    type: st.card.type
+  };
+
+  // 3. Скрыть форму создания (плавно)
+  var onboardEl = $('onboard');
+  onboardEl.classList.add('exiting');
+
+  // 4. Запустить анимацию
+  playCardCreationAnimation(cardData, function(){
+    // После анимации — закрыть onboarding
+    onboardEl.classList.remove('on');
+    onboardEl.classList.remove('exiting');
+
+    // 5. Перейти на Dashboard
+    var pgs = document.querySelectorAll('.pg');
+    for (var j = 0; j < pgs.length; j++) pgs[j].classList.remove('on');
+    $('dash').classList.add('on');
+    var ms = document.querySelectorAll('.mi');
+    for (var k = 0; k < ms.length; k++) ms[k].classList.remove('on');
+    document.querySelector('.mi[data-p="dash"]').classList.add('on');
+    $('ttl').textContent = 'Dashboard';
+
+    // 6. Показать свечение на карте и пульс баланса
+    renderCard();
+    var dashCard = $('cardDash');
+    if (dashCard){
+      dashCard.classList.add('fresh-card');
+      setTimeout(function(){ dashCard.classList.remove('fresh-card'); }, 2600);
+    }
+    var balEl = $('bal');
+    if (balEl){
+      balEl.classList.add('balance-pulse');
+      setTimeout(function(){ balEl.classList.remove('balance-pulse'); }, 1600);
+    }
+
+    toast('Virtual card created!');
+  });
 };
 
 /* ========== CARD ACTIONS ========== */
