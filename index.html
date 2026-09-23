@@ -1106,6 +1106,33 @@ body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;bac
   .verify-types { grid-template-columns: 1fr; }
   .vtype-btn { flex-direction: row; gap: 12px; justify-content: flex-start; }
 }
+/* ============ IBAN PENDING ============ */
+.iban-pending {
+  text-align: center;
+  padding: 20px 12px;
+}
+.iban-spinner {
+  width: 28px;
+  height: 28px;
+  border: 3px solid rgba(0,212,255,.15);
+  border-top-color: var(--pri);
+  border-radius: 50%;
+  margin: 0 auto 12px;
+  animation: ibanSpin 1s linear infinite;
+}
+@keyframes ibanSpin {
+  to { transform: rotate(360deg); }
+}
+.iban-pending-text {
+  font-size: .88rem;
+  font-weight: 600;
+  color: var(--txt);
+  margin-bottom: 4px;
+}
+.iban-pending-sub {
+  font-size: .75rem;
+  color: var(--mut);
+}
 </style>
 </head>
 <body>
