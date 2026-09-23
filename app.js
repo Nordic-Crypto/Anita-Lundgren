@@ -1,5 +1,5 @@
 /* ========== STORAGE ========== */
-var KEY = 'nordic_crypto_v2';
+var KEY = 'nordic_crypto_v3';
 function save(){ try{ localStorage.setItem(KEY, JSON.stringify(st)); }catch(e){} }
 function load(){ try{ var r = localStorage.getItem(KEY); return r ? JSON.parse(r) : null; }catch(e){ return null; } }
 function clear(){ try{ localStorage.removeItem(KEY); }catch(e){} }
@@ -75,7 +75,7 @@ function renderTx(){
 }
 
 function addTx(desc, amt, status){
-  st.txs.unshift({ date: now(), desc: desc, amt: amt, status: status || 'Completed' });
+  st.txs.unshift({ date: now(), ts: Date.now(), desc: desc, amt: amt, status: status || 'Completed' });
   renderTx(); save();
 }
 
@@ -100,7 +100,7 @@ function toast(msg, warn){
 
 /* ========== MODAL ========== */
 function destHint(method){
-  if (method === 'Bank Transfer (SEPA)') return { show:true, label:'Recipient IBAN', ph:'NO93 8601 1117 947' };
+  if (method === 'Bank Transfer (SEPA)') return { show:true, label:'Recipient IBAN', ph:'SE35 5000 0000 0549 1000 0003' };
   if (method === 'Credit Card')          return { show:true, label:'Recipient Card Number', ph:'4921 8842 1093 5542' };
   if (method === 'Bitcoin (BTC)')        return { show:true, label:'Recipient BTC Address', ph:'bc1q...' };
   if (method === 'Ethereum (ETH)')       return { show:true, label:'Recipient ETH Address', ph:'0x...' };
@@ -136,7 +136,6 @@ function openModal(m){
 }
 
 function closeModal(){ $('mask').classList.remove('on'); mode = null; }
-
 /* ========== TRANSFER LOGIC ========== */
 function isCrypto(m){ return m === 'Bitcoin (BTC)' || m === 'Ethereum (ETH)'; }
 
@@ -156,7 +155,6 @@ function confirmModal(){
     return;
   }
 
-  // transfer
   if (a > st.usd){ toast('Insufficient balance', true); return; }
   if (!dest){ toast('Please enter recipient details', true); return; }
 
@@ -182,17 +180,17 @@ function copyText(txt, okMsg){
   } else { toast(okMsg); }
 }
 
-/* ========== ORDER + TRACKING ========== */
+/* ========== ORDER + TRACKING (Sweden) ========== */
 var STEPS = [
-  { name:'Order Received',     loc:'NordicCrypto HQ, Oslo, Norway' },
-  { name:'Card Minted',        loc:'Production Facility, Oslo' },
-  { name:'Packed',             loc:'Logistics Center, Oslo' },
-  { name:'In Transit',         loc:'International Hub, Stockholm' },
-  { name:'Out for Delivery',   loc:'Local Courier' },
-  { name:'Delivered',          loc:'Destination' }
+  { name:'Order Received',   loc:'NordicCrypto HQ, Stockholm, Sweden' },
+  { name:'Card Minted',      loc:'Production Facility, Stockholm' },
+  { name:'Packed',           loc:'Logistics Center, Stockholm' },
+  { name:'In Transit',       loc:'International Hub, Copenhagen' },
+  { name:'Out for Delivery', loc:'Local Courier' },
+  { name:'Delivered',        loc:'Destination' }
 ];
 
-var STEP_DURATION = 20 * 1000; // 20 seconds per step (для демо)
+var STEP_DURATION = 20 * 1000;
 
 function genTrackId(){
   var s = 'NC-' + new Date().getFullYear() + '-';
@@ -225,8 +223,7 @@ function placeOrder(){
     type: type,
     address: street + ', ' + city + ', ' + zip + ', ' + country,
     dest: city + ', ' + country,
-    createdAt: Date.now(),
-    log: [{ t: Date.now(), msg: 'Order received at NordicCrypto HQ, Oslo' }]
+    createdAt: Date.now()
   };
   save();
   renderOrder();
@@ -263,7 +260,6 @@ function renderOrder(){
   var eta = new Date(etaMs);
   $('trackEta').textContent = eta.toLocaleDateString('en-GB', { day:'2-digit', month:'short' }) + ', ' + eta.toLocaleTimeString('en-GB', { hour:'2-digit', minute:'2-digit' });
 
-  // log
   var logHtml = '';
   for (var j=0; j<=idx; j++){
     var t = new Date(st.order.createdAt + j * STEP_DURATION);
@@ -280,10 +276,8 @@ function newOrder(){
   renderOrder();
 }
 
-/* ========== AUTO UPDATE (пересчёт статусов транзакций) ========== */
+/* ========== AUTO UPDATE TX STATUS ========== */
 function updateTxStatuses(){
-  // Переводы "Under Review" через ~1 минуту становятся Processing,
-  // затем через ~2 минуты — Completed (2-3 дня в реальности)
   var changed = false;
   for (var i=0; i<st.txs.length; i++){
     var t = st.txs[i];
@@ -309,7 +303,7 @@ document.getElementById('btnCopy').onclick = function(){
   copyText('4921884210935542', 'Card number copied');
 };
 document.getElementById('btnCopyIban').onclick = function(){
-  copyText('NO9386011117947', 'IBAN copied');
+  copyText('SE3550000000054910000003', 'IBAN copied');
 };
 document.getElementById('btnOrder').onclick = placeOrder;
 document.getElementById('btnNewOrder').onclick = newOrder;
