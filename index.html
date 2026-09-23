@@ -1133,6 +1133,118 @@ body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;bac
   font-size: .75rem;
   color: var(--mut);
 }
+/* ============ CARD DESIGNS (Revolut-style) ============ */
+.pay.design-cosmic {
+  background:
+    radial-gradient(500px 200px at 100% 0%, rgba(0,212,255,.25), transparent 60%),
+    radial-gradient(400px 250px at 0% 100%, rgba(124,58,237,.3), transparent 60%),
+    linear-gradient(135deg, #1b2533 0%, #0a0e15 100%);
+  border: 1px solid rgba(255,255,255,.1);
+}
+.pay.design-purple {
+  background:
+    radial-gradient(500px 200px at 100% 0%, rgba(236,72,153,.4), transparent 60%),
+    radial-gradient(400px 250px at 0% 100%, rgba(124,58,237,.5), transparent 60%),
+    linear-gradient(135deg, #4c1d95 0%, #831843 100%);
+  border: 1px solid rgba(255,255,255,.15);
+}
+.pay.design-silver {
+  background:
+    radial-gradient(500px 200px at 100% 0%, rgba(255,255,255,.5), transparent 60%),
+    linear-gradient(135deg, #d4d4d8 0%, #a1a1aa 50%, #71717a 100%);
+  border: 1px solid rgba(255,255,255,.3);
+}
+.pay.design-silver .pb,
+.pay.design-silver .pn,
+.pay.design-silver .pv,
+.pay.design-silver .pl {
+  color: #18181b;
+}
+.pay.design-silver .pt {
+  color: #52525b;
+}
+.pay.design-black {
+  background:
+    radial-gradient(500px 200px at 100% 0%, rgba(255,255,255,.08), transparent 60%),
+    linear-gradient(135deg, #18181b 0%, #09090b 100%);
+  border: 1px solid rgba(255,255,255,.15);
+}
+.pay.design-gold {
+  background:
+    radial-gradient(500px 200px at 100% 0%, rgba(255,237,160,.5), transparent 60%),
+    linear-gradient(135deg, #b8860b 0%, #8b6508 40%, #6b4e08 100%);
+  border: 1px solid rgba(255,215,0,.4);
+}
+.pay.design-gold .chip {
+  background: linear-gradient(135deg, #fff5c2, #d4a017 60%, #8a6508);
+  box-shadow: 0 0 12px rgba(255,215,0,.6);
+}
+
+/* ============ DESIGN PICKER ============ */
+.design-picker {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 10px;
+  margin-bottom: 8px;
+}
+.design-opt {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  padding: 10px 4px;
+  background: rgba(255,255,255,.03);
+  border: 2px solid var(--bd);
+  border-radius: 12px;
+  cursor: pointer;
+  font-family: inherit;
+  color: var(--txt);
+  font-size: .7rem;
+  font-weight: 600;
+  transition: .2s;
+}
+.design-opt:hover {
+  border-color: var(--bd2);
+  background: rgba(255,255,255,.06);
+}
+.design-opt.on {
+  border-color: var(--pri);
+  background: rgba(0,212,255,.08);
+  box-shadow: 0 0 0 3px rgba(0,212,255,.15);
+}
+.design-preview {
+  width: 100%;
+  height: 34px;
+  border-radius: 6px;
+  box-shadow: 0 2px 8px rgba(0,0,0,.4);
+}
+.design-preview.cosmic {
+  background:
+    radial-gradient(100px 40px at 100% 0%, rgba(0,212,255,.5), transparent 60%),
+    linear-gradient(135deg, #1b2533 0%, #0a0e15 100%);
+}
+.design-preview.purple {
+  background:
+    radial-gradient(100px 40px at 100% 0%, rgba(236,72,153,.6), transparent 60%),
+    linear-gradient(135deg, #4c1d95 0%, #831843 100%);
+}
+.design-preview.silver {
+  background: linear-gradient(135deg, #e4e4e7 0%, #a1a1aa 50%, #71717a 100%);
+}
+.design-preview.black {
+  background: linear-gradient(135deg, #27272a 0%, #09090b 100%);
+}
+.design-preview.gold {
+  background:
+    radial-gradient(100px 40px at 100% 0%, rgba(255,237,160,.7), transparent 60%),
+    linear-gradient(135deg, #b8860b 0%, #6b4e08 100%);
+}
+
+@media (max-width: 540px) {
+  .design-picker {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
 </style>
 </head>
 <body>
