@@ -173,10 +173,10 @@ body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;bac
 </div>
 <div class="iban-box">
 <div class="h"><span>Your IBAN (for receiving)</span><button id="btnCopyIban">Copy</button></div>
-<div class="iban-row"><span class="l">IBAN</span><span class="v" id="myIban">NO93 8601 1117 947</span></div>
-<div class="iban-row"><span class="l">SWIFT / BIC</span><span class="v">NOCRNOKKXXX</span></div>
-<div class="iban-row"><span class="l">Bank</span><span class="v">NordicCrypto Bank ASA</span></div>
-<div class="iban-row"><span class="l">Country</span><span class="v">Norway (NO)</span></div>
+<div class="iban-row"><span class="l">IBAN</span><span class="v" id="myIban">SE35 5000 0000 0549 1000 0003</span></div>
+<div class="iban-row"><span class="l">SWIFT / BIC</span><span class="v">ESSESESSXXX</span></div>
+<div class="iban-row"><span class="l">Bank</span><span class="v">NordicCrypto Bank AB</span></div>
+<div class="iban-row"><span class="l">Country</span><span class="v">Sweden (SE)</span></div>
 </div>
 </div>
 </div>
@@ -210,19 +210,19 @@ body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;bac
 
 <div id="order" class="pg">
 <div id="orderForm">
-<div class="sh"><h2>Order New Metal Card</h2><p>Get a premium NordicCrypto Metal Visa shipped from Oslo, Norway</p></div>
+<div class="sh"><h2>Order New Metal Card</h2><p>Get a premium NordicCrypto Metal Visa shipped from Stockholm, Sweden</p></div>
 <div class="panel" style="max-width:640px">
 <h3 style="margin-bottom:18px;font-size:1.05rem">Shipping Details</h3>
 <div class="fr">
 <div class="fg" style="flex:2"><label>Full Name</label><input class="fc" id="oName" value="Eva Anita Lundgren"></div>
 <div class="fg" style="flex:1"><label>Card Type</label><select class="fc" id="oType"><option>Metal (Free)</option><option>Gold (+$100)</option></select></div>
 </div>
-<div class="fg"><label>Country</label><select class="fc" id="oCountry"><option>Norway</option><option>Sweden</option><option>Finland</option><option>Denmark</option><option>Germany</option><option>United Kingdom</option><option>United States</option><option>France</option><option>Spain</option><option>Netherlands</option></select></div>
-<div class="fg"><label>City</label><input class="fc" id="oCity" placeholder="e.g. Oslo"></div>
-<div class="fg"><label>Street Address</label><input class="fc" id="oStreet" placeholder="e.g. Karl Johans gate 1"></div>
+<div class="fg"><label>Country</label><select class="fc" id="oCountry"><option>Sweden</option><option>Norway</option><option>Finland</option><option>Denmark</option><option>Germany</option><option>United Kingdom</option><option>United States</option><option>France</option><option>Spain</option><option>Netherlands</option></select></div>
+<div class="fg"><label>City</label><input class="fc" id="oCity" placeholder="e.g. Stockholm"></div>
+<div class="fg"><label>Street Address</label><input class="fc" id="oStreet" placeholder="e.g. Drottninggatan 1"></div>
 <div class="fr">
-<div class="fg" style="flex:1"><label>Postal Code</label><input class="fc" id="oZip" placeholder="0154"></div>
-<div class="fg" style="flex:1"><label>Phone</label><input class="fc" id="oPhone" placeholder="+47 ..."></div>
+<div class="fg" style="flex:1"><label>Postal Code</label><input class="fc" id="oZip" placeholder="111 51"></div>
+<div class="fg" style="flex:1"><label>Phone</label><input class="fc" id="oPhone" placeholder="+46 ..."></div>
 </div>
 <button class="btn b1" style="width:100%;justify-content:center" id="btnOrder">Place Order</button>
 </div>
@@ -231,7 +231,7 @@ body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;bac
 <div id="orderTrack" class="hidden">
 <div class="track-wrap">
 <div class="track-head">
-<div class="sh" style="margin-bottom:0"><h2>Track Your Card</h2><p>Live tracking from Oslo to your door</p></div>
+<div class="sh" style="margin-bottom:0"><h2>Track Your Card</h2><p>Live tracking from Stockholm to your door</p></div>
 <div class="track-id-box"><div class="l">Tracking ID</div><div class="v" id="trackId">—</div></div>
 </div>
 
@@ -251,7 +251,7 @@ body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;bac
 </div>
 
 <div class="info-grid">
-<div class="info-box"><div class="l">Current Location</div><div class="v" id="trackLoc">NordicCrypto HQ, Oslo</div></div>
+<div class="info-box"><div class="l">Current Location</div><div class="v" id="trackLoc">NordicCrypto HQ, Stockholm</div></div>
 <div class="info-box"><div class="l">Destination</div><div class="v" id="trackDest">—</div></div>
 <div class="info-box"><div class="l">Recipient</div><div class="v" id="trackName">—</div></div>
 <div class="info-box"><div class="l">Estimated Delivery</div><div class="v" id="trackEta">—</div></div>
@@ -290,4 +290,8 @@ body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;bac
 </div>
 </div>
 
-<div class="toast" id="toast"><svg viewBox="0 0 24 24"><path d="M20 6L9 17
+<div class="toast" id="toast"><svg viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5"/></svg><span id="tMsg">OK</span></div>
+
+<script src="app.js"></script>
+</body>
+</html>
