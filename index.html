@@ -745,6 +745,42 @@ body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;bac
     width: 100vw;
   }
 }
+/* ============ ENABLE SOUND BUTTON ============ */
+.sound-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 7px 12px;
+  background: rgba(255,176,32,.15);
+  border: 1px solid rgba(255,176,32,.5);
+  border-radius: 999px;
+  color: var(--warn);
+  cursor: pointer;
+  font-family: inherit;
+  font-size: .78rem;
+  font-weight: 600;
+  transition: .2s;
+  animation: soundPulse 1.8s infinite;
+}
+.sound-btn:hover {
+  background: rgba(255,176,32,.25);
+}
+.sound-btn svg {
+  width: 14px;
+  height: 14px;
+  stroke: currentColor;
+  fill: none;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+.sound-btn.hidden {
+  display: none;
+}
+@keyframes soundPulse {
+  0%,100% { box-shadow: 0 0 0 0 rgba(255,176,32,.4); }
+  50% { box-shadow: 0 0 0 8px rgba(255,176,32,0); }
+}
 </style>
 </head>
 <body>
@@ -786,6 +822,10 @@ body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;bac
     </div>
   </div>
   <div class="notif-bell" id="notifBell" title="Notifications"><svg viewBox="0 0 24 24"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 01-3.46 0"/></svg><span class="notif-badge" id="notifBadge" style="display:none">0</span></div>
+  <button class="sound-btn" id="soundBtn" title="Enable notification sound">
+  <svg viewBox="0 0 24 24"><path d="M11 5L6 9H2v6h4l5 4V5z"/><path d="M15.54 8.46a5 5 0 010 7.07M19.07 4.93a10 10 0 010 14.14"/></svg>
+  <span>Enable sound</span>
+</button>
   <div class="st"><span class="dot"></span> Online</div>
 </div>
   </div>
