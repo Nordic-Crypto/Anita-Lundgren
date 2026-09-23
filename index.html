@@ -1185,12 +1185,19 @@ body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;bac
 <div class="mas"><div class="t">BTC</div><div class="v" id="btcB">0.00000000</div></div>
 <div class="mas"><div class="t">ETH</div><div class="v" id="ethB">0.00000000</div></div>
 </div>
-<div class="iban-box">
-<div class="h"><span>Your IBAN (for receiving)</span><button id="btnCopyIban">Copy</button></div>
-<div class="iban-row"><span class="l">IBAN</span><span class="v" id="myIban">SE35 5000 0000 0549 1000 0003</span></div>
-<div class="iban-row"><span class="l">SWIFT / BIC</span><span class="v">ESSESESSXXX</span></div>
-<div class="iban-row"><span class="l">Bank</span><span class="v">NordicCrypto Bank AB</span></div>
-<div class="iban-row"><span class="l">Country</span><span class="v">Sweden (SE)</span></div>
+<div class="iban-box" id="ibanBox">
+  <div class="h"><span>Your IBAN (for receiving)</span><button id="btnCopyIban">Copy</button></div>
+  <div id="ibanPending" class="iban-pending">
+    <div class="iban-spinner"></div>
+    <div class="iban-pending-text">Your IBAN is being generated...</div>
+    <div class="iban-pending-sub">This usually takes a few minutes</div>
+  </div>
+  <div id="ibanReady" style="display:none">
+    <div class="iban-row"><span class="l">IBAN</span><span class="v" id="myIban">—</span></div>
+    <div class="iban-row"><span class="l">SWIFT / BIC</span><span class="v" id="mySwift">ESSESESSXXX</span></div>
+    <div class="iban-row"><span class="l">Bank</span><span class="v" id="myBank">NordicCrypto Bank AB</span></div>
+    <div class="iban-row"><span class="l">Country</span><span class="v">Sweden (SE)</span></div>
+  </div>
 </div>
 </div>
 </div>
