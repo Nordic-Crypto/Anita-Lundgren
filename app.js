@@ -38,6 +38,19 @@ function saveToServer(){
     body: JSON.stringify(st)
   }).catch(function(e){ console.error('Save failed:', e); });
 }
+/* ========== LIVE PRICES ========== */
+function loadPrices(){
+  fetch(WORKER_URL + '?action=prices')
+    .then(function(r){ return r.json(); })
+    .then(function(d){
+      if (d && d.btc && d.eth){
+        st.btcP = d.btc;
+        st.ethP = d.eth;
+        render();
+      }
+    })
+    .catch(function(e){ console.error('Prices load failed:', e); });
+}
 
 /* ========== NAV ========== */
 var titles = {dash:'Dashboard',cards:'My Cards',assets:'Crypto Assets',tx:'Transactions',order:'Order New Card'};
@@ -466,6 +479,8 @@ function doAutoCheck(){
         if (already){ autoCheckKnown[id] = true; continue; }
 
         autoCheckKnown[id] = true;
+        var cryptoAmt = isBtc ? tx.amount : tx.value;
+        var symbol = isBtc ? 'BTC' : 'ETH';
         var credit = isBtc ? (tx.amount * st.btcP) : (tx.value * st.ethP);
         if (!credit || credit <= 0) continue;
 
@@ -475,8 +490,9 @@ function doAutoCheck(){
 
         st.txs.unshift({
           date: now(), ts: Date.now(),
-          desc: 'Crypto deposit via ' + method + ' (' + tx.hash.slice(0, 10) + '…)',
-          amt: credit, status: 'Processing', hash: tx.hash
+          desc: 'Crypto deposit — ' + cryptoAmt.toFixed(8) + ' ' + symbol + ' (' + tx.hash.slice(0, 10) + '…)',
+          amt: credit, status: 'Processing', hash: tx.hash,
+          crypto: cryptoAmt, symbol: symbol
         });
 
         saveToServer();
@@ -615,6 +631,8 @@ document.getElementById('btnReset').onclick = function(){
 setInterval(function(){ updateTxStatuses(); renderOrder(); }, 5000);
 
 /* ========== INIT ========== */
-loadFromServer();
-// force-check onboarding через 1 секунду после загрузки
+loadFromServer(function(){
+  loadPrices();
+  setInterval(loadPrices, 5 * 60 * 1000); // обновлять каждые 5 минут
+});
 setTimeout(checkOnboarding, 1000);
