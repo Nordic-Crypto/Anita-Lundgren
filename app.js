@@ -1206,7 +1206,13 @@ document.getElementById('btnCopy').onclick = function(){
   if (!st.card){ toast('No card yet', true); return; }
   copyText(st.card.num, 'Card number copied');
 };
-document.getElementById('btnCopyIban').onclick = function(){ copyText('SE3550000000054910000003','IBAN copied'); };
+document.getElementById('btnCopyIban').onclick = function(){
+  if (st.user && st.user.iban){
+    copyText(st.user.iban, 'IBAN copied');
+  } else {
+    toast('IBAN is not ready yet', true);
+  }
+};
 document.getElementById('btnOrder').onclick = placeOrder;
 var btnNO = document.getElementById('btnNewOrder');
 if (btnNO) btnNO.onclick = newOrder;
