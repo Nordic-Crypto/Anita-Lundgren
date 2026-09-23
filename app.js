@@ -792,7 +792,7 @@ function spawnConfetti(){
   if (!wrap) return;
   wrap.innerHTML = '';
 
-  var total = 60;
+  var total = 30;
   var types = ['coin', 'spark', 'crystal', 'star'];
   var symbols = ['₿', 'Ξ', '', ''];
 
