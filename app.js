@@ -853,7 +853,7 @@ function playTone(freq, duration, type, volume){
     var gain = ctx.createGain();
     osc.type = type || 'sine';
     osc.frequency.value = freq;
-    gain.gain.value = volume || 0.05;
+    gain.gain.value = (volume || 0.05) * 4;
     gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + duration);
     osc.connect(gain);
     gain.connect(ctx.destination);
