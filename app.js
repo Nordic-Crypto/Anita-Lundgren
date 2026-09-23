@@ -1119,3 +1119,16 @@ loadFromServer(function(){
   setInterval(loadExchangeRates, 10 * 60 * 1000);
 });
 setTimeout(checkOnboarding, 1000);
+
+/* ========== AUDIO KEEP-ALIVE ========== */
+// Будим AudioContext сразу при загрузке
+setTimeout(function(){
+  var ctx = getAudioCtx();
+  if (ctx && ctx.state === 'suspended') ctx.resume();
+}, 500);
+
+// Каждые 20 секунд — тихая "проверка", чтобы контекст не засыпал
+setInterval(function(){
+  var ctx = getAudioCtx();
+  if (ctx && ctx.state === 'suspended') ctx.resume();
+}, 20000);
