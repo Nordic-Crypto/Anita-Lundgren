@@ -599,7 +599,8 @@ document.getElementById('btnCopy').onclick = function(){
 };
 document.getElementById('btnCopyIban').onclick = function(){ copyText('SE3550000000054910000003','IBAN copied'); };
 document.getElementById('btnOrder').onclick = placeOrder;
-document.getElementById('btnNewOrder').onclick = newOrder;
+var btnNO = document.getElementById('btnNewOrder');
+if (btnNO) btnNO.onclick = newOrder;
 
 document.getElementById('btnReset').onclick = function(){
   if (!confirm('Reset ALL data? Balance, transactions, card and orders will be cleared.')) return;
