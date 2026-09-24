@@ -301,6 +301,12 @@ function hideLoginScreen() {
 }
 
 function showApp() {
+  // Проверка роли — если admin, показываем админ-панель
+  if (isAdmin()) {
+    showAdminPanel();
+    return;
+  }
+
   var side = document.getElementById('sideBar');
   var main = document.getElementById('mainApp');
   if (side) side.style.display = 'flex';
@@ -323,6 +329,7 @@ function showApp() {
     initWelcomeBanner();
     initLoginLogout();
     initSettings();
+    initAdminPanel();
     loadCharts();
     setInterval(loadPrices, 5 * 60 * 1000);
     setInterval(loadExchangeRates, 10 * 60 * 1000);
@@ -2657,6 +2664,254 @@ function spawnConfetti(){
 
   setTimeout(function(){ wrap.innerHTML = ''; }, 2500);
 }
+/* ========== ADMIN PANEL ========== */
+var adminCurrentUser = null;
+
+function isAdmin() {
+  return localStorage.getItem('user_role') === 'admin';
+}
+
+function showAdminPanel() {
+  var panel = document.getElementById('adminPanel');
+  if (panel) panel.classList.add('on');
+  // Скрыть обычное приложение
+  var side = document.getElementById('sideBar');
+  var main = document.getElementById('mainApp');
+  if (side) side.style.display = 'none';
+  if (main) main.style.display = 'none';
+
+  // Заполнить email
+  var userEl = document.getElementById('adminUser');
+  if (userEl) userEl.textContent = localStorage.getItem('user_email') || '';
+
+  // Загрузить данные
+  loadAdminUsers();
+  loadAdminStats();
+}
+
+function hideAdminPanel() {
+  var panel = document.getElementById('adminPanel');
+  if (panel) panel.classList.remove('on');
+}
+
+async function loadAdminUsers() {
+  var listEl = document.getElementById('adminClientsList');
+  if (!listEl) return;
+
+  try {
+    var res = await fetch(WORKER_LOGIN_URL + '?action=getAllUsers', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ token: getSessionToken() })
+    });
+    var data = await res.json();
+
+    if (!data.ok) {
+      listEl.innerHTML = '<div class="admin-empty">Error: ' + (data.error || 'Failed') + '</div>';
+      return;
+    }
+
+    if (!data.users || data.users.length === 0) {
+      listEl.innerHTML = '<div class="admin-empty"><div style="font-size:2.5rem;opacity:.4;margin-bottom:12px">📭</div><div>No clients yet</div></div>';
+      return;
+    }
+
+    var html = '';
+    for (var i = 0; i < data.users.length; i++) {
+      var u = data.users[i];
+      var initials = (u.name || 'U').split(' ').map(function(n){return n[0];}).join('').slice(0,2).toUpperCase();
+      var cardInfo = u.card ? (u.card.type + ' •••• ' + String(u.card.num).slice(-4)) : 'No card';
+      var statusBadge = u.card ? u.card.status : 'No card';
+      var statusClass = (u.card && u.card.status === 'Active') ? '' : ' style="background:rgba(255,176,32,.14);color:#ffb020"';
+
+      html += '<div class="admin-client-card">' +
+        '<div class="admin-client-top">' +
+          '<div class="admin-client-avatar">' + initials + '</div>' +
+          '<div class="admin-client-info">' +
+            '<div class="admin-client-name">' + u.name + '</div>' +
+            '<div class="admin-client-email">' + u.email + '</div>' +
+          '</div>' +
+          '<div class="admin-client-badge"' + statusClass + '>' + statusBadge + '</div>' +
+        '</div>' +
+        '<div class="admin-client-grid">' +
+          '<div class="admin-client-field"><div class="admin-client-field-label">Balance</div><div class="admin-client-field-value">' + fmtCurrency(u.balance) + '</div></div>' +
+          '<div class="admin-client-field"><div class="admin-client-field-label">Card</div><div class="admin-client-field-value">' + cardInfo + '</div></div>' +
+          '<div class="admin-client-field"><div class="admin-client-field-label">Transactions</div><div class="admin-client-field-value">' + u.txCount + '</div></div>' +
+          '<div class="admin-client-field"><div class="admin-client-field-label">Last Tx</div><div class="admin-client-field-value">' + (u.lastTx || '—') + '</div></div>' +
+        '</div>' +
+        '<div class="admin-client-actions">' +
+          '<button class="btn b1" onclick="adminAddBalance(\'' + u.email + '\', \'' + u.name + '\')">💰 Add balance</button>' +
+          '<button class="btn b2" onclick="adminSendMessage()">📩 Send message</button>' +
+          '<button class="btn b2" onclick="adminViewClient(\'' + u.email + '\')">👁 View</button>' +
+        '</div>' +
+      '</div>';
+    }
+
+    listEl.innerHTML = html;
+  } catch (e) {
+    listEl.innerHTML = '<div class="admin-empty">Connection error</div>';
+  }
+}
+
+async function loadAdminStats() {
+  try {
+    var res = await fetch(WORKER_LOGIN_URL + '?action=getStats', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ token: getSessionToken() })
+    });
+    var data = await res.json();
+
+    if (!data.ok) return;
+
+    var s = data.stats;
+    var clientsEl = document.getElementById('admStatClients');
+    var balEl = document.getElementById('admStatBalance');
+    var txEl = document.getElementById('admStatTx');
+    var cryptoEl = document.getElementById('admStatCrypto');
+
+    if (clientsEl) clientsEl.textContent = s.totalClients;
+    if (balEl) balEl.textContent = fmtCurrency(s.totalBalance);
+    if (txEl) txEl.textContent = s.totalTx;
+    if (cryptoEl) cryptoEl.textContent = (s.totalCrypto.btc.toFixed(4) + ' / ' + s.totalCrypto.eth.toFixed(4));
+  } catch (e) {}
+}
+
+var adminTargetEmail = null;
+var adminTargetName = null;
+
+function adminAddBalance(email, name) {
+  adminTargetEmail = email;
+  adminTargetName = name;
+
+  var mask = document.getElementById('adminBalanceMask');
+  var desc = document.getElementById('adminBalanceDesc');
+  var amtEl = document.getElementById('adminBalanceAmount');
+  var noteEl = document.getElementById('adminBalanceNote');
+
+  if (desc) desc.textContent = name + ' (' + email + ')';
+  if (amtEl) amtEl.value = '';
+  if (noteEl) noteEl.value = '';
+  if (mask) mask.classList.add('on');
+}
+
+function adminSendMessage() {
+  var mask = document.getElementById('adminMsgMask');
+  var textEl = document.getElementById('adminMsgText');
+  var iconEl = document.getElementById('adminMsgIcon');
+  if (textEl) textEl.value = '';
+  if (iconEl) iconEl.value = '📩';
+  if (mask) mask.classList.add('on');
+}
+
+function adminViewClient(email) {
+  hideAdminPanel();
+  showApp();
+}
+
+function initAdminPanel() {
+  var refreshBtn = document.getElementById('adminRefreshBtn');
+  var logoutBtn = document.getElementById('adminLogoutBtn');
+  var pushUpdateBtn = document.getElementById('adminPushUpdate');
+  var sendNotifBtn = document.getElementById('adminSendNotif');
+  var balanceSave = document.getElementById('adminBalanceSave');
+  var balanceCancel = document.getElementById('adminBalanceCancel');
+  var msgSave = document.getElementById('adminMsgSave');
+  var msgCancel = document.getElementById('adminMsgCancel');
+
+  if (refreshBtn) refreshBtn.onclick = function(){
+    loadAdminUsers();
+    loadAdminStats();
+    toast('Refreshed');
+  };
+
+  if (logoutBtn) logoutBtn.onclick = function(){
+    if (!confirm('Log out?')) return;
+    doLogout();
+  };
+
+  if (pushUpdateBtn) pushUpdateBtn.onclick = function(){
+    toast('📢 Notified client about new version');
+    sendAdminMessage('🎉 New version 1.1 is available! Click Settings to update.', '📢');
+  };
+
+  if (sendNotifBtn) sendNotifBtn.onclick = function(){
+    adminSendMessage();
+  };
+
+  // Balance modal
+  if (balanceCancel) balanceCancel.onclick = function(){
+    document.getElementById('adminBalanceMask').classList.remove('on');
+  };
+
+  if (balanceSave) balanceSave.onclick = async function(){
+    var amount = Number(document.getElementById('adminBalanceAmount').value);
+    var note = document.getElementById('adminBalanceNote').value.trim();
+    if (!amount || amount === 0) {
+      toast('Enter a valid amount', true);
+      return;
+    }
+    try {
+      var res = await fetch(WORKER_LOGIN_URL + '?action=updateUserBalance', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ token: getSessionToken(), amount: amount, note: note || ('Admin adjustment') })
+      });
+      var data = await res.json();
+      if (data.ok) {
+        toast('✓ Balance updated');
+        document.getElementById('adminBalanceMask').classList.remove('on');
+        loadAdminUsers();
+        loadAdminStats();
+      } else {
+        toast('Error: ' + (data.error || 'failed'), true);
+      }
+    } catch (e) {
+      toast('Connection error', true);
+    }
+  };
+
+  // Message modal
+  if (msgCancel) msgCancel.onclick = function(){
+    document.getElementById('adminMsgMask').classList.remove('on');
+  };
+
+  if (msgSave) msgSave.onclick = async function(){
+    var text = document.getElementById('adminMsgText').value.trim();
+    var icon = document.getElementById('adminMsgIcon').value.trim() || '📩';
+    if (!text) {
+      toast('Enter a message', true);
+      return;
+    }
+    try {
+      var res = await fetch(WORKER_LOGIN_URL + '?action=sendMessage', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ token: getSessionToken(), text: text, icon: icon })
+      });
+      var data = await res.json();
+      if (data.ok) {
+        toast('✓ Message sent');
+        document.getElementById('adminMsgMask').classList.remove('on');
+      } else {
+        toast('Error: ' + (data.error || 'failed'), true);
+      }
+    } catch (e) {
+      toast('Connection error', true);
+    }
+  };
+}
+
+async function sendAdminMessage(text, icon) {
+  try {
+    await fetch(WORKER_LOGIN_URL + '?action=sendMessage', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ token: getSessionToken(), text: text, icon: icon || '📩' })
+    });
+  } catch (e) {}
+}
+
 /* ========== INIT ========== */
 initLoginLogout();
 checkSession();
