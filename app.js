@@ -1,3 +1,131 @@
+/* ========== SETTINGS ========== */
+function initSettings() {
+  var btnSettings = document.getElementById('settingsBtn');
+  var mask = document.getElementById('settingsMask');
+  var closeBtn = document.getElementById('btnSettingsClose');
+  var logoutBtn = document.getElementById('btnLogout');
+  var changePassBtn = document.getElementById('btnChangePassword');
+  var deleteBtn = document.getElementById('btnDeleteAccount');
+  var changePassMask = document.getElementById('changePassMask');
+  var cpSave = document.getElementById('cpSave');
+  var cpCancel = document.getElementById('cpCancel');
+
+  var nameEl = document.getElementById('settingsName');
+  var emailEl = document.getElementById('settingsEmail');
+  var roleEl = document.getElementById('settingsRole');
+  if (nameEl) nameEl.textContent = localStorage.getItem('user_name') || 'User';
+  if (emailEl) emailEl.textContent = localStorage.getItem('user_email') || '—';
+  if (roleEl) {
+    var role = localStorage.getItem('user_role') || 'user';
+    roleEl.textContent = role === 'admin' ? 'Admin' : 'User';
+    roleEl.style.background = role === 'admin' ? 'rgba(124,58,237,.15)' : 'rgba(0,212,255,.12)';
+    roleEl.style.color = role === 'admin' ? '#a78bfa' : 'var(--pri)';
+  }
+
+  if (btnSettings) btnSettings.onclick = function(){
+    if (mask) mask.classList.add('on');
+  };
+  if (closeBtn) closeBtn.onclick = function(){
+    if (mask) mask.classList.remove('on');
+  };
+
+  if (logoutBtn) logoutBtn.onclick = function(){
+    if (!confirm('Log out of your account?')) return;
+    doLogout();
+  };
+
+  if (changePassBtn) changePassBtn.onclick = function(){
+    if (mask) mask.classList.remove('on');
+    if (changePassMask) changePassMask.classList.add('on');
+    var o = document.getElementById('cpOld'); if (o) o.value = '';
+    var n = document.getElementById('cpNew'); if (n) n.value = '';
+    var c = document.getElementById('cpConfirm'); if (c) c.value = '';
+    var e1 = document.getElementById('cpError'); if (e1) e1.style.display = 'none';
+    var e2 = document.getElementById('cpSuccess'); if (e2) e2.style.display = 'none';
+  };
+
+  if (cpCancel) cpCancel.onclick = function(){
+    if (changePassMask) changePassMask.classList.remove('on');
+  };
+
+  if (cpSave) cpSave.onclick = async function(){
+    var oldP = document.getElementById('cpOld').value;
+    var newP = document.getElementById('cpNew').value;
+    var confP = document.getElementById('cpConfirm').value;
+    var errEl = document.getElementById('cpError');
+    var okEl = document.getElementById('cpSuccess');
+
+    errEl.style.display = 'none';
+    okEl.style.display = 'none';
+
+    if (!oldP || !newP) {
+      errEl.textContent = 'Please fill all fields';
+      errEl.style.display = 'block';
+      return;
+    }
+    if (newP.length < 6) {
+      errEl.textContent = 'Password must be at least 6 characters';
+      errEl.style.display = 'block';
+      return;
+    }
+    if (newP !== confP) {
+      errEl.textContent = 'Passwords do not match';
+      errEl.style.display = 'block';
+      return;
+    }
+
+    cpSave.disabled = true;
+    cpSave.textContent = 'Changing...';
+
+    try {
+      var res = await fetch(WORKER_LOGIN_URL + '?action=changePassword', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          token: getSessionToken(),
+          oldPassword: oldP,
+          newPassword: newP
+        })
+      });
+      var data = await res.json();
+
+      if (data.ok) {
+        okEl.textContent = '✓ Password changed successfully';
+        okEl.style.display = 'block';
+        playChime();
+        setTimeout(function(){
+          if (changePassMask) changePassMask.classList.remove('on');
+        }, 2000);
+      } else {
+        errEl.textContent = data.error || 'Failed to change password';
+        errEl.style.display = 'block';
+      }
+    } catch (e) {
+      errEl.textContent = 'Connection error';
+      errEl.style.display = 'block';
+    }
+
+    cpSave.disabled = false;
+    cpSave.textContent = 'Change password';
+  };
+
+  if (deleteBtn) deleteBtn.onclick = function(){
+    if (!confirm('Delete your account? This will remove ALL data permanently. This cannot be undone.')) return;
+    if (!confirm('Are you SURE? All your funds, cards, and transactions will be erased.')) return;
+    st = {
+      usd: 0, btc: 0, eth: 0,
+      btcP: 68000, ethP: 3200, eurR: 0.92, sekR: 10.45,
+      currency: 'USD',
+      txs: [], order: null, card: null, notifications: []
+    };
+    saveToServer();
+    render();
+    if (mask) mask.classList.remove('on');
+    toast('Account data deleted');
+    setTimeout(function(){ doLogout(); }, 1500);
+  };
+}
+
 /* ========== AUTHENTICATION ========== */
 var WORKER_LOGIN_URL = 'https://nordic-deposit-checker.otis-790.workers.dev';
 var SESSION_TIMEOUT_MS = 5 * 60 * 1000; // 5 минут
@@ -169,6 +297,7 @@ function showApp() {
     initDepositVerification();
     initWelcomeBanner();
     initLoginLogout();
+    initSettings();
     loadCharts();
     setInterval(loadPrices, 5 * 60 * 1000);
     setInterval(loadExchangeRates, 10 * 60 * 1000);
@@ -2302,22 +2431,13 @@ document.getElementById('btnOrder').onclick = placeOrder;
 var btnNO = document.getElementById('btnNewOrder');
 if (btnNO) btnNO.onclick = newOrder;
 
-document.getElementById('btnReset').onclick = function(){
-  if (!confirm('Reset ALL data? Balance, transactions, card and orders will be cleared.')) return;
-  st = JSON.parse(JSON.stringify(def));
-  saveToServer();
-  render();
-  checkOnboarding();
-  toast('All data reset');
-};
-
 /* ========== TIMERS ========== */
 setInterval(function(){ updateTxStatuses(); renderOrder(); }, 5000);
 
 /* ========== ONBOARDING STEP NAVIGATION ========== */
 function goToOnbStep(n){
   var steps = document.querySelectorAll('.onb-step');
-  for (var i = 0; i < steps.length; i++) steps[i].classList.remove('on');
+  Ыfor (var i = 0; i < steps.length; i++) steps[i].classList.remove('on');
   var target = document.getElementById('onbStep' + n);
   if (target) target.classList.add('on');
 }
