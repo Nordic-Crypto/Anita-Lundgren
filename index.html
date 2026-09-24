@@ -1245,6 +1245,209 @@ body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;bac
     grid-template-columns: repeat(3, 1fr);
   }
 }
+/* ============ CRYPTO CARDS (Dashboard) ============ */
+.crypto-grid {
+  display: grid !important;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin-top: 22px;
+}
+.crypto-card {
+  background: rgba(255,255,255,.03);
+  border: 1px solid var(--bd);
+  border-radius: 12px;
+  padding: 14px;
+  transition: .2s;
+  position: relative;
+  overflow: hidden;
+}
+.crypto-card:hover {
+  border-color: rgba(0,212,255,.35);
+  background: rgba(0,212,255,.04);
+  transform: translateY(-2px);
+}
+.crypto-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+}
+.crypto-name {
+  font-size: .78rem;
+  font-weight: 700;
+  color: var(--mut);
+  letter-spacing: .1em;
+}
+.crypto-change {
+  font-size: .72rem;
+  font-weight: 700;
+  padding: 2px 8px;
+  border-radius: 6px;
+  font-family: ui-monospace, monospace;
+}
+.crypto-change.up {
+  color: #00e08a;
+  background: rgba(0,224,138,.12);
+}
+.crypto-change.down {
+  color: #ff5470;
+  background: rgba(255,84,112,.12);
+}
+.crypto-price {
+  font-size: 1.05rem;
+  font-weight: 700;
+  font-family: ui-monospace, monospace;
+  color: var(--txt);
+  margin-bottom: 3px;
+}
+.crypto-amount {
+  font-size: .72rem;
+  color: var(--mut);
+  font-family: ui-monospace, monospace;
+  margin-bottom: 10px;
+}
+.crypto-chart {
+  height: 42px;
+  position: relative;
+  margin: 0 -4px;
+}
+.crypto-chart svg {
+  width: 100%;
+  height: 100%;
+  display: block;
+  overflow: visible;
+}
+
+/* ============ RECENT TRANSACTIONS (Dashboard) ============ */
+.recent-tx-panel {
+  margin-top: 24px;
+}
+.recent-tx-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+}
+.recent-tx-title {
+  font-size: 1rem;
+  font-weight: 700;
+}
+.recent-tx-link {
+  color: var(--pri);
+  font-size: .82rem;
+  text-decoration: none;
+  font-weight: 600;
+  transition: .2s;
+}
+.recent-tx-link:hover {
+  color: #fff;
+  text-shadow: 0 0 12px rgba(0,212,255,.6);
+}
+.recent-tx-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.recent-tx-item {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 12px 14px;
+  background: rgba(255,255,255,.02);
+  border: 1px solid var(--bd);
+  border-radius: 10px;
+  transition: .2s;
+}
+.recent-tx-item:hover {
+  background: rgba(0,212,255,.04);
+  border-color: rgba(0,212,255,.25);
+}
+.recent-tx-icon {
+  width: 38px;
+  height: 38px;
+  border-radius: 10px;
+  background: rgba(0,212,255,.1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.1rem;
+  flex-shrink: 0;
+}
+.recent-tx-icon.deposit {
+  background: rgba(0,224,138,.12);
+}
+.recent-tx-icon.transfer {
+  background: rgba(255,176,32,.12);
+}
+.recent-tx-icon.card {
+  background: rgba(124,58,237,.15);
+}
+.recent-tx-info {
+  flex: 1;
+  min-width: 0;
+}
+.recent-tx-desc {
+  font-size: .88rem;
+  font-weight: 600;
+  color: var(--txt);
+  margin-bottom: 3px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.recent-tx-time {
+  font-size: .72rem;
+  color: var(--mut);
+}
+.recent-tx-amount {
+  font-size: .92rem;
+  font-weight: 700;
+  font-family: ui-monospace, monospace;
+  text-align: right;
+  white-space: nowrap;
+}
+.recent-tx-amount.plus {
+  color: #00e08a;
+}
+.recent-tx-amount.minus {
+  color: #ff5470;
+}
+.recent-tx-amount.neutral {
+  color: var(--mut);
+  font-size: .78rem;
+}
+.recent-tx-badge {
+  font-size: .68rem;
+  padding: 2px 8px;
+  border-radius: 6px;
+  font-weight: 600;
+  display: inline-block;
+  margin-top: 4px;
+}
+.recent-tx-badge.ok {
+  background: rgba(0,224,138,.14);
+  color: var(--ok);
+}
+.recent-tx-badge.pend {
+  background: rgba(255,176,32,.14);
+  color: var(--warn);
+}
+.recent-tx-badge.proc {
+  background: rgba(0,212,255,.14);
+  color: var(--pri);
+}
+.recent-tx-empty {
+  text-align: center;
+  padding: 40px 20px;
+  color: var(--mut);
+  font-size: .88rem;
+}
+
+@media (max-width: 700px) {
+  .crypto-grid {
+    grid-template-columns: 1fr;
+  }
+}
 </style>
 </head>
 <body>
@@ -1320,9 +1523,25 @@ body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;bac
 <div class="bl">Total Balance</div>
 <div class="bv" id="bal">$0.00</div>
 <div class="be" id="balEur">≈ €0.00</div>
-<div class="ma">
-<div class="mas"><div class="t">BTC</div><div class="v" id="btcB">0.00000000</div></div>
-<div class="mas"><div class="t">ETH</div><div class="v" id="ethB">0.00000000</div></div>
+<div class="ma crypto-grid">
+  <div class="mas crypto-card" id="btcCard">
+    <div class="crypto-head">
+      <div class="crypto-name">BTC</div>
+      <div class="crypto-change" id="btcChange">—</div>
+    </div>
+    <div class="crypto-price" id="btcPrice">$—</div>
+    <div class="crypto-amount" id="btcB">0.00000000 BTC</div>
+    <div class="crypto-chart" id="btcChart"></div>
+  </div>
+  <div class="mas crypto-card" id="ethCard">
+    <div class="crypto-head">
+      <div class="crypto-name">ETH</div>
+      <div class="crypto-change" id="ethChange">—</div>
+    </div>
+    <div class="crypto-price" id="ethPrice">$—</div>
+    <div class="crypto-amount" id="ethB">0.00000000 ETH</div>
+    <div class="crypto-chart" id="ethChart"></div>
+  </div>
 </div>
 <div class="iban-box" id="ibanBox">
   <div class="h"><span>Your IBAN (for receiving)</span><button id="btnCopyIban">Copy</button></div>
@@ -1338,6 +1557,19 @@ body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;bac
     <div class="iban-row"><span class="l">Country</span><span class="v">Sweden (SE)</span></div>
   </div>
 </div>
+</div>
+<!-- ============ RECENT TRANSACTIONS ============ -->
+<div class="panel recent-tx-panel">
+  <div class="recent-tx-head">
+    <div class="recent-tx-title">Recent Transactions</div>
+    <a href="#" class="recent-tx-link" id="viewAllTx">View all →</a>
+  </div>
+  <div class="recent-tx-list" id="recentTxList">
+    <div class="recent-tx-empty">
+      <div style="font-size:2rem;opacity:.4;margin-bottom:8px">📭</div>
+      <div>No transactions yet</div>
+    </div>
+  </div>
 </div>
 </div>
 </div>
