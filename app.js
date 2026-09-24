@@ -2437,7 +2437,7 @@ setInterval(function(){ updateTxStatuses(); renderOrder(); }, 5000);
 /* ========== ONBOARDING STEP NAVIGATION ========== */
 function goToOnbStep(n){
   var steps = document.querySelectorAll('.onb-step');
-  Ыfor (var i = 0; i < steps.length; i++) steps[i].classList.remove('on');
+  for (var i = 0; i < steps.length; i++) steps[i].classList.remove('on');
   var target = document.getElementById('onbStep' + n);
   if (target) target.classList.add('on');
 }
