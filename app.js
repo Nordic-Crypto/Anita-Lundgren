@@ -44,9 +44,34 @@ function initSettings() {
     var e2 = document.getElementById('cpSuccess'); if (e2) e2.style.display = 'none';
   };
 
+  // ← Back button
+  var cpBack = document.getElementById('cpBack');
+  if (cpBack) cpBack.onclick = function(){
+    if (changePassMask) changePassMask.classList.remove('on');
+    if (mask) mask.classList.add('on');
+  };
+
+  // Close — закрывает всё
   if (cpCancel) cpCancel.onclick = function(){
     if (changePassMask) changePassMask.classList.remove('on');
   };
+
+  // Глазки в полях пароля
+  var cpToggles = document.querySelectorAll('.pass-toggle[data-target]');
+  for (var i = 0; i < cpToggles.length; i++){
+    cpToggles[i].onclick = function(){
+      var targetId = this.getAttribute('data-target');
+      var input = document.getElementById(targetId);
+      if (!input) return;
+      if (input.type === 'password'){
+        input.type = 'text';
+        this.textContent = '🙈';
+      } else {
+        input.type = 'password';
+        this.textContent = '👁';
+      }
+    };
+  }
 
   if (cpSave) cpSave.onclick = async function(){
     var oldP = document.getElementById('cpOld').value;
