@@ -348,6 +348,107 @@ function updateChange(elId, change){
   el.classList.add(change >= 0 ? 'up' : 'down');
 }
 
+/* ========== BALANCE CHART ========== */
+function renderBalanceChart(){
+  var wrap = document.getElementById('balanceChart');
+  var current = document.getElementById('balanceCurrent');
+  if (!wrap) return;
+
+  if (current) current.textContent = fmtCurrency(st.usd);
+
+  var txs = st.txs || [];
+  var created = (st.card && st.card.createdAt) ? st.card.createdAt : Date.now();
+
+  if (txs.length < 1){
+    wrap.innerHTML = '<div class="chart-empty">' +
+      '<div style="font-size:2rem;opacity:.4">📊</div>' +
+      '<div>No activity yet</div>' +
+      '<div style="font-size:.72rem;opacity:.7">Balance chart will appear after your first transaction</div>' +
+    '</div>';
+    return;
+  }
+
+  var days = 7;
+  var dayMs = 24 * 60 * 60 * 1000;
+  var now = Date.now();
+
+  var sorted = txs.slice().sort(function(a, b){
+    return (a.ts || 0) - (b.ts || 0);
+  });
+
+  var points = [];
+  var running = 0;
+
+  points.push({ t: now - days * dayMs, v: 0 });
+
+  for (var i = 0; i < sorted.length; i++){
+    var tx = sorted[i];
+    var ts = tx.ts || created;
+    running += (tx.amt || 0);
+    points.push({ t: ts, v: running });
+  }
+
+  points.push({ t: now, v: running });
+
+  var w = 500;
+  var h = 180;
+  var pad = 12;
+
+  var minT = now - days * dayMs;
+  var maxT = now;
+  var minV = 0;
+  var maxV = 0;
+
+  for (var k = 0; k < points.length; k++){
+    if (points[k].v < minV) minV = points[k].v;
+    if (points[k].v > maxV) maxV = points[k].v;
+  }
+
+  if (maxV === minV) maxV = minV + 1;
+  maxV = maxV * 1.15;
+
+  var svgPoints = [];
+  for (var m = 0; m < points.length; m++){
+    var p = points[m];
+    var x = pad + ((p.t - minT) / (maxT - minT)) * (w - pad * 2);
+    var y = pad + (1 - (p.v - minV) / (maxV - minV)) * (h - pad * 2);
+    if (x < pad) x = pad;
+    if (x > w - pad) x = w - pad;
+    svgPoints.push(x.toFixed(1) + ',' + y.toFixed(1));
+  }
+
+  var linePath = 'M' + svgPoints.join(' L');
+  var fillPath = linePath +
+    ' L' + (w - pad) + ',' + (h - pad) +
+    ' L' + pad + ',' + (h - pad) + ' Z';
+
+  var labelsHtml = '';
+  for (var d = 0; d < 4; d++){
+    var labelT = now - (days - d * (days / 3)) * dayMs;
+    var dt = new Date(labelT);
+    var label = dt.toLocaleDateString('en-GB', { day: 'numeric', month: 'short' });
+    labelsHtml += '<span>' + label + '</span>';
+  }
+
+  var svg = '<svg viewBox="0 0 ' + w + ' ' + h + '" preserveAspectRatio="none">' +
+    '<defs>' +
+      '<linearGradient id="balanceGrad" x1="0" y1="0" x2="0" y2="1">' +
+        '<stop offset="0%" stop-color="#00d4ff" stop-opacity="0.4"/>' +
+        '<stop offset="100%" stop-color="#00d4ff" stop-opacity="0"/>' +
+      '</linearGradient>' +
+      '<linearGradient id="lineGrad" x1="0" y1="0" x2="1" y2="0">' +
+        '<stop offset="0%" stop-color="#00d4ff"/>' +
+        '<stop offset="100%" stop-color="#7c3aed"/>' +
+      '</linearGradient>' +
+    '</defs>' +
+    '<path d="' + fillPath + '" fill="url(#balanceGrad)"/>' +
+    '<path d="' + linePath + '" fill="none" stroke="url(#lineGrad)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>' +
+  '</svg>' +
+  '<div class="balance-chart-labels">' + labelsHtml + '</div>';
+
+  wrap.innerHTML = svg;
+}
+
 /* ========== STATS ========== */
 function renderStats(){
   var txs = st.txs || [];
@@ -835,6 +936,7 @@ function render(){
   renderNotifications();
   renderRecentTx();
   renderStats();
+  renderBalanceChart();
   initWelcomeBlock();
 }
 
