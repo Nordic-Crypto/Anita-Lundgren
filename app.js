@@ -1219,23 +1219,15 @@ function copyText(txt, okMsg){
 
 /* ========== ORDER + TRACKING ========== */
 var STEPS = [
-  { name:'Order Received',   loc:'NordicCrypto HQ, Stockholm, Sweden' },
-  { name:'Card Minted',      loc:'Production Facility, Stockholm' },
-  { name:'Packed',           loc:'Logistics Center, Stockholm' },
-  { name:'In Transit',       loc:'International Hub, Copenhagen' },
-  { name:'Out for Delivery', loc:'Local Courier' },
-  { name:'Delivered',        loc:'Destination' }
+  { name:'Order Received',   loc:'NordicCrypto HQ, Oslo, Norway',                day: 0 },
+  { name:'Card Minted',      loc:'Production Facility, Oslo',                     day: 3 },
+  { name:'Packed',           loc:'Logistics Center, Oslo',                        day: 6 },
+  { name:'In Transit',       loc:'International Hub, Copenhagen, Denmark',        day: 14 },
+  { name:'Out for Delivery', loc:'Local Courier, Stockholm',                      day: 25 },
+  { name:'Delivered',        loc:'Destination',                                   day: 30 }
 ];
-// Delivery steps: indices in days
-var STEP_DELAYS = [
-  0,          // Order Received — now
-  3,          // Card Minted — 3 days
-  5,          // Packed — 5 days
-  14,         // In Transit — 2 weeks
-  35,         // Out for Delivery — 35 days
-  50          // Delivered — 50 days (~1.5 months)
-];
-var STEP_DURATION = 24 * 60 * 60 * 1000; // 1 day in ms
+
+var MAX_DELIVERY_DAYS = 40;
 
 function genTrackId(){
   var s = 'NC-' + new Date().getFullYear() + '-';
@@ -1245,8 +1237,11 @@ function genTrackId(){
 }
 
 function stepIndexFor(createdAt){
-  var idx = Math.floor((Date.now() - createdAt) / STEP_DURATION);
-  if (idx > STEPS.length - 1) idx = STEPS.length - 1;
+  var elapsedDays = (Date.now() - createdAt) / (24 * 60 * 60 * 1000);
+  var idx = 0;
+  for (var i = 0; i < STEPS.length; i++){
+    if (elapsedDays >= STEPS[i].day) idx = i;
+  }
   return idx;
 }
 
@@ -1272,7 +1267,7 @@ function placeOrder(){
   toast('Order placed! Tracking ID: ' + st.order.id);
 }
 
-function renderOrder(){
+ffunction renderOrder(){
   if (!st.order){
     $('orderForm').classList.remove('hidden');
     $('orderTrack').classList.add('hidden');
@@ -1280,6 +1275,13 @@ function renderOrder(){
   }
   $('orderForm').classList.add('hidden');
   $('orderTrack').classList.remove('hidden');
+
+  // Проверка на задержку
+  var elapsedDays = (Date.now() - st.order.createdAt) / (24 * 60 * 60 * 1000);
+  if (elapsedDays > MAX_DELIVERY_DAYS){
+    showDeliveryError();
+    return;
+  }
 
   var idx = stepIndexFor(st.order.createdAt);
   var steps = document.querySelectorAll('#stepsWrap .step');
@@ -1298,15 +1300,33 @@ function renderOrder(){
   $('trackDest').textContent = st.order.dest;
   $('trackLoc').textContent = STEPS[idx].loc;
 
-  var eta = new Date(st.order.createdAt + STEPS.length * STEP_DURATION);
-  $('trackEta').textContent = eta.toLocaleDateString('en-GB',{day:'2-digit',month:'short'}) + ', ' + eta.toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'});
+  var eta = new Date(st.order.createdAt + STEPS[STEPS.length - 1].day * 24 * 60 * 60 * 1000);
+$('trackEta').textContent = eta.toLocaleDateString('en-GB',{day:'numeric',month:'long',year:'numeric'});
 
-  var logHtml = '';
-  for (var j=0; j<=idx; j++){
-    var t = new Date(st.order.createdAt + j * STEP_DURATION);
-    logHtml += '<div class="log-item"><span class="log-time">' + t.toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'}) + '</span><span class="log-msg">' + STEPS[j].name + ' — ' + STEPS[j].loc + '</span></div>';
-  }
+var logHtml = '';
+for (var j=0; j<=idx; j++){
+  var t = new Date(st.order.createdAt + STEPS[j].day * 24 * 60 * 60 * 1000);
+  logHtml += '<div class="log-item"><span class="log-time">' + t.toLocaleDateString('en-GB',{day:'2-digit',month:'short'}) + '</span><span class="log-msg">' + STEPS[j].name + ' — ' + STEPS[j].loc + '</span></div>';
+}
   $('trackLog').innerHTML = logHtml;
+}
+
+function showDeliveryError(){
+  var wrap = document.querySelector('#orderTrack .track-wrap');
+  if (!wrap) return;
+  wrap.innerHTML =
+    '<div class="panel" style="text-align:center;padding:50px 30px">' +
+      '<div style="font-size:4rem;margin-bottom:20px">⚠️</div>' +
+      '<h2 style="margin-bottom:12px">Delivery issue</h2>' +
+      '<p style="color:var(--mut);margin-bottom:20px;max-width:420px;margin-left:auto;margin-right:auto">' +
+        'Your card order has been delayed for more than ' + MAX_DELIVERY_DAYS + ' days. ' +
+        'Please contact our support team or place a new order.' +
+      '</p>' +
+      '<div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap">' +
+        '<button class="btn b1" onclick="resetOrder()" style="padding:12px 24px">Place new order</button>' +
+        '<button class="btn b2" onclick="alert(\'Support: support@nordiccrypto.com\')" style="padding:12px 24px">Contact support</button>' +
+      '</div>' +
+    '</div>';
 }
 
 function newOrder(){
