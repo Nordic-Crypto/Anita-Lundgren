@@ -1604,7 +1604,6 @@ body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;bac
   margin-top: 14px;
 }
 .balance-chart-panel {
-  min-height: 260px;
   display: flex;
   flex-direction: column;
 }
@@ -2406,6 +2405,56 @@ body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;bac
   .dep-step h2 { font-size: 1.1rem; }
   .dep-amount-crypto { font-size: 1.2rem; }
   .dep-success-icon { width: 72px; height: 72px; font-size: 2.4rem; }
+}
+/* ============ BOTTOM GRID (fixed height + scroll) ============ */
+.bottom-grid {
+  display: grid;
+  grid-template-columns: 1.2fr 1fr;
+  gap: 20px;
+  margin-top: 14px;
+  align-items: stretch;
+}
+.balance-chart-panel,
+.bottom-grid .recent-tx-panel {
+  height: 400px;
+  min-height: 400px;
+  display: flex;
+  flex-direction: column;
+  margin-top: 0;
+  overflow: hidden;
+}
+.bottom-grid .recent-tx-list {
+  flex: 1;
+  overflow-y: auto;
+  padding-right: 6px;
+  margin-top: 4px;
+}
+.bottom-grid .recent-tx-list::-webkit-scrollbar {
+  width: 5px;
+}
+.bottom-grid .recent-tx-list::-webkit-scrollbar-track {
+  background: rgba(255,255,255,.03);
+  border-radius: 3px;
+}
+.bottom-grid .recent-tx-list::-webkit-scrollbar-thumb {
+  background: rgba(0,212,255,.35);
+  border-radius: 3px;
+}
+.bottom-grid .recent-tx-list::-webkit-scrollbar-thumb:hover {
+  background: rgba(0,212,255,.6);
+}
+.balance-chart-wrap {
+  flex: 1;
+  min-height: 0;
+  margin-top: 16px;
+}
+
+@media (max-width: 900px) {
+  .balance-chart-panel,
+  .bottom-grid .recent-tx-panel {
+    height: auto;
+    min-height: 320px;
+  }
 }
 </style>
 </head>
