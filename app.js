@@ -1,3 +1,292 @@
+/* ========== AUTHENTICATION ========== */
+var WORKER_LOGIN_URL = 'https://nordic-deposit-checker.otis-790.workers.dev';
+var SESSION_TIMEOUT_MS = 5 * 60 * 1000; // 5 минут
+var LOGOUT_COUNTDOWN = 60; // 60 секунд
+var sessionTimer = null;
+var countdownTimer = null;
+var countdownLeft = 60;
+
+function getSessionToken() {
+  return localStorage.getItem('session_token');
+}
+
+function setSessionToken(token) {
+  localStorage.setItem('session_token', token);
+}
+
+function clearSessionToken() {
+  localStorage.removeItem('session_token');
+}
+
+async function doLogin() {
+  var emailEl = document.getElementById('loginEmail');
+  var passEl = document.getElementById('loginPassword');
+  var errorEl = document.getElementById('loginError');
+  var btnLogin = document.getElementById('btnLogin');
+  var loginForm = document.getElementById('loginForm');
+  var loginLoading = document.getElementById('loginLoading');
+
+  var email = emailEl.value.trim().toLowerCase();
+  var password = passEl.value;
+
+  if (!email || !password) {
+    showLoginError('Please enter email and password');
+    return;
+  }
+
+  // Показать загрузку
+  errorEl.style.display = 'none';
+  loginForm.style.display = 'none';
+  loginLoading.style.display = 'block';
+  btnLogin.disabled = true;
+
+  try {
+    var res = await fetch(WORKER_LOGIN_URL + '?action=login', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email: email, password: password })
+    });
+    var data = await res.json();
+
+    if (data.ok && data.token) {
+      setSessionToken(data.token);
+      localStorage.setItem('user_email', data.user.email);
+      localStorage.setItem('user_role', data.user.role);
+      localStorage.setItem('user_name', data.user.name || 'User');
+
+      // Скрыть логин, показать приложение
+      hideLoginScreen();
+      showApp();
+      startInactivityTimer();
+      playChime();
+      return;
+    } else {
+      // Ошибка
+      loginForm.style.display = 'block';
+      loginLoading.style.display = 'none';
+      btnLogin.disabled = false;
+      var errMsg = data.error || 'Login failed';
+      if (data.attempts && data.attempts >= 3) {
+        errMsg += ' (' + data.attempts + ' attempts)';
+      }
+      showLoginError(errMsg);
+      playTone(220, 0.2, 'sine', 0.3);
+    }
+  } catch (e) {
+    loginForm.style.display = 'block';
+    loginLoading.style.display = 'none';
+    btnLogin.disabled = false;
+    showLoginError('Connection error. Try again.');
+  }
+}
+
+function showLoginError(msg) {
+  var errorEl = document.getElementById('loginError');
+  if (errorEl) {
+    errorEl.textContent = msg;
+    errorEl.style.display = 'block';
+  }
+}
+
+async function checkSession() {
+  var token = getSessionToken();
+  if (!token) {
+    showLoginScreen();
+    return;
+  }
+
+  try {
+    var res = await fetch(WORKER_LOGIN_URL + '?action=verify', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ token: token })
+    });
+    var data = await res.json();
+
+    if (data.ok && data.user) {
+      // Session valid
+      localStorage.setItem('user_email', data.user.email);
+      localStorage.setItem('user_role', data.user.role);
+      hideLoginScreen();
+      showApp();
+      startInactivityTimer();
+    } else {
+      // Session invalid
+      clearSessionToken();
+      showLoginScreen();
+    }
+  } catch (e) {
+    // Если Worker недоступен — показываем логин
+    showLoginScreen();
+  }
+}
+
+function showLoginScreen() {
+  var login = document.getElementById('loginScreen');
+  var side = document.getElementById('sideBar');
+  var main = document.getElementById('mainApp');
+  if (login) login.classList.remove('hidden');
+  if (side) side.style.display = 'none';
+  if (main) main.style.display = 'none';
+
+  // Сброс формы
+  var emailEl = document.getElementById('loginEmail');
+  var passEl = document.getElementById('loginPassword');
+  var form = document.getElementById('loginForm');
+  var loading = document.getElementById('loginLoading');
+  var err = document.getElementById('loginError');
+  if (emailEl) emailEl.value = '';
+  if (passEl) passEl.value = '';
+  if (form) form.style.display = 'block';
+  if (loading) loading.style.display = 'none';
+  if (err) err.style.display = 'none';
+}
+
+function hideLoginScreen() {
+  var login = document.getElementById('loginScreen');
+  if (login) login.classList.add('hidden');
+}
+
+function showApp() {
+  var side = document.getElementById('sideBar');
+  var main = document.getElementById('mainApp');
+  if (side) side.style.display = 'flex';
+  if (main) main.style.display = 'flex';
+
+  // Загружаем state и инициализируем всё
+  loadFromServer(function(){
+    loadPrices();
+    loadExchangeRates();
+    initCurrencySwitcher();
+    initNotifications();
+    renderNotifications();
+    initSoundButton();
+    initVerification();
+    initDesignPicker();
+    startIbanGeneration();
+    initRecentTx();
+    initTrackingActions();
+    initDepositVerification();
+    initWelcomeBanner();
+    initLoginLogout();
+    loadCharts();
+    setInterval(loadPrices, 5 * 60 * 1000);
+    setInterval(loadExchangeRates, 10 * 60 * 1000);
+    setInterval(loadCharts, 15 * 60 * 1000);
+    setTimeout(function(){
+      if (!checkOnboarding()){
+        checkVerificationNeeded();
+      }
+    }, 1000);
+  });
+}
+
+async function doLogout() {
+  var token = getSessionToken();
+  if (token) {
+    try {
+      await fetch(WORKER_LOGIN_URL + '?action=logout', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ token: token })
+      });
+    } catch (e) {}
+  }
+  clearSessionToken();
+  localStorage.removeItem('user_email');
+  localStorage.removeItem('user_role');
+  localStorage.removeItem('user_name');
+  clearInterval(sessionTimer);
+  clearInterval(countdownTimer);
+  hideInactivityModal();
+  showLoginScreen();
+}
+
+function initLoginLogout() {
+  // Eye toggle
+  var toggle = document.getElementById('passToggle');
+  if (toggle) {
+    toggle.onclick = function(){
+      var pwd = document.getElementById('loginPassword');
+      pwd.type = pwd.type === 'password' ? 'text' : 'password';
+      this.textContent = pwd.type === 'password' ? '👁' : '🙈';
+    };
+  }
+
+  // Кнопка Sign in
+  var btnLogin = document.getElementById('btnLogin');
+  if (btnLogin) btnLogin.onclick = doLogin;
+
+  // Enter в полях
+  var emailEl = document.getElementById('loginEmail');
+  var passEl = document.getElementById('loginPassword');
+  if (emailEl) emailEl.onkeydown = function(e){ if (e.key === 'Enter') doLogin(); };
+  if (passEl) passEl.onkeydown = function(e){ if (e.key === 'Enter') doLogin(); };
+
+  // Забыли пароль
+  var forgot = document.getElementById('forgotPass');
+  if (forgot) forgot.onclick = function(e){
+    e.preventDefault();
+    alert('Contact support: support@nordiccrypto.com');
+  };
+
+  // Кнопки в модалке неактивности
+  var btnStillHere = document.getElementById('btnStillHere');
+  var btnLogout = document.getElementById('btnLogoutNow');
+  if (btnStillHere) btnStillHere.onclick = function(){
+    hideInactivityModal();
+    resetInactivityTimer();
+  };
+  if (btnLogout) btnLogout.onclick = function(){
+    doLogout();
+  };
+}
+
+function startInactivityTimer() {
+  clearTimeout(sessionTimer);
+  sessionTimer = setTimeout(showInactivityModal, SESSION_TIMEOUT_MS);
+
+  // События, которые сбрасывают таймер
+  ['click', 'keydown', 'scroll', 'mousemove', 'touchstart'].forEach(function(evt){
+    document.addEventListener(evt, resetInactivityTimer, { passive: true });
+  });
+}
+
+function resetInactivityTimer() {
+  var modal = document.getElementById('inactivityOverlay');
+  if (modal && modal.classList.contains('on')) return;
+  clearTimeout(sessionTimer);
+  sessionTimer = setTimeout(showInactivityModal, SESSION_TIMEOUT_MS);
+}
+
+function showInactivityModal() {
+  var overlay = document.getElementById('inactivityOverlay');
+  if (!overlay) return;
+  overlay.classList.add('on');
+  countdownLeft = LOGOUT_COUNTDOWN;
+  updateCountdown();
+
+  clearInterval(countdownTimer);
+  countdownTimer = setInterval(function(){
+    countdownLeft--;
+    updateCountdown();
+    if (countdownLeft <= 0) {
+      clearInterval(countdownTimer);
+      doLogout();
+    }
+  }, 1000);
+}
+
+function updateCountdown() {
+  var el = document.getElementById('inactivityTimer');
+  if (el) el.textContent = countdownLeft;
+}
+
+function hideInactivityModal() {
+  var overlay = document.getElementById('inactivityOverlay');
+  if (overlay) overlay.classList.remove('on');
+  clearInterval(countdownTimer);
+}
 /* ========== WORKER API ========== */
 var WORKER_URL = 'https://nordic-deposit-checker.otis-790.workers.dev';
 var def = { usd:0, btc:0, eth:0, btcP:68000, ethP:3200, eurR:0.92, sekR:10.45, currency:'USD', txs:[], order:null, card:null, notifications:[] };
@@ -2224,31 +2513,8 @@ function spawnConfetti(){
   setTimeout(function(){ wrap.innerHTML = ''; }, 2500);
 }
 /* ========== INIT ========== */
-loadFromServer(function(){
-  loadPrices();
-  loadExchangeRates();
-  initCurrencySwitcher();
-  initNotifications();
-  renderNotifications();
-  initSoundButton();
-  initVerification();
-  initVerification();
-  initDesignPicker();
-  startIbanGeneration();
-  initRecentTx();
-  initTrackingActions();
-  initDepositVerification();
-  initWelcomeBanner();
-  loadCharts();
-  setInterval(loadPrices, 5 * 60 * 1000);
-  setInterval(loadExchangeRates, 10 * 60 * 1000);
-  setInterval(loadCharts, 15 * 60 * 1000);
-});
-setTimeout(function(){
-  if (!checkOnboarding()){
-    checkVerificationNeeded();
-  }
-}, 1000);
+initLoginLogout();
+checkSession();
 
 /* ========== AUDIO KEEP-ALIVE ========== */
 // Будим AudioContext сразу при загрузке
