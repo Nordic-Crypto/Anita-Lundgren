@@ -2841,6 +2841,35 @@ body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;bac
   background: rgba(255,84,112,.05);
   border-color: rgba(255,84,112,.4);
 }
+/* ============ BACK BUTTON ============ */
+.back-btn {
+  width: 34px;
+  height: 34px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 8px;
+  background: rgba(255,255,255,.05);
+  border: 1px solid var(--bd);
+  color: var(--txt);
+  cursor: pointer;
+  transition: .2s;
+  margin-bottom: 8px;
+}
+.back-btn:hover {
+  background: rgba(0,212,255,.08);
+  border-color: rgba(0,212,255,.35);
+  color: var(--pri);
+}
+.back-btn svg {
+  width: 18px;
+  height: 18px;
+  stroke: currentColor;
+  fill: none;
+  stroke-width: 2.2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
 </style>
 </head>
 <body>
@@ -3020,13 +3049,11 @@ body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;bac
     <div class="qtile-sub">Card number</div>
   </button>
 
-  <button class="qtile qtile-danger" id="btnReset">
-    <div class="qtile-icon" style="background:linear-gradient(135deg,#ff5470,#c92a4a)">
-      <svg viewBox="0 0 24 24"><path d="M3 6h18M8 6V4a2 2 0 012-2h4a2 2 0 012 2v2M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6"/></svg>
-    </div>
-    <div class="qtile-name">Reset</div>
-    <div class="qtile-sub">Clear all data</div>
-  </button>
+<button class="qtile qtile-danger" id="btnReset" style="display:none">
+  <div class="qtile-icon"><svg></svg></div>
+  <div class="qtile-name">Reset</div>
+  <div class="qtile-sub">Clear all data</div>
+</button>
 </div>
 </div>
 <div class="panel">
@@ -3818,28 +3845,41 @@ body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;bac
 <!-- ============ CHANGE PASSWORD MODAL ============ -->
 <div class="mask" id="changePassMask">
   <div class="box">
-    <h2>Change password</h2>
-    <p class="d">Enter your current password and choose a new one.</p>
+<button class="back-btn" id="cpBack">
+  <svg viewBox="0 0 24 24"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+</button>
+<h2 style="margin-top:8px">Change password</h2>
+<p class="d">Enter your current password and choose a new one.</p>
 
-    <div class="fg">
-      <label>Current password</label>
-      <input type="password" class="fc" id="cpOld" placeholder="Current password">
-    </div>
-    <div class="fg">
-      <label>New password</label>
-      <input type="password" class="fc" id="cpNew" placeholder="New password">
-    </div>
-    <div class="fg">
-      <label>Confirm new password</label>
-      <input type="password" class="fc" id="cpConfirm" placeholder="Repeat new password">
-    </div>
+<div class="fg">
+  <label>Current password</label>
+  <div class="pass-wrap">
+    <input type="password" class="fc" id="cpOld" placeholder="Current password">
+    <button type="button" class="pass-toggle" data-target="cpOld">👁</button>
+  </div>
+</div>
+<div class="fg">
+  <label>New password</label>
+  <div class="pass-wrap">
+    <input type="password" class="fc" id="cpNew" placeholder="New password">
+    <button type="button" class="pass-toggle" data-target="cpNew">👁</button>
+  </div>
+</div>
+
+<div class="fg">
+  <label>Confirm new password</label>
+  <div class="pass-wrap">
+    <input type="password" class="fc" id="cpConfirm" placeholder="Repeat new password">
+    <button type="button" class="pass-toggle" data-target="cpConfirm">👁</button>
+  </div>
+</div>
 
     <div class="login-error" id="cpError" style="display:none"></div>
     <div class="login-error" id="cpSuccess" style="display:none;background:rgba(0,224,138,.1);border-color:rgba(0,224,138,.3);color:#00e08a"></div>
 
     <div class="mact">
       <button class="btn b1" style="flex:1;justify-content:center" id="cpSave">Change password</button>
-      <button class="btn b2" style="flex:1;justify-content:center" id="cpCancel">Cancel</button>
+      <button class="btn b2" style="flex:1;justify-content:center" id="cpCancel">Close</button>
     </div>
   </div>
 </div>
