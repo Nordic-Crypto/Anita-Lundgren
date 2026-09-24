@@ -1334,7 +1334,7 @@ function initTrackingActions(){
   var btnSupport = document.getElementById('btnContactSupport');
   if (btnSupport){
     btnSupport.onclick = function(){
-      var choice = confirm('Contact support:\n\nOK — отправить email на support@nordiccrypto.com\nCancel — закрыть');
+      var choice = confirm('Contact support\n\nClick OK to email us at support@nordiccrypto.com\nClick Cancel to close');
       if (choice){
         window.location.href = 'mailto:support@nordiccrypto.com?subject=Card%20delivery%20issue%20-%20' + (st.order ? st.order.id : '');
       }
