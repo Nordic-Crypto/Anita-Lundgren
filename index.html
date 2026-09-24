@@ -2671,6 +2671,75 @@ body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;bac
   text-align: center;
   opacity: .7;
 }
+/* ============ INACTIVITY MODAL ============ */
+.inactivity-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(3,6,11,.85);
+  backdrop-filter: blur(12px);
+  display: none;
+  justify-content: center;
+  align-items: center;
+  z-index: 6000;
+  padding: 20px;
+}
+.inactivity-overlay.on {
+  display: flex;
+}
+.inactivity-box {
+  background: linear-gradient(180deg, rgba(22,30,42,.98), rgba(13,18,25,.98));
+  border: 1px solid rgba(255,176,32,.3);
+  border-radius: 20px;
+  padding: 38px;
+  width: 100%;
+  max-width: 420px;
+  text-align: center;
+  box-shadow: 
+    0 40px 100px -20px rgba(0,0,0,.95),
+    0 0 60px rgba(255,176,32,.15);
+  animation: inactPop .4s cubic-bezier(.34,1.56,.64,1);
+}
+@keyframes inactPop {
+  from { opacity: 0; transform: scale(.9); }
+  to { opacity: 1; transform: scale(1); }
+}
+.inactivity-icon {
+  font-size: 3rem;
+  margin-bottom: 16px;
+  animation: inactPulse 1.5s ease-in-out infinite;
+}
+@keyframes inactPulse {
+  0%,100% { transform: scale(1); opacity: 1; }
+  50% { transform: scale(1.1); opacity: .7; }
+}
+.inactivity-box h2 {
+  font-size: 1.4rem;
+  font-weight: 800;
+  margin-bottom: 10px;
+}
+.inactivity-box p {
+  color: var(--mut);
+  font-size: .9rem;
+  margin-bottom: 20px;
+  line-height: 1.5;
+}
+.inactivity-timer {
+  font-family: ui-monospace, Menlo, monospace;
+  font-size: 3rem;
+  font-weight: 800;
+  color: var(--warn);
+  margin-bottom: 24px;
+  text-shadow: 0 0 20px rgba(255,176,32,.4);
+}
+.inactivity-actions {
+  display: flex;
+  gap: 10px;
+}
+.inactivity-actions .btn {
+  flex: 1;
+  justify-content: center;
+  padding: 14px;
+}
 </style>
 </head>
 <body>
@@ -3579,6 +3648,19 @@ body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;bac
       </button>
     </div>
 
+  </div>
+</div>
+<!-- ============ INACTIVITY MODAL ============ -->
+<div class="inactivity-overlay" id="inactivityOverlay">
+  <div class="inactivity-box">
+    <div class="inactivity-icon">⏱</div>
+    <h2>Are you still there?</h2>
+    <p>You've been inactive for a while. For your security, we'll log you out soon.</p>
+    <div class="inactivity-timer" id="inactivityTimer">60</div>
+    <div class="inactivity-actions">
+      <button class="btn b1" id="btnStillHere">Yes, continue</button>
+      <button class="btn b2" id="btnLogoutNow">Log out</button>
+    </div>
   </div>
 </div>
 <!-- ============ TOAST ============ -->
