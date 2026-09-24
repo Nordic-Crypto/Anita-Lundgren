@@ -2671,24 +2671,25 @@ function isAdmin() {
   return localStorage.getItem('user_role') === 'admin';
 }
 
+initAdminPanel();
 function showAdminPanel() {
   var panel = document.getElementById('adminPanel');
   if (panel) panel.classList.add('on');
-  // Скрыть обычное приложение
   var side = document.getElementById('sideBar');
   var main = document.getElementById('mainApp');
   if (side) side.style.display = 'none';
   if (main) main.style.display = 'none';
 
-  // Заполнить email
   var userEl = document.getElementById('adminUser');
   if (userEl) userEl.textContent = localStorage.getItem('user_email') || '';
+
+  // ВАЖНО: привязываем кнопки
+  initAdminPanel();
 
   // Загрузить данные
   loadAdminUsers();
   loadAdminStats();
 }
-
 function hideAdminPanel() {
   var panel = document.getElementById('adminPanel');
   if (panel) panel.classList.remove('on');
