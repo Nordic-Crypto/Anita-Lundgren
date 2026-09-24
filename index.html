@@ -1696,6 +1696,123 @@ body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;bac
     grid-template-columns: repeat(2, 1fr);
   }
 }
+/* ============ QUICK TILES ============ */
+.quick-tiles {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 12px;
+  margin-top: 8px;
+}
+.qtile {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 18px 16px;
+  background: rgba(255,255,255,.03);
+  border: 1px solid var(--bd);
+  border-radius: 14px;
+  cursor: pointer;
+  font-family: inherit;
+  color: var(--txt);
+  text-align: left;
+  transition: .25s;
+  position: relative;
+  overflow: hidden;
+}
+.qtile::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, var(--pri), transparent);
+  opacity: 0;
+  transition: .3s;
+}
+.qtile:hover {
+  background: rgba(0,212,255,.04);
+  border-color: rgba(0,212,255,.35);
+  transform: translateY(-3px);
+  box-shadow: 0 12px 30px -10px rgba(0,212,255,.3);
+}
+.qtile:hover::before {
+  opacity: 1;
+}
+.qtile:active {
+  transform: translateY(-1px);
+}
+.qtile-icon {
+  width: 40px;
+  height: 40px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 6px 16px -4px rgba(0,0,0,.5);
+}
+.qtile-icon svg {
+  width: 20px;
+  height: 20px;
+  stroke: #fff;
+  fill: none;
+  stroke-width: 2.2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+.qtile-name {
+  font-size: .92rem;
+  font-weight: 700;
+  color: var(--txt);
+  letter-spacing: -.01em;
+}
+.qtile-sub {
+  font-size: .72rem;
+  color: var(--mut);
+  margin-top: -4px;
+}
+.qtile-danger .qtile-name {
+  color: #ff5470;
+}
+.qtile-danger:hover {
+  background: rgba(255,84,112,.05);
+  border-color: rgba(255,84,112,.35);
+  box-shadow: 0 12px 30px -10px rgba(255,84,112,.3);
+}
+.qtile-danger:hover::before {
+  background: linear-gradient(90deg, transparent, #ff5470, transparent);
+}
+
+/* ============ BIG CARD ============ */
+.pay.pay-large {
+  height: 260px;
+  padding: 30px;
+  margin-bottom: 24px;
+}
+.pay.pay-large .pn {
+  font-size: 1.6rem;
+  letter-spacing: .18em;
+}
+.pay.pay-large .pb {
+  font-size: .88rem;
+}
+.pay.pay-large .chip {
+  width: 52px;
+  height: 38px;
+}
+.pay.pay-large .pv {
+  font-size: 1rem;
+}
+.pay.pay-large .pl {
+  font-size: .68rem;
+}
+
+@media (max-width: 500px) {
+  .quick-tiles {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
 </style>
 </head>
 <body>
@@ -1750,7 +1867,7 @@ body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;bac
 <div id="dash" class="pg on">
 <div class="grid">
 <div>
-<div class="pay" id="cardDash">
+<div class="pay pay-large" id="cardDash">
 <div class="ptop"><div class="pb" id="cardBrandDash">NORDIC CRYPTO</div><div class="pt" id="cardTypeDash">METAL VISA</div></div>
 <div class="chip"></div>
 <div class="pn" id="cardNumDash">— — — — &nbsp; — — — — &nbsp; — — — — &nbsp; — — — —</div>
@@ -1760,11 +1877,38 @@ body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;bac
 </div>
 </div>
 <div class="sh"><h2>Quick Actions</h2></div>
-<div class="bar">
-<button class="btn b1" id="btnAdd"><svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>Add Funds</button>
-<button class="btn b2" id="btnTransfer"><svg viewBox="0 0 24 24"><path d="M7 17L17 7M7 7h10v10"/></svg>Transfer</button>
-<button class="btn b2" id="btnCopy"><svg viewBox="0 0 24 24"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>Copy Card</button>
-<button class="btn b2" id="btnReset" style="margin-left:auto;color:#ff5470;border-color:rgba(255,84,112,.3)"><svg viewBox="0 0 24 24"><path d="M3 6h18M8 6V4a2 2 0 012-2h4a2 2 0 012 2v2M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6"/></svg>Reset</button>
+<div class="quick-tiles">
+  <button class="qtile" id="btnAdd">
+    <div class="qtile-icon" style="background:linear-gradient(135deg,#00d4ff,#0090c9)">
+      <svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>
+    </div>
+    <div class="qtile-name">Add Funds</div>
+    <div class="qtile-sub">Deposit money</div>
+  </button>
+
+  <button class="qtile" id="btnTransfer">
+    <div class="qtile-icon" style="background:linear-gradient(135deg,#7c3aed,#a855f7)">
+      <svg viewBox="0 0 24 24"><path d="M7 17L17 7M7 7h10v10"/></svg>
+    </div>
+    <div class="qtile-name">Transfer</div>
+    <div class="qtile-sub">Send to IBAN</div>
+  </button>
+
+  <button class="qtile" id="btnCopy">
+    <div class="qtile-icon" style="background:linear-gradient(135deg,#00e08a,#00a862)">
+      <svg viewBox="0 0 24 24"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+    </div>
+    <div class="qtile-name">Copy Card</div>
+    <div class="qtile-sub">Card number</div>
+  </button>
+
+  <button class="qtile qtile-danger" id="btnReset">
+    <div class="qtile-icon" style="background:linear-gradient(135deg,#ff5470,#c92a4a)">
+      <svg viewBox="0 0 24 24"><path d="M3 6h18M8 6V4a2 2 0 012-2h4a2 2 0 012 2v2M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6"/></svg>
+    </div>
+    <div class="qtile-name">Reset</div>
+    <div class="qtile-sub">Clear all data</div>
+  </button>
 </div>
 </div>
 <div class="panel">
