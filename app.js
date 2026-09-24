@@ -265,7 +265,7 @@ async function checkSession() {
     if (data.ok && data.user) {
       // Session valid
       localStorage.setItem('user_email', data.user.email);
-      localStorage.setItem('user_role', data.user.role);
+      localStorage.setItem('user_role', data.user.role || 'user');
       hideLoginScreen();
       showApp();
       startInactivityTimer();
@@ -2687,7 +2687,10 @@ function spawnConfetti(){
 var adminCurrentUser = null;
 
 function isAdmin() {
-  return localStorage.getItem('user_role') === 'admin';
+  var role = localStorage.getItem('user_role');
+  var email = localStorage.getItem('user_email');
+  // Только admin@nordiccrypto.com может быть админом
+  return role === 'admin' && email === 'admin@nordiccrypto.com';
 }
 
 initAdminPanel();
