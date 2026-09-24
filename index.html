@@ -2870,6 +2870,303 @@ body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;bac
   stroke-linecap: round;
   stroke-linejoin: round;
 }
+/* ============ ADMIN PANEL ============ */
+.admin-panel {
+  position: fixed;
+  inset: 0;
+  background: 
+    radial-gradient(900px 500px at 20% 0%, rgba(124,58,237,.1), transparent 60%),
+    radial-gradient(800px 500px at 100% 100%, rgba(0,212,255,.08), transparent 60%),
+    var(--bg);
+  z-index: 4500;
+  display: none;
+  flex-direction: column;
+  overflow-y: auto;
+}
+.admin-panel.on {
+  display: flex;
+}
+.admin-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px 32px;
+  background: rgba(13,18,25,.85);
+  border-bottom: 1px solid var(--bd);
+  backdrop-filter: blur(20px);
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+.admin-brand {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 1.1rem;
+  font-weight: 800;
+}
+.admin-brand .blogo {
+  width: 38px;
+  height: 38px;
+}
+.admin-brand span {
+  color: var(--pri);
+}
+.admin-top-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.admin-user {
+  font-size: .85rem;
+  color: var(--mut);
+  font-family: ui-monospace, monospace;
+}
+.admin-body {
+  padding: 32px;
+  max-width: 1200px;
+  margin: 0 auto;
+  width: 100%;
+}
+
+/* Stats */
+.admin-stats {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
+  margin-bottom: 32px;
+}
+.admin-stat-card {
+  background: rgba(255,255,255,.03);
+  border: 1px solid var(--bd);
+  border-radius: 16px;
+  padding: 20px;
+  transition: .25s;
+  position: relative;
+  overflow: hidden;
+}
+.admin-stat-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, #a78bfa, transparent);
+  opacity: 0;
+  transition: .3s;
+}
+.admin-stat-card:hover {
+  border-color: rgba(167,139,250,.35);
+  background: rgba(167,139,250,.04);
+  transform: translateY(-3px);
+}
+.admin-stat-card:hover::before {
+  opacity: 1;
+}
+.admin-stat-icon {
+  font-size: 1.5rem;
+  margin-bottom: 10px;
+}
+.admin-stat-value {
+  font-size: 1.5rem;
+  font-weight: 800;
+  font-family: ui-monospace, monospace;
+  margin-bottom: 4px;
+  letter-spacing: -.02em;
+}
+.admin-stat-label {
+  font-size: .72rem;
+  color: var(--mut);
+  text-transform: uppercase;
+  letter-spacing: .08em;
+  font-weight: 600;
+}
+
+/* Sections */
+.admin-section {
+  margin-bottom: 32px;
+}
+.admin-section-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+}
+.admin-section-title {
+  font-size: 1.1rem;
+  font-weight: 700;
+}
+
+/* Client cards */
+.admin-clients-list {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+.admin-client-card {
+  background: rgba(255,255,255,.03);
+  border: 1px solid var(--bd);
+  border-radius: 16px;
+  padding: 22px;
+  transition: .2s;
+}
+.admin-client-card:hover {
+  border-color: rgba(167,139,250,.35);
+  background: rgba(167,139,250,.03);
+}
+.admin-client-top {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 18px;
+}
+.admin-client-avatar {
+  width: 52px;
+  height: 52px;
+  border-radius: 14px;
+  background: linear-gradient(135deg, var(--pri), var(--pri2));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 800;
+  font-size: 1.1rem;
+  color: #04121a;
+  flex-shrink: 0;
+}
+.admin-client-info {
+  flex: 1;
+}
+.admin-client-name {
+  font-size: 1.05rem;
+  font-weight: 700;
+  margin-bottom: 3px;
+}
+.admin-client-email {
+  font-size: .82rem;
+  color: var(--mut);
+  font-family: ui-monospace, monospace;
+}
+.admin-client-badge {
+  padding: 4px 10px;
+  border-radius: 6px;
+  font-size: .7rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: .05em;
+  background: rgba(0,224,138,.14);
+  color: var(--ok);
+}
+.admin-client-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 12px;
+  margin-bottom: 18px;
+}
+.admin-client-field {
+  background: rgba(0,0,0,.25);
+  border: 1px solid var(--bd);
+  border-radius: 10px;
+  padding: 12px 14px;
+}
+.admin-client-field-label {
+  font-size: .68rem;
+  color: var(--mut);
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  margin-bottom: 5px;
+  font-weight: 600;
+}
+.admin-client-field-value {
+  font-size: .92rem;
+  font-weight: 700;
+  font-family: ui-monospace, monospace;
+  color: var(--txt);
+}
+.admin-client-actions {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+.admin-client-actions .btn {
+  flex: 1;
+  min-width: 130px;
+  justify-content: center;
+  padding: 11px 16px;
+  font-size: .85rem;
+}
+
+/* Empty */
+.admin-empty {
+  text-align: center;
+  padding: 60px 20px;
+  color: var(--mut);
+  background: rgba(255,255,255,.02);
+  border: 1px dashed var(--bd);
+  border-radius: 16px;
+}
+
+/* System section */
+.admin-system {
+  background: rgba(255,255,255,.02);
+  border: 1px solid var(--bd);
+  border-radius: 16px;
+  padding: 20px;
+}
+.admin-system-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+  padding: 16px 0;
+  border-bottom: 1px solid var(--bd);
+}
+.admin-system-row:last-child {
+  border-bottom: none;
+  padding-bottom: 0;
+}
+.admin-system-row:first-child {
+  padding-top: 0;
+}
+.admin-system-label {
+  font-size: .82rem;
+  color: var(--mut);
+  letter-spacing: .05em;
+  text-transform: uppercase;
+  font-weight: 600;
+  margin-bottom: 4px;
+}
+.admin-system-value {
+  font-size: 1rem;
+  font-weight: 700;
+  font-family: ui-monospace, monospace;
+}
+
+@media (max-width: 900px) {
+  .admin-stats {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  .admin-client-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  .admin-body {
+    padding: 20px;
+  }
+  .admin-top {
+    padding: 16px 20px;
+  }
+  .admin-user {
+    display: none;
+  }
+}
+@media (max-width: 500px) {
+  .admin-stats {
+    grid-template-columns: 1fr;
+  }
+  .admin-client-grid {
+    grid-template-columns: 1fr;
+  }
+}
 </style>
 </head>
 <body>
@@ -3884,6 +4181,130 @@ body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;bac
   </div>
 </div>
 
+<!-- ============ ADMIN PANEL ============ -->
+<div class="admin-panel" id="adminPanel">
+
+  <!-- Header -->
+  <div class="admin-top">
+    <div class="admin-brand">
+      <div class="blogo"><svg viewBox="0 0 24 24"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg></div>
+      <div>Nordic<span>Crypto</span> · <b style="color:#a78bfa">Admin</b></div>
+    </div>
+    <div class="admin-top-actions">
+      <span class="admin-user" id="adminUser">admin@nordiccrypto.com</span>
+      <button class="btn b2" id="adminLogoutBtn">🚪 Log out</button>
+    </div>
+  </div>
+
+  <div class="admin-body">
+
+    <!-- Stats -->
+    <div class="admin-stats">
+      <div class="admin-stat-card">
+        <div class="admin-stat-icon">👥</div>
+        <div class="admin-stat-value" id="admStatClients">0</div>
+        <div class="admin-stat-label">Total Clients</div>
+      </div>
+      <div class="admin-stat-card">
+        <div class="admin-stat-icon">💰</div>
+        <div class="admin-stat-value" id="admStatBalance">$0.00</div>
+        <div class="admin-stat-label">Total Balance</div>
+      </div>
+      <div class="admin-stat-card">
+        <div class="admin-stat-icon">📊</div>
+        <div class="admin-stat-value" id="admStatTx">0</div>
+        <div class="admin-stat-label">Transactions</div>
+      </div>
+      <div class="admin-stat-card">
+        <div class="admin-stat-icon">₿</div>
+        <div class="admin-stat-value" id="admStatCrypto">0</div>
+        <div class="admin-stat-label">Crypto Holdings</div>
+      </div>
+    </div>
+
+    <!-- Clients List -->
+    <div class="admin-section">
+      <div class="admin-section-head">
+        <div class="admin-section-title">👥 Clients</div>
+        <button class="btn b2" id="adminRefreshBtn">🔄 Refresh</button>
+      </div>
+      <div class="admin-clients-list" id="adminClientsList">
+        <div class="admin-empty">
+          <div style="font-size:2.5rem;opacity:.4;margin-bottom:12px">📭</div>
+          <div>Loading clients...</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- System / Updates -->
+    <div class="admin-section">
+      <div class="admin-section-head">
+        <div class="admin-section-title">🔔 System & Updates</div>
+      </div>
+      <div class="admin-system">
+        <div class="admin-system-row">
+          <div>
+            <div class="admin-system-label">Current version</div>
+            <div class="admin-system-value" id="admVersion">1.0.0</div>
+          </div>
+          <button class="btn b1" id="adminPushUpdate">📢 Push new version</button>
+        </div>
+        <div class="admin-system-row">
+          <div>
+            <div class="admin-system-label">Send notification to all</div>
+            <div class="admin-system-value" style="color:var(--mut);font-weight:400;font-size:.82rem">Send a message to Eva's notification bell</div>
+          </div>
+          <button class="btn b2" id="adminSendNotif">📩 Send message</button>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ============ ADMIN: MODAL — Balance ============ -->
+<div class="mask" id="adminBalanceMask">
+  <div class="box">
+    <h2>Adjust Balance</h2>
+    <p class="d" id="adminBalanceDesc">Eva A. Lundgren</p>
+
+    <div class="fg">
+      <label>Amount (positive to add, negative to subtract)</label>
+      <input type="number" class="fc" id="adminBalanceAmount" placeholder="e.g. 100 or -50">
+    </div>
+    <div class="fg">
+      <label>Note (optional)</label>
+      <input type="text" class="fc" id="adminBalanceNote" placeholder="e.g. Bonus, Correction">
+    </div>
+
+    <div class="mact">
+      <button class="btn b1" style="flex:1;justify-content:center" id="adminBalanceSave">Apply</button>
+      <button class="btn b2" style="flex:1;justify-content:center" id="adminBalanceCancel">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<!-- ============ ADMIN: MODAL — Message ============ -->
+<div class="mask" id="adminMsgMask">
+  <div class="box">
+    <h2>Send Notification</h2>
+    <p class="d">This message appears in Eva's notification bell</p>
+
+    <div class="fg">
+      <label>Message</label>
+      <textarea class="fc" id="adminMsgText" rows="3" placeholder="e.g. Your card has been approved!" style="resize:vertical;font-family:inherit"></textarea>
+    </div>
+    <div class="fg">
+      <label>Icon (emoji)</label>
+      <input type="text" class="fc" id="adminMsgIcon" placeholder="📩" value="📩" maxlength="4">
+    </div>
+
+    <div class="mact">
+      <button class="btn b1" style="flex:1;justify-content:center" id="adminMsgSave">Send</button>
+      <button class="btn b2" style="flex:1;justify-content:center" id="adminMsgCancel">Cancel</button>
+    </div>
+  </div>
+</div>
 <!-- ============ TOAST ============ -->
 <div class="toast" id="toast"><svg viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5"/></svg><span id="tMsg">OK</span></div>
 
