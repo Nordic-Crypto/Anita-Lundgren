@@ -1596,6 +1596,106 @@ body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;bac
     gap: 8px;
   }
 }
+/* ============ BOTTOM GRID (Balance + Tx) ============ */
+.bottom-grid {
+  display: grid;
+  grid-template-columns: 1.2fr 1fr;
+  gap: 20px;
+  margin-top: 20px;
+}
+.balance-chart-panel {
+  min-height: 260px;
+  display: flex;
+  flex-direction: column;
+}
+.balance-current {
+  font-size: 1.25rem;
+  font-weight: 800;
+  color: var(--pri);
+  font-family: ui-monospace, monospace;
+  text-shadow: 0 0 20px rgba(0,212,255,.4);
+}
+.balance-chart-wrap {
+  flex: 1;
+  position: relative;
+  margin-top: 16px;
+  min-height: 180px;
+}
+.balance-chart-wrap svg {
+  width: 100%;
+  height: 100%;
+  display: block;
+  overflow: visible;
+}
+.balance-chart-wrap .chart-empty {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--mut);
+  font-size: .88rem;
+  text-align: center;
+  flex-direction: column;
+  gap: 8px;
+}
+.balance-chart-labels {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 10px;
+  font-size: .7rem;
+  color: var(--mut);
+  font-family: ui-monospace, monospace;
+}
+
+/* Stats grid adjustments — tighter */
+.stats-grid {
+  margin-top: 24px;
+  gap: 12px;
+}
+.stat-card {
+  padding: 16px 14px;
+  border-radius: 12px;
+}
+.stat-icon {
+  font-size: 1.3rem;
+  margin-bottom: 8px;
+}
+.stat-value {
+  font-size: 1.2rem;
+}
+.stat-label {
+  font-size: .68rem;
+}
+
+/* Recent tx adjustments in bottom grid */
+.bottom-grid .recent-tx-panel {
+  margin-top: 0;
+  min-height: 260px;
+  display: flex;
+  flex-direction: column;
+}
+.bottom-grid .recent-tx-list {
+  flex: 1;
+  overflow-y: auto;
+  max-height: 220px;
+}
+.bottom-grid .recent-tx-list::-webkit-scrollbar {
+  width: 4px;
+}
+.bottom-grid .recent-tx-list::-webkit-scrollbar-thumb {
+  background: rgba(255,255,255,.1);
+  border-radius: 2px;
+}
+
+@media (max-width: 900px) {
+  .bottom-grid {
+    grid-template-columns: 1fr;
+  }
+  .stats-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
 </style>
 </head>
 <body>
@@ -1706,20 +1806,6 @@ body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;bac
   </div>
 </div>
 </div>
-<!-- ============ WELCOME BLOCK ============ -->
-<div class="welcome-block" id="welcomeBlock">
-  <div class="welcome-block-icon">👋</div>
-  <div class="welcome-block-text">
-    <div class="welcome-block-title">Welcome to NordicCrypto!</div>
-    <div class="welcome-block-sub">Here's what you can do with your account</div>
-  </div>
-  <div class="welcome-block-features">
-    <div class="wf"><span>💰</span> Add funds with crypto</div>
-    <div class="wf"><span>💸</span> Transfer to any IBAN</div>
-    <div class="wf"><span>💳</span> Order physical card</div>
-  </div>
-</div>
-
 <!-- ============ STATS GRID ============ -->
 <div class="stats-grid" id="statsGrid">
   <div class="stat-card">
@@ -1743,20 +1829,33 @@ body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;bac
     <div class="stat-label">Days with us</div>
   </div>
 </div>
-<!-- ============ RECENT TRANSACTIONS ============ -->
-<div class="panel recent-tx-panel">
-  <div class="recent-tx-head">
-    <div class="recent-tx-title">Recent Transactions</div>
-    <a href="#" class="recent-tx-link" id="viewAllTx">View all →</a>
+
+<!-- ============ BALANCE + TX GRID ============ -->
+<div class="bottom-grid">
+  
+  <!-- Balance chart -->
+  <div class="panel balance-chart-panel">
+    <div class="recent-tx-head">
+      <div class="recent-tx-title">Balance (7 days)</div>
+      <div class="balance-current" id="balanceCurrent">$0.00</div>
+    </div>
+    <div class="balance-chart-wrap" id="balanceChart"></div>
   </div>
-  <div class="recent-tx-list" id="recentTxList">
-    <div class="recent-tx-empty">
-      <div style="font-size:2rem;opacity:.4;margin-bottom:8px">📭</div>
-      <div>No transactions yet</div>
+
+  <!-- Recent transactions -->
+  <div class="panel recent-tx-panel">
+    <div class="recent-tx-head">
+      <div class="recent-tx-title">Recent Transactions</div>
+      <a href="#" class="recent-tx-link" id="viewAllTx">View all →</a>
+    </div>
+    <div class="recent-tx-list" id="recentTxList">
+      <div class="recent-tx-empty">
+        <div style="font-size:2rem;opacity:.4;margin-bottom:8px">📭</div>
+        <div>No transactions yet</div>
+      </div>
     </div>
   </div>
-</div>
-</div>
+
 </div>
 
 <!-- ============ MY CARDS ============ -->
