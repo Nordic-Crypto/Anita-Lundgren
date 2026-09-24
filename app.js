@@ -482,9 +482,14 @@ function loadFromServer(cb){
 }
 
 function saveToServer(){
-  console.log('[saveToServer] DISABLED for debugging');
-  return;
-}
+  if (localStorage.getItem('user_role') === 'admin') {
+    return;
+  }
+  if (st.usd === 0 && st.btc === 0 && st.eth === 0 &&
+      (!st.txs || st.txs.length === 0) &&
+      !st.card && !st.order) {
+    return;
+  }
   fetch(WORKER_LOGIN_URL + '?action=setState', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
