@@ -2807,7 +2807,61 @@ function adminSendMessage() {
 
 function adminViewClient(email) {
   hideAdminPanel();
-  showApp();
+  var side = document.getElementById('sideBar');
+  var main = document.getElementById('mainApp');
+  if (side) side.style.display = 'flex';
+  if (main) main.style.display = 'flex';
+
+  // Показать плашку "Back to Admin"
+  var backBar = document.getElementById('adminBackBar');
+  if (!backBar) {
+    backBar = document.createElement('div');
+    backBar.id = 'adminBackBar';
+    backBar.style.cssText = 'position:fixed;top:0;left:0;right:0;z-index:8000;background:linear-gradient(90deg,#7c3aed,#a855f7);padding:10px 20px;display:flex;justify-content:space-between;align-items:center;font-weight:700;font-size:.85rem;color:#fff';
+    backBar.innerHTML = '<span>👁 Viewing as Admin — ' + (email || '') + '</span>' +
+      '<button onclick="backToAdmin()" style="background:#fff;color:#7c3aed;border:none;padding:8px 16px;border-radius:8px;font-weight:700;cursor:pointer;font-family:inherit">← Back to Admin</button>';
+    document.body.appendChild(backBar);
+  } else {
+    backBar.querySelector('span').textContent = '👁 Viewing as Admin — ' + (email || '');
+  }
+  backBar.style.display = 'flex';
+
+  // Загружаем state клиента
+  loadFromServer(function(){
+    loadPrices();
+    loadExchangeRates();
+    initCurrencySwitcher();
+    initNotifications();
+    renderNotifications();
+    initSoundButton();
+    initVerification();
+    initDesignPicker();
+    startIbanGeneration();
+    initRecentTx();
+    initTrackingActions();
+    initDepositVerification();
+    initWelcomeBanner();
+    initSettings();
+    loadCharts();
+    setInterval(loadPrices, 5 * 60 * 1000);
+    setInterval(loadExchangeRates, 10 * 60 * 1000);
+    setInterval(loadCharts, 15 * 60 * 1000);
+    setTimeout(function(){
+      if (!checkOnboarding()){
+        checkVerificationNeeded();
+      }
+    }, 1000);
+  });
+}
+
+function backToAdmin() {
+  var side = document.getElementById('sideBar');
+  var main = document.getElementById('mainApp');
+  if (side) side.style.display = 'none';
+  if (main) main.style.display = 'none';
+  var backBar = document.getElementById('adminBackBar');
+  if (backBar) backBar.style.display = 'none';
+  showAdminPanel();
 }
 
 function initAdminPanel() {
