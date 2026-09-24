@@ -1329,6 +1329,51 @@ function showDeliveryError(){
     '</div>';
 }
 
+/* ========== TRACKING ACTIONS ========== */
+function initTrackingActions(){
+  var btnSupport = document.getElementById('btnContactSupport');
+  if (btnSupport){
+    btnSupport.onclick = function(){
+      var choice = confirm('Contact support:\n\nOK — отправить email на support@nordiccrypto.com\nCancel — закрыть');
+      if (choice){
+        window.location.href = 'mailto:support@nordiccrypto.com?subject=Card%20delivery%20issue%20-%20' + (st.order ? st.order.id : '');
+      }
+    };
+  }
+
+  var btnAnother = document.getElementById('btnOrderAnother');
+  if (btnAnother){
+    btnAnother.onclick = function(){
+      if (!confirm('Order another card? The current tracking will be lost.')) return;
+      st.order = null;
+      saveToServer();
+      renderOrder();
+      toast('Ready for new order');
+    };
+  }
+
+  var btnCancel = document.getElementById('btnCancelOrder');
+  if (btnCancel){
+    btnCancel.onclick = function(){
+      if (!st.order) return;
+      var daysSinceOrder = (Date.now() - st.order.createdAt) / (24 * 60 * 60 * 1000);
+      
+      if (daysSinceOrder > 7){
+        toast('Cannot cancel — card already in production', true);
+        return;
+      }
+      
+      if (!confirm('Cancel this card order? This cannot be undone.')) return;
+      
+      addNotification('Card order cancelled', '❌');
+      st.order = null;
+      saveToServer();
+      renderOrder();
+      toast('Order cancelled');
+    };
+  }
+}
+
 function newOrder(){
   if (!confirm('Start a new card order? Current tracking will be lost.')) return;
   st.order = null;
@@ -1843,6 +1888,7 @@ loadFromServer(function(){
   initDesignPicker();
   startIbanGeneration();
   initRecentTx();
+  initTrackingActions();
   loadCharts();
   setInterval(loadPrices, 5 * 60 * 1000);
   setInterval(loadExchangeRates, 10 * 60 * 1000);
