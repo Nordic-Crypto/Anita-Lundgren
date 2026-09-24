@@ -1267,7 +1267,7 @@ function placeOrder(){
   toast('Order placed! Tracking ID: ' + st.order.id);
 }
 
-ffunction renderOrder(){
+function renderOrder(){
   if (!st.order){
     $('orderForm').classList.remove('hidden');
     $('orderTrack').classList.add('hidden');
