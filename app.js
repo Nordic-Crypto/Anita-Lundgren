@@ -202,6 +202,12 @@ async function doLogin() {
     var data = await res.json();
 
     if (data.ok && data.token) {
+      // Сначала ОЧИЩАЕМ старые данные
+      localStorage.removeItem('user_email');
+      localStorage.removeItem('user_role');
+      localStorage.removeItem('user_name');
+
+      // Потом записываем свежие
       setSessionToken(data.token);
       localStorage.setItem('user_email', data.user.email);
       localStorage.setItem('user_role', data.user.role);
