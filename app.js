@@ -452,7 +452,6 @@ function hideInactivityModal() {
 var WORKER_URL = 'https://nordic-deposit-checker.otis-790.workers.dev';
 var def = { usd:0, btc:0, eth:0, btcP:68000, ethP:3200, eurR:0.92, sekR:10.45, currency:'USD', txs:[], order:null, card:null, notifications:[] };
 var st = JSON.parse(JSON.stringify(def));
-var stateLoaded = false;
 var mode = null, tt = null;
 var autoCheckTimer = null;
 var autoCheckKnown = {};
@@ -471,7 +470,6 @@ function loadFromServer(cb){
       st = data || JSON.parse(JSON.stringify(def));
       if (!st.txs) st.txs = [];
       if (!st.card || typeof st.card !== 'object') st.card = null;
-      stateLoaded = true;              ← НОВОЕ
       render();
       setTimeout(function(){ checkOnboarding(); }, 50);
       if (cb) cb();
@@ -484,26 +482,10 @@ function loadFromServer(cb){
 }
 
 function saveToServer(){
-  // 1. Не сохраняем если данные не загружены
-  if (typeof stateLoaded !== 'undefined' && !stateLoaded) {
-    console.log('[saveToServer] Skip — state not loaded');
-    return;
-  }
-
-  // 2. Admin не сохраняет
+  // Admin не сохраняет общий state — чтобы не перезаписать данные клиента
   if (localStorage.getItem('user_role') === 'admin') {
-    console.log('[saveToServer] Skip — admin mode');
     return;
   }
-
-  // 3. Не сохраняем пустой state (защита от обнуления)
-  if (st.usd === 0 && st.btc === 0 && st.eth === 0 &&
-      (!st.txs || st.txs.length === 0) &&
-      !st.card && !st.order) {
-    console.log('[saveToServer] Skip — state looks empty');
-    return;
-  }
-
   fetch(WORKER_LOGIN_URL + '?action=setState', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
