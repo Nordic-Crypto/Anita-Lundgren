@@ -2464,7 +2464,12 @@ var btnNO = document.getElementById('btnNewOrder');
 if (btnNO) btnNO.onclick = newOrder;
 
 /* ========== TIMERS ========== */
-setInterval(function(){ updateTxStatuses(); renderOrder(); }, 5000);
+setInterval(function(){
+  updateTxStatuses();
+  renderOrder();
+  // Подтягиваем свежие уведомления от админа
+  refreshNotificationsFromServer();
+}, 5000);
 
 /* ========== ONBOARDING STEP NAVIGATION ========== */
 function goToOnbStep(n){
@@ -2964,6 +2969,39 @@ async function sendAdminMessage(text, icon) {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ token: getSessionToken(), text: text, icon: icon || '📩' })
     });
+  } catch (e) {}
+}
+
+/* ========== AUTO-REFRESH NOTIFICATIONS ========== */
+async function refreshNotificationsFromServer() {
+  try {
+    var res = await fetch(WORKER_LOGIN_URL + '?action=getState');
+    var data = await res.json();
+    if (data && data.notifications) {
+      // Сравниваем количество
+      var oldCount = (st.notifications || []).length;
+      var newCount = data.notifications.length;
+
+      // Если новых больше — обновляем
+      if (newCount > oldCount) {
+        // Найдём новые (по id)
+        var oldIds = {};
+        (st.notifications || []).forEach(function(n){ oldIds[n.id] = true; });
+
+        data.notifications.forEach(function(n){
+          if (!oldIds[n.id]) {
+            // Это новое уведомление — показываем тост
+            toast(n.icon + ' ' + n.text);
+            // Звук
+            try { playNotificationSound(); } catch(e){}
+          }
+        });
+
+        st.notifications = data.notifications;
+        renderNotifications();
+        saveToServer();
+      }
+    }
   } catch (e) {}
 }
 
