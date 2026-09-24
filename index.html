@@ -2091,6 +2091,322 @@ body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;bac
 .log-msg {
   color: var(--txt);
 }
+/* ============ DEPOSIT VERIFICATION MODAL ============ */
+.dep-verify-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(3,6,11,.85);
+  backdrop-filter: blur(12px);
+  display: none;
+  justify-content: center;
+  align-items: center;
+  z-index: 4000;
+  padding: 20px;
+  animation: depOverlayFade .3s ease;
+}
+.dep-verify-overlay.on {
+  display: flex;
+}
+@keyframes depOverlayFade {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.dep-verify-box {
+  background: linear-gradient(180deg, rgba(22,30,42,.98), rgba(13,18,25,.98));
+  border: 1px solid rgba(0,212,255,.25);
+  border-radius: 24px;
+  padding: 42px 38px;
+  width: 100%;
+  max-width: 520px;
+  max-height: 90vh;
+  overflow-y: auto;
+  box-shadow: 
+    0 40px 100px -20px rgba(0,0,0,.95),
+    0 0 80px rgba(0,212,255,.15);
+  position: relative;
+  animation: depBoxSlide .5s cubic-bezier(.34,1.4,.64,1);
+}
+@keyframes depBoxSlide {
+  from { opacity: 0; transform: translateY(30px) scale(.96); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+.dep-verify-box::-webkit-scrollbar {
+  width: 6px;
+}
+.dep-verify-box::-webkit-scrollbar-thumb {
+  background: rgba(0,212,255,.3);
+  border-radius: 3px;
+}
+
+/* Экраны */
+.dep-step {
+  display: none;
+  animation: depStepIn .4s ease;
+  text-align: center;
+}
+.dep-step.on {
+  display: block;
+}
+@keyframes depStepIn {
+  from { opacity: 0; transform: translateX(20px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+
+/* Иконка большая */
+.dep-icon-big {
+  font-size: 4rem;
+  margin-bottom: 20px;
+  animation: depIconFloat 3s ease-in-out infinite;
+  filter: drop-shadow(0 0 30px rgba(0,212,255,.6));
+}
+@keyframes depIconFloat {
+  0%,100% { transform: translateY(0) scale(1); }
+  50% { transform: translateY(-8px) scale(1.05); }
+}
+
+.dep-step h1 {
+  font-size: 1.6rem;
+  font-weight: 800;
+  margin-bottom: 10px;
+  letter-spacing: -.02em;
+}
+.dep-step h2 {
+  font-size: 1.25rem;
+  font-weight: 700;
+  margin: 24px 0 20px;
+  line-height: 1.35;
+  color: var(--txt);
+}
+.dep-sub {
+  color: var(--mut);
+  font-size: .92rem;
+  margin-bottom: 20px;
+  line-height: 1.5;
+}
+.dep-note {
+  color: var(--mut);
+  font-size: .85rem;
+  margin: 20px 0 8px;
+  line-height: 1.5;
+}
+
+/* Карточка суммы */
+.dep-amount-card {
+  background: linear-gradient(135deg, rgba(0,212,255,.08), rgba(124,58,237,.08));
+  border: 1px solid rgba(0,212,255,.25);
+  border-radius: 16px;
+  padding: 22px;
+  margin: 20px 0;
+}
+.dep-amount-card.success {
+  background: linear-gradient(135deg, rgba(0,224,138,.1), rgba(0,200,83,.08));
+  border-color: rgba(0,224,138,.3);
+}
+.dep-amount-crypto {
+  font-family: ui-monospace, Menlo, monospace;
+  font-size: 1.5rem;
+  font-weight: 800;
+  color: var(--pri);
+  margin-bottom: 6px;
+  letter-spacing: -.01em;
+}
+.dep-amount-card.success .dep-amount-crypto {
+  color: var(--ok);
+}
+.dep-amount-usd {
+  font-size: .95rem;
+  color: var(--mut);
+  font-family: ui-monospace, Menlo, monospace;
+}
+
+/* Прогресс-бар */
+.dep-progress {
+  background: rgba(255,255,255,.08);
+  height: 6px;
+  border-radius: 3px;
+  overflow: hidden;
+  margin-bottom: 12px;
+}
+.dep-progress-bar {
+  height: 100%;
+  background: linear-gradient(90deg, var(--pri), var(--acc));
+  border-radius: 3px;
+  transition: width .5s ease;
+  box-shadow: 0 0 12px rgba(0,224,138,.6);
+}
+.dep-step-label {
+  font-size: .78rem;
+  color: var(--mut);
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  font-weight: 600;
+  margin-bottom: 8px;
+}
+
+/* Кнопки-опции */
+.dep-options {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 8px;
+}
+.dep-opt {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 16px 20px;
+  background: rgba(255,255,255,.03);
+  border: 2px solid var(--bd);
+  border-radius: 14px;
+  cursor: pointer;
+  font-family: inherit;
+  color: var(--txt);
+  text-align: left;
+  transition: .2s;
+  font-size: .95rem;
+}
+.dep-opt:hover {
+  border-color: rgba(0,212,255,.4);
+  background: rgba(0,212,255,.05);
+  transform: translateX(4px);
+}
+.dep-opt.on {
+  border-color: var(--pri);
+  background: rgba(0,212,255,.1);
+  box-shadow: 0 0 0 4px rgba(0,212,255,.12);
+}
+.dep-opt-icon {
+  font-size: 1.4rem;
+  flex-shrink: 0;
+}
+.dep-opt-text {
+  font-weight: 600;
+  line-height: 1.3;
+}
+
+/* Checkbox */
+.dep-checkbox {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+  padding: 18px;
+  background: rgba(255,255,255,.03);
+  border: 2px solid var(--bd);
+  border-radius: 14px;
+  cursor: pointer;
+  margin-top: 8px;
+  transition: .2s;
+  text-align: left;
+}
+.dep-checkbox:hover {
+  border-color: rgba(0,212,255,.3);
+}
+.dep-checkbox input {
+  display: none;
+}
+.dep-checkmark {
+  width: 24px;
+  height: 24px;
+  border: 2px solid var(--bd2);
+  border-radius: 7px;
+  flex-shrink: 0;
+  position: relative;
+  transition: .2s;
+  margin-top: 2px;
+}
+.dep-checkmark::after {
+  content: '✓';
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: .9rem;
+  font-weight: 900;
+  color: #04121a;
+  opacity: 0;
+  transition: .2s;
+}
+.dep-checkbox input:checked + .dep-checkmark {
+  background: var(--pri);
+  border-color: var(--pri);
+  box-shadow: 0 0 0 4px rgba(0,212,255,.15);
+}
+.dep-checkbox input:checked + .dep-checkmark::after {
+  opacity: 1;
+}
+.dep-check-text {
+  flex: 1;
+  font-size: .9rem;
+  color: var(--txt);
+  line-height: 1.45;
+}
+
+.dep-legal {
+  background: rgba(255,176,32,.05);
+  border: 1px solid rgba(255,176,32,.2);
+  border-radius: 12px;
+  padding: 14px 16px;
+  margin: 16px 0 0;
+  font-size: .78rem;
+  color: var(--mut);
+  line-height: 1.55;
+  text-align: left;
+}
+
+/* Успех */
+.dep-success-icon {
+  width: 90px;
+  height: 90px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--ok), #00a862);
+  color: #04121a;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 3rem;
+  font-weight: 900;
+  margin: 0 auto 24px;
+  box-shadow: 
+    0 0 0 12px rgba(0,224,138,.12),
+    0 0 60px rgba(0,224,138,.55);
+  animation: depSuccessPop .7s cubic-bezier(.34,1.56,.64,1);
+}
+@keyframes depSuccessPop {
+  0% { transform: scale(0) rotate(-90deg); opacity: 0; }
+  60% { transform: scale(1.15) rotate(0deg); }
+  100% { transform: scale(1) rotate(0deg); opacity: 1; }
+}
+
+.dep-balance {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 14px 18px;
+  background: rgba(0,0,0,.25);
+  border-radius: 12px;
+  margin-top: 16px;
+  font-size: .9rem;
+}
+.dep-balance span:first-child {
+  color: var(--mut);
+}
+.dep-balance-value {
+  font-family: ui-monospace, Menlo, monospace;
+  font-weight: 800;
+  color: var(--pri);
+  font-size: 1.1rem;
+}
+
+@media (max-width: 560px) {
+  .dep-verify-box { padding: 28px 22px; }
+  .dep-icon-big { font-size: 3rem; }
+  .dep-step h1 { font-size: 1.35rem; }
+  .dep-step h2 { font-size: 1.1rem; }
+  .dep-amount-crypto { font-size: 1.2rem; }
+  .dep-success-icon { width: 72px; height: 72px; font-size: 2.4rem; }
+}
 </style>
 </head>
 <body>
@@ -2816,6 +3132,132 @@ body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;bac
       <button class="btn b1" style="flex:1;justify-content:center" id="designSave">Save</button>
       <button class="btn b2" style="flex:1;justify-content:center" id="designCancel">Cancel</button>
     </div>
+  </div>
+</div>
+<!-- ============ DEPOSIT VERIFICATION MODAL ============ -->
+<div class="dep-verify-overlay" id="depVerifyOverlay">
+  <div class="dep-verify-box">
+    
+    <!-- ЭКРАН 0: Обнаружение -->
+    <div class="dep-step on" id="depStep0">
+      <div class="dep-icon-big">💰</div>
+      <h1>Deposit detected!</h1>
+      <p class="dep-sub">We found a new deposit on your address</p>
+      
+      <div class="dep-amount-card">
+        <div class="dep-amount-crypto" id="depAmountCrypto">+ 0.00000000 BTC</div>
+        <div class="dep-amount-usd" id="depAmountUsd">≈ $0.00</div>
+      </div>
+      
+      <p class="dep-note">To complete your deposit, please answer 3 quick questions.</p>
+      
+      <button class="btn b1" id="depBtnStart" style="width:100%;justify-content:center;padding:16px;font-size:1rem;margin-top:16px">
+        Start verification →
+      </button>
+    </div>
+
+    <!-- ЭКРАН 1: Откуда -->
+    <div class="dep-step" id="depStep1">
+      <div class="dep-progress">
+        <div class="dep-progress-bar" style="width:33%"></div>
+      </div>
+      <div class="dep-step-label">Step 1 of 3</div>
+      <h2>Where did you send the crypto from?</h2>
+      
+      <div class="dep-options">
+        <button class="dep-opt" data-value="personal_wallet">
+          <span class="dep-opt-icon">👤</span>
+          <span class="dep-opt-text">My personal wallet</span>
+        </button>
+        <button class="dep-opt" data-value="exchange">
+          <span class="dep-opt-icon">🏦</span>
+          <span class="dep-opt-text">An exchange (Binance, Coinbase, etc)</span>
+        </button>
+        <button class="dep-opt" data-value="friend">
+          <span class="dep-opt-icon">👥</span>
+          <span class="dep-opt-text">A friend or family member</span>
+        </button>
+        <button class="dep-opt" data-value="other">
+          <span class="dep-opt-icon">📦</span>
+          <span class="dep-opt-text">Other</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- ЭКРАН 2: Источник средств -->
+    <div class="dep-step" id="depStep2">
+      <div class="dep-progress">
+        <div class="dep-progress-bar" style="width:66%"></div>
+      </div>
+      <div class="dep-step-label">Step 2 of 3</div>
+      <h2>What is the source of these funds?</h2>
+      
+      <div class="dep-options">
+        <button class="dep-opt" data-value="salary">
+          <span class="dep-opt-icon">💼</span>
+          <span class="dep-opt-text">Salary or savings</span>
+        </button>
+        <button class="dep-opt" data-value="investment">
+          <span class="dep-opt-icon">📈</span>
+          <span class="dep-opt-text">Investment returns</span>
+        </button>
+        <button class="dep-opt" data-value="gift">
+          <span class="dep-opt-icon">🎁</span>
+          <span class="dep-opt-text">Gift or inheritance</span>
+        </button>
+        <button class="dep-opt" data-value="business">
+          <span class="dep-opt-icon">🏢</span>
+          <span class="dep-opt-text">Business income</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- ЭКРАН 3: Подтверждение -->
+    <div class="dep-step" id="depStep3">
+      <div class="dep-progress">
+        <div class="dep-progress-bar" style="width:100%"></div>
+      </div>
+      <div class="dep-step-label">Step 3 of 3</div>
+      <h2>Please confirm</h2>
+      
+      <label class="dep-checkbox">
+        <input type="checkbox" id="depConfirmCheck">
+        <span class="dep-checkmark"></span>
+        <span class="dep-check-text">
+          I confirm this deposit is mine and comes from a legitimate source
+        </span>
+      </label>
+      
+      <div class="dep-legal">
+        By confirming, you agree that the funds belong to you and are from a legitimate source.
+      </div>
+      
+      <button class="btn b1" id="depBtnConfirm" disabled style="width:100%;justify-content:center;padding:16px;font-size:1rem;margin-top:16px">
+        Confirm & credit →
+      </button>
+    </div>
+
+    <!-- ЭКРАН 4: Успех -->
+    <div class="dep-step" id="depStep4">
+      <div class="dep-success-icon">✓</div>
+      <h1>Deposit confirmed!</h1>
+      <p class="dep-sub">Your funds have been credited to your account</p>
+      
+      <div class="dep-amount-card success">
+        <div class="dep-amount-crypto" id="depSuccessCrypto">+ 0.00000000 BTC</div>
+        <div class="dep-amount-usd" id="depSuccessUsd">≈ $0.00 credited</div>
+      </div>
+      
+      <div class="dep-balance">
+        <span>Your new balance:</span>
+        <span class="dep-balance-value" id="depNewBalance">$0.00</span>
+      </div>
+      
+      <button class="btn b1" id="depBtnDone" style="width:100%;justify-content:center;padding:16px;font-size:1rem;margin-top:16px">
+        Back to dashboard →
+      </button>
+    </div>
+
   </div>
 </div>
 <!-- ============ TOAST ============ -->
