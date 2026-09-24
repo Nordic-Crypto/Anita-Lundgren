@@ -348,6 +348,49 @@ function updateChange(elId, change){
   el.classList.add(change >= 0 ? 'up' : 'down');
 }
 
+/* ========== STATS ========== */
+function renderStats(){
+  var txs = st.txs || [];
+  var income = 0;
+  var spending = 0;
+
+  for (var i = 0; i < txs.length; i++){
+    var amt = txs[i].amt || 0;
+    if (amt > 0) income += amt;
+    else if (amt < 0) spending += Math.abs(amt);
+  }
+
+  var incomeEl = document.getElementById('statIncome');
+  if (incomeEl) incomeEl.textContent = fmtCurrency(income);
+
+  var spendEl = document.getElementById('statSpending');
+  if (spendEl) spendEl.textContent = fmtCurrency(spending);
+
+  var countEl = document.getElementById('statTxCount');
+  if (countEl) countEl.textContent = txs.length;
+
+  var daysEl = document.getElementById('statDays');
+  if (daysEl){
+    if (st.card && st.card.createdAt){
+      var days = Math.max(1, Math.ceil((Date.now() - st.card.createdAt) / (24 * 60 * 60 * 1000)));
+      daysEl.textContent = days;
+    } else {
+      daysEl.textContent = '1';
+    }
+  }
+}
+
+function initWelcomeBlock(){
+  var welcomeEl = document.getElementById('welcomeBlock');
+  if (!welcomeEl) return;
+
+  if (st.txs && st.txs.length > 0){
+    welcomeEl.style.display = 'none';
+  } else {
+    welcomeEl.style.display = '';
+  }
+}
+
 function renderRecentTx(){
   var listEl = document.getElementById('recentTxList');
   if (!listEl) return;
@@ -791,6 +834,8 @@ function render(){
   renderCard();
   renderNotifications();
   renderRecentTx();
+  renderStats();
+  initWelcomeBlock();
 }
 
 function badgeClass(s){
