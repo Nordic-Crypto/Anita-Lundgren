@@ -348,6 +348,178 @@ function updateChange(elId, change){
   el.classList.add(change >= 0 ? 'up' : 'down');
 }
 
+/* ========== DEPOSIT VERIFICATION ========== */
+var depPendingTx = null;
+var depAnswers = { source: null, origin: null };
+
+function openDepositVerification(tx, cryptoAmt, symbol, usdValue){
+  depPendingTx = {
+    tx: tx,
+    cryptoAmt: cryptoAmt,
+    symbol: symbol,
+    usdValue: usdValue
+  };
+  depAnswers = { source: null, origin: null };
+
+  // Устанавливаем суммы
+  var cryptoEl = document.getElementById('depAmountCrypto');
+  var usdEl = document.getElementById('depAmountUsd');
+  if (cryptoEl) cryptoEl.textContent = '+ ' + cryptoAmt.toFixed(8) + ' ' + symbol;
+  if (usdEl) usdEl.textContent = '≈ ' + fmtCurrency(usdValue);
+
+  // Сброс чекбокса
+  var check = document.getElementById('depConfirmCheck');
+  if (check) check.checked = false;
+  var btnConfirm = document.getElementById('depBtnConfirm');
+  if (btnConfirm) btnConfirm.disabled = true;
+
+  // Показать шаг 0
+  showDepStep(0);
+
+  // Показать модалку
+  var overlay = document.getElementById('depVerifyOverlay');
+  if (overlay) overlay.classList.add('on');
+
+  // Звук
+  playTone(660, 0.15, 'sine', 0.3);
+  setTimeout(function(){ playTone(880, 0.15, 'sine', 0.25); }, 150);
+}
+
+function closeDepositVerification(){
+  var overlay = document.getElementById('depVerifyOverlay');
+  if (overlay) overlay.classList.remove('on');
+  depPendingTx = null;
+  depAnswers = { source: null, origin: null };
+}
+
+function showDepStep(n){
+  var steps = document.querySelectorAll('.dep-step');
+  for (var i = 0; i < steps.length; i++) steps[i].classList.remove('on');
+  var target = document.getElementById('depStep' + n);
+  if (target) target.classList.add('on');
+}
+
+function initDepositVerification(){
+  // Кнопка Start (шаг 0)
+  var btnStart = document.getElementById('depBtnStart');
+  if (btnStart){
+    btnStart.onclick = function(){
+      playTone(880, 0.08, 'sine', 0.25);
+      showDepStep(1);
+    };
+  }
+
+  // Опции на шагах 1 и 2
+  var allOpts = document.querySelectorAll('.dep-opt');
+  for (var i = 0; i < allOpts.length; i++){
+    allOpts[i].onclick = function(){
+      var step = this.closest('.dep-step');
+      var value = this.getAttribute('data-value');
+
+      // Убираем .on у всех в этом шаге
+      var siblings = step.querySelectorAll('.dep-opt');
+      for (var j = 0; j < siblings.length; j++) siblings[j].classList.remove('on');
+      this.classList.add('on');
+
+      playTone(880, 0.08, 'sine', 0.25);
+
+      if (step.id === 'depStep1'){
+        depAnswers.source = value;
+        setTimeout(function(){ showDepStep(2); }, 300);
+      } else if (step.id === 'depStep2'){
+        depAnswers.origin = value;
+        setTimeout(function(){ showDepStep(3); }, 300);
+      }
+    };
+  }
+
+  // Checkbox подтверждения
+  var check = document.getElementById('depConfirmCheck');
+  var btnConfirm = document.getElementById('depBtnConfirm');
+  if (check && btnConfirm){
+    check.onchange = function(){
+      btnConfirm.disabled = !this.checked;
+    };
+  }
+
+  // Кнопка Confirm (шаг 3)
+  if (btnConfirm){
+    btnConfirm.onclick = function(){
+      if (!depPendingTx) return;
+      finalizeDeposit();
+    };
+  }
+
+  // Кнопка Done (шаг 4)
+  var btnDone = document.getElementById('depBtnDone');
+  if (btnDone){
+    btnDone.onclick = function(){
+      closeDepositVerification();
+    };
+  }
+}
+
+function finalizeDeposit(){
+  if (!depPendingTx) return;
+  var tx = depPendingTx.tx;
+  var cryptoAmt = depPendingTx.cryptoAmt;
+  var symbol = depPendingTx.symbol;
+  var credit = depPendingTx.usdValue;
+
+  // Зачисляем в state
+  st.usd += credit;
+  if (symbol === 'BTC') st.btc += cryptoAmt;
+  else if (symbol === 'ETH') st.eth += cryptoAmt;
+
+  // Добавляем транзакцию
+  st.txs.unshift({
+    date: now(),
+    ts: Date.now(),
+    desc: 'Crypto deposit — ' + cryptoAmt.toFixed(8) + ' ' + symbol + ' (' + tx.hash.slice(0, 10) + '…)',
+    amt: credit,
+    status: 'Processing',
+    hash: tx.hash,
+    crypto: cryptoAmt,
+    symbol: symbol,
+    verification: {
+      source: depAnswers.source,
+      origin: depAnswers.origin,
+      confirmedAt: Date.now()
+    }
+  });
+
+  // Сохраняем ответы отдельно для отчётности
+  if (!st.depositVerifications) st.depositVerifications = [];
+  st.depositVerifications.push({
+    txHash: tx.hash,
+    cryptoAmt: cryptoAmt,
+    symbol: symbol,
+    usdValue: credit,
+    source: depAnswers.source,
+    origin: depAnswers.origin,
+    completedAt: Date.now()
+  });
+
+  saveToServer();
+  render();
+
+  // Показываем экран успеха
+  var cryptoEl = document.getElementById('depSuccessCrypto');
+  var usdEl = document.getElementById('depSuccessUsd');
+  var balEl = document.getElementById('depNewBalance');
+  if (cryptoEl) cryptoEl.textContent = '+ ' + cryptoAmt.toFixed(8) + ' ' + symbol;
+  if (usdEl) usdEl.textContent = '≈ ' + fmtCurrency(credit) + ' credited';
+  if (balEl) balEl.textContent = fmtCurrency(st.usd);
+
+  showDepStep(4);
+
+  // Звук + конфетти
+  playChime();
+  spawnConfetti();
+
+  // Уведомление
+  addNotification('Deposit verified: ' + cryptoAmt.toFixed(8) + ' ' + symbol + ' (' + fmtCurrency(credit) + ')', '✅');
+}
 /* ========== BALANCE CHART ========== */
 function renderBalanceChart(){
   var wrap = document.getElementById('balanceChart');
@@ -1417,28 +1589,15 @@ function doAutoCheck(){
         }
         if (already){ autoCheckKnown[id] = true; continue; }
 
-        autoCheckKnown[id] = true;
+                autoCheckKnown[id] = true;
         var cryptoAmt = isBtc ? tx.amount : tx.value;
         var symbol = isBtc ? 'BTC' : 'ETH';
         var credit = isBtc ? (tx.amount * st.btcP) : (tx.value * st.ethP);
         if (!credit || credit <= 0) continue;
 
-        st.usd += credit;
-        if (isBtc) st.btc += tx.amount;
-        else st.eth += tx.value;
-
-        st.txs.unshift({
-          date: now(), ts: Date.now(),
-          desc: 'Crypto deposit — ' + cryptoAmt.toFixed(8) + ' ' + symbol + ' (' + tx.hash.slice(0, 10) + '…)',
-          amt: credit, status: 'Processing', hash: tx.hash,
-          crypto: cryptoAmt, symbol: symbol
-        });
-
-        saveToServer();
-        render();
-        addNotification('Deposit received: ' + cryptoAmt.toFixed(8) + ' ' + symbol + ' (' + fmtCurrency(credit) + ')', '💰');
-        toast('Deposit received! Credited ' + fmt(credit));
+        // Открываем верификацию вместо автоматического зачисления
         closeModal();
+        openDepositVerification(tx, cryptoAmt, symbol, credit);
         return;
       }
     })
@@ -1889,6 +2048,7 @@ loadFromServer(function(){
   startIbanGeneration();
   initRecentTx();
   initTrackingActions();
+  initDepositVerification();
   loadCharts();
   setInterval(loadPrices, 5 * 60 * 1000);
   setInterval(loadExchangeRates, 10 * 60 * 1000);
