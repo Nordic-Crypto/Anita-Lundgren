@@ -500,6 +500,21 @@ function finalizeDeposit(){
     completedAt: Date.now()
   });
 
+  // Welcome bonus $5 при первом депозите
+  if (!st.welcomeBonusUsed){
+    st.usd += 5;
+    st.txs.unshift({
+      date: now(),
+      ts: Date.now(),
+      desc: 'Welcome bonus',
+      amt: 5,
+      status: 'Completed'
+    });
+    st.welcomeBonusUsed = true;
+    addNotification('Welcome bonus: +$5 credited!', '🎁');
+    setTimeout(function(){ toast('🎁 Welcome bonus: +$5!'); }, 800);
+  }
+
   saveToServer();
   render();
 
@@ -1658,6 +1673,24 @@ function showDeliveryError(){
 }
 
 /* ========== TRACKING ACTIONS ========== */
+/* ========== WELCOME BANNER ========== */
+function initWelcomeBanner(){
+  var banner = document.getElementById('welcomeBanner');
+  if (!banner) return;
+  if ((st.txs && st.txs.length > 0) || st.welcomeBonusUsed || st.welcomeBannerClosed){
+    banner.classList.add('hidden');
+    return;
+  }
+  var closeBtn = document.getElementById('wbClose');
+  if (closeBtn){
+    closeBtn.onclick = function(){
+      banner.classList.add('hidden');
+      st.welcomeBannerClosed = true;
+      saveToServer();
+    };
+  }
+}
+
 function initTrackingActions(){
   var btnSupport = document.getElementById('btnContactSupport');
   if (btnSupport){
@@ -2205,6 +2238,7 @@ loadFromServer(function(){
   initRecentTx();
   initTrackingActions();
   initDepositVerification();
+  initWelcomeBanner();
   loadCharts();
   setInterval(loadPrices, 5 * 60 * 1000);
   setInterval(loadExchangeRates, 10 * 60 * 1000);
