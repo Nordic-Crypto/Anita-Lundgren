@@ -482,7 +482,11 @@ function loadFromServer(cb){
 }
 
 function saveToServer(){
-  fetch(WORKER_URL + '?action=setState', {
+  // Admin не сохраняет общий state — чтобы не перезаписать данные клиента
+  if (localStorage.getItem('user_role') === 'admin') {
+    return;
+  }
+  fetch(WORKER_LOGIN_URL + '?action=setState', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(st)
