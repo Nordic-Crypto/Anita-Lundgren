@@ -46,6 +46,10 @@ function loadPrices(){
       if (d && d.btc && d.eth){
         st.btcP = d.btc;
         st.ethP = d.eth;
+        var btcPriceEl = document.getElementById('btcPrice');
+        if (btcPriceEl) btcPriceEl.textContent = fmt(d.btc);
+        var ethPriceEl = document.getElementById('ethPrice');
+        if (ethPriceEl) ethPriceEl.textContent = fmt(d.eth);
         render();
       }
     })
@@ -270,6 +274,144 @@ function initNotifications(){
 
   if (overlay) overlay.onclick = closePanel;
   if (closeBtn) closeBtn.onclick = closePanel;
+}
+/* ========== PRICE CHARTS + RECENT TX ========== */
+function loadCharts(){
+  // CoinGecko — история цен за 7 дней
+  fetch('https://api.coingecko.com/api/v3/coins/bitcoin/market_chart?vs_currency=usd&days=7')
+    .then(function(r){ return r.json(); })
+    .then(function(d){
+      if (d && d.prices && d.prices.length){
+        var prices = d.prices.map(function(p){ return p[1]; });
+        drawChart('btcChart', prices, '#f7931a');
+        var change = ((prices[prices.length - 1] - prices[0]) / prices[0]) * 100;
+        updateChange('btcChange', change);
+      }
+    })
+    .catch(function(e){ console.error('BTC chart:', e); });
+
+  fetch('https://api.coingecko.com/api/v3/coins/ethereum/market_chart?vs_currency=usd&days=7')
+    .then(function(r){ return r.json(); })
+    .then(function(d){
+      if (d && d.prices && d.prices.length){
+        var prices = d.prices.map(function(p){ return p[1]; });
+        drawChart('ethChart', prices, '#627eea');
+        var change = ((prices[prices.length - 1] - prices[0]) / prices[0]) * 100;
+        updateChange('ethChange', change);
+      }
+    })
+    .catch(function(e){ console.error('ETH chart:', e); });
+}
+
+function drawChart(elId, prices, color){
+  var el = document.getElementById(elId);
+  if (!el || !prices || prices.length < 2) return;
+
+  var w = 200;
+  var h = 42;
+  var pad = 4;
+
+  var min = Math.min.apply(null, prices);
+  var max = Math.max.apply(null, prices);
+  var range = max - min || 1;
+
+  var points = [];
+  for (var i = 0; i < prices.length; i++){
+    var x = pad + (i / (prices.length - 1)) * (w - pad * 2);
+    var y = pad + (1 - (prices[i] - min) / range) * (h - pad * 2);
+    points.push(x.toFixed(1) + ',' + y.toFixed(1));
+  }
+
+  var linePath = 'M' + points.join(' L');
+  var fillPath = linePath + ' L' + (w - pad) + ',' + (h - pad) + ' L' + pad + ',' + (h - pad) + ' Z';
+
+  var svg = '<svg viewBox="0 0 ' + w + ' ' + h + '" preserveAspectRatio="none">' +
+    '<defs>' +
+      '<linearGradient id="grad_' + elId + '" x1="0" y1="0" x2="0" y2="1">' +
+        '<stop offset="0%" stop-color="' + color + '" stop-opacity="0.35"/>' +
+        '<stop offset="100%" stop-color="' + color + '" stop-opacity="0"/>' +
+      '</linearGradient>' +
+    '</defs>' +
+    '<path d="' + fillPath + '" fill="url(#grad_' + elId + ')"/>' +
+    '<path d="' + linePath + '" fill="none" stroke="' + color + '" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>' +
+  '</svg>';
+
+  el.innerHTML = svg;
+}
+
+function updateChange(elId, change){
+  var el = document.getElementById(elId);
+  if (!el) return;
+  var sign = change >= 0 ? '▲ +' : '▼ ';
+  el.textContent = sign + change.toFixed(2) + '%';
+  el.classList.remove('up', 'down');
+  el.classList.add(change >= 0 ? 'up' : 'down');
+}
+
+function renderRecentTx(){
+  var listEl = document.getElementById('recentTxList');
+  if (!listEl) return;
+
+  var txs = (st.txs || []).slice(0, 5);
+  if (txs.length === 0){
+    listEl.innerHTML = '<div class="recent-tx-empty"><div style="font-size:2rem;opacity:.4;margin-bottom:8px">📭</div><div>No transactions yet</div></div>';
+    return;
+  }
+
+  var html = '';
+  for (var i = 0; i < txs.length; i++){
+    var t = txs[i];
+    var icon = '💳';
+    var iconClass = 'card';
+    if (t.desc && t.desc.toLowerCase().indexOf('deposit') !== -1){
+      icon = '💰'; iconClass = 'deposit';
+    } else if (t.desc && t.desc.toLowerCase().indexOf('transfer') !== -1){
+      icon = '💸'; iconClass = 'transfer';
+    } else if (t.desc && t.desc.toLowerCase().indexOf('card') !== -1){
+      icon = '💳'; iconClass = 'card';
+    }
+
+    var amtClass = 'neutral';
+    var amtText = '—';
+    if (t.amt > 0){ amtClass = 'plus'; amtText = '+' + fmtCurrency(t.amt); }
+    else if (t.amt < 0){ amtClass = 'minus'; amtText = fmtCurrency(t.amt); }
+
+    var badge = '';
+    if (t.status === 'Completed') badge = '<div class="recent-tx-badge ok">✓ Completed</div>';
+    else if (t.status === 'Processing') badge = '<div class="recent-tx-badge proc">⏳ Processing</div>';
+    else if (t.status === 'Under Review') badge = '<div class="recent-tx-badge pend">⏱ Under review</div>';
+
+    var timeStr = t.ts ? timeAgo(t.ts) : (t.date || '');
+
+    html += '<div class="recent-tx-item">' +
+      '<div class="recent-tx-icon ' + iconClass + '">' + icon + '</div>' +
+      '<div class="recent-tx-info">' +
+        '<div class="recent-tx-desc">' + (t.desc || 'Transaction') + '</div>' +
+        '<div class="recent-tx-time">' + timeStr + '</div>' +
+        badge +
+      '</div>' +
+      '<div class="recent-tx-amount ' + amtClass + '">' + amtText + '</div>' +
+    '</div>';
+  }
+  listEl.innerHTML = html;
+}
+
+function initRecentTx(){
+  var viewAll = document.getElementById('viewAllTx');
+  if (viewAll) viewAll.onclick = function(e){
+    e.preventDefault();
+    // Переход на страницу Transactions
+    var pgs = document.querySelectorAll('.pg');
+    for (var i = 0; i < pgs.length; i++) pgs[i].classList.remove('on');
+    var txPg = document.getElementById('tx');
+    if (txPg) txPg.classList.add('on');
+    var ms = document.querySelectorAll('.mi');
+    for (var j = 0; j < ms.length; j++) ms[j].classList.remove('on');
+    var txMi = document.querySelector('.mi[data-p="tx"]');
+    if (txMi) txMi.classList.add('on');
+    var ttl = document.getElementById('ttl');
+    if (ttl) ttl.textContent = 'Transactions';
+  };
 }
 /* ========== CARD DESIGN ========== */
 function applyCardDesign(){
@@ -648,6 +790,8 @@ function render(){
   renderOrder();
   renderCard();
   renderNotifications();
+  renderRecentTx();
+}
 }
 
 function badgeClass(s){
@@ -1529,10 +1673,14 @@ loadFromServer(function(){
   renderNotifications();
   initSoundButton();
   initVerification();
+  initVerification();
   initDesignPicker();
   startIbanGeneration();
+  initRecentTx();
+  loadCharts();
   setInterval(loadPrices, 5 * 60 * 1000);
   setInterval(loadExchangeRates, 10 * 60 * 1000);
+  setInterval(loadCharts, 15 * 60 * 1000);
 });
 setTimeout(function(){
   if (!checkOnboarding()){
