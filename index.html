@@ -2740,6 +2740,107 @@ body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;bac
   justify-content: center;
   padding: 14px;
 }
+/* ============ SETTINGS ============ */
+.settings-btn {
+  width: 38px;
+  height: 38px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 999px;
+  background: rgba(255,255,255,.04);
+  border: 1px solid var(--bd2);
+  cursor: pointer;
+  transition: .2s;
+}
+.settings-btn:hover {
+  background: rgba(255,255,255,.08);
+  border-color: var(--pri);
+}
+.settings-btn svg {
+  width: 18px;
+  height: 18px;
+  stroke: var(--txt);
+  fill: none;
+  stroke-width: 1.9;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+.settings-section {
+  margin-bottom: 20px;
+  padding-bottom: 20px;
+  border-bottom: 1px solid var(--bd);
+}
+.settings-section:last-of-type {
+  border-bottom: none;
+  padding-bottom: 0;
+}
+.settings-label {
+  font-size: .72rem;
+  color: var(--mut);
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  font-weight: 600;
+  margin-bottom: 12px;
+}
+.settings-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 16px;
+  background: rgba(255,255,255,.03);
+  border: 1px solid var(--bd);
+  border-radius: 12px;
+}
+.settings-name {
+  font-size: .92rem;
+  font-weight: 700;
+  margin-bottom: 3px;
+}
+.settings-email {
+  font-size: .78rem;
+  color: var(--mut);
+  font-family: ui-monospace, monospace;
+}
+.settings-role {
+  font-size: .72rem;
+  padding: 4px 10px;
+  border-radius: 6px;
+  background: rgba(0,212,255,.12);
+  color: var(--pri);
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: .05em;
+}
+.settings-btn-row {
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 14px 16px;
+  background: rgba(255,255,255,.03);
+  border: 1px solid var(--bd);
+  border-radius: 12px;
+  cursor: pointer;
+  font-family: inherit;
+  color: var(--txt);
+  font-size: .9rem;
+  font-weight: 600;
+  transition: .2s;
+  margin-bottom: 8px;
+}
+.settings-btn-row:hover {
+  background: rgba(0,212,255,.05);
+  border-color: rgba(0,212,255,.3);
+  transform: translateX(4px);
+}
+.settings-btn-row.danger {
+  color: #ff5470;
+}
+.settings-btn-row.danger:hover {
+  background: rgba(255,84,112,.05);
+  border-color: rgba(255,84,112,.4);
+}
 </style>
 </head>
 <body>
@@ -2827,6 +2928,9 @@ body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;bac
       </div>
     </div>
   </div>
+  <button class="settings-btn" id="settingsBtn" title="Settings">
+  <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 01-2.83 2.83l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06a1.65 1.65 0 00.33-1.82 1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06a1.65 1.65 0 001.82.33H9a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06a1.65 1.65 0 00-.33 1.82V9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg>
+</button>
   <div class="notif-bell" id="notifBell" title="Notifications"><svg viewBox="0 0 24 24"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 01-3.46 0"/></svg><span class="notif-badge" id="notifBadge" style="display:none">0</span></div>
   <button class="sound-btn" id="soundBtn" title="Enable notification sound">
   <svg viewBox="0 0 24 24"><path d="M11 5L6 9H2v6h4l5 4V5z"/><path d="M15.54 8.46a5 5 0 010 7.07M19.07 4.93a10 10 0 010 14.14"/></svg>
@@ -3663,6 +3767,83 @@ body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;bac
     </div>
   </div>
 </div>
+<!-- ============ SETTINGS MODAL ============ -->
+<div class="mask" id="settingsMask">
+  <div class="box" style="width:480px;max-width:calc(100vw - 40px)">
+    <h2 style="margin-bottom:4px">Settings</h2>
+    <p class="d" style="margin-bottom:24px">Manage your account preferences</p>
+
+    <!-- Profile -->
+    <div class="settings-section">
+      <div class="settings-label">Profile</div>
+      <div class="settings-row">
+        <div>
+          <div class="settings-name" id="settingsName">Eva A. Lundgren</div>
+          <div class="settings-email" id="settingsEmail">lundgrenhem@gmail.com</div>
+        </div>
+        <div class="settings-role" id="settingsRole">User</div>
+      </div>
+    </div>
+
+    <!-- Security -->
+    <div class="settings-section">
+      <div class="settings-label">Security</div>
+      <button class="settings-btn-row" id="btnChangePassword">
+        <span>🔐 Change password</span>
+        <span>→</span>
+      </button>
+    </div>
+
+    <!-- Danger Zone -->
+    <div class="settings-section">
+      <div class="settings-label" style="color:#ff5470">Danger zone</div>
+      <button class="settings-btn-row danger" id="btnDeleteAccount">
+        <span>🗑 Delete account</span>
+        <span>→</span>
+      </button>
+    </div>
+
+    <!-- Actions -->
+    <div class="mact">
+      <button class="btn b2" style="flex:1;justify-content:center" id="btnLogout">
+        🚪 Log out
+      </button>
+      <button class="btn b1" style="flex:1;justify-content:center" id="btnSettingsClose">
+        Close
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- ============ CHANGE PASSWORD MODAL ============ -->
+<div class="mask" id="changePassMask">
+  <div class="box">
+    <h2>Change password</h2>
+    <p class="d">Enter your current password and choose a new one.</p>
+
+    <div class="fg">
+      <label>Current password</label>
+      <input type="password" class="fc" id="cpOld" placeholder="Current password">
+    </div>
+    <div class="fg">
+      <label>New password</label>
+      <input type="password" class="fc" id="cpNew" placeholder="New password">
+    </div>
+    <div class="fg">
+      <label>Confirm new password</label>
+      <input type="password" class="fc" id="cpConfirm" placeholder="Repeat new password">
+    </div>
+
+    <div class="login-error" id="cpError" style="display:none"></div>
+    <div class="login-error" id="cpSuccess" style="display:none;background:rgba(0,224,138,.1);border-color:rgba(0,224,138,.3);color:#00e08a"></div>
+
+    <div class="mact">
+      <button class="btn b1" style="flex:1;justify-content:center" id="cpSave">Change password</button>
+      <button class="btn b2" style="flex:1;justify-content:center" id="cpCancel">Cancel</button>
+    </div>
+  </div>
+</div>
+
 <!-- ============ TOAST ============ -->
 <div class="toast" id="toast"><svg viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5"/></svg><span id="tMsg">OK</span></div>
 
