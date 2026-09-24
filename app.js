@@ -482,10 +482,9 @@ function loadFromServer(cb){
 }
 
 function saveToServer(){
-  // Admin не сохраняет общий state — чтобы не перезаписать данные клиента
-  if (localStorage.getItem('user_role') === 'admin') {
-    return;
-  }
+  console.log('[saveToServer] DISABLED for debugging');
+  return;
+}
   fetch(WORKER_LOGIN_URL + '?action=setState', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
