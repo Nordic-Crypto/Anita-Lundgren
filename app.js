@@ -792,7 +792,6 @@ function render(){
   renderNotifications();
   renderRecentTx();
 }
-}
 
 function badgeClass(s){
   if (s === 'Completed') return 'badge ok';
