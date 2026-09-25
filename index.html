@@ -3172,6 +3172,30 @@ body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;bac
 #adminMsgMask {
   z-index: 9000;
 }
+/* ============ SIGN UP ============ */
+.login-divider {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 22px 0;
+  color: var(--mut);
+  font-size: .78rem;
+  text-transform: uppercase;
+  letter-spacing: .1em;
+}
+.login-divider::before,
+.login-divider::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: var(--bd);
+}
+.login-btn-outline {
+  width: 100%;
+  justify-content: center;
+  padding: 14px;
+  font-size: .95rem;
+}
 </style>
 </head>
 <body>
@@ -3205,6 +3229,14 @@ body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;bac
       <button class="btn b1 login-btn" id="btnLogin">
         Sign in →
       </button>
+
+      <div class="login-divider">
+  <span>or</span>
+</div>
+
+<button class="btn b2 login-btn-outline" id="btnGoToSignup" type="button">
+  Create new account
+</button>
 
       <div class="login-hint">
         <span>Forgot password?</span> <a href="#" id="forgotPass">Contact support</a>
@@ -4083,6 +4115,62 @@ body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;bac
 
   </div>
 </div>
+<!-- ============ SIGN UP MODAL ============ -->
+<div class="mask" id="signupMask">
+  <div class="box" style="width:440px">
+    <h2>Create your account</h2>
+    <p class="d">Start your crypto banking journey</p>
+
+    <div id="signupForm">
+      <div class="fg">
+        <label>Full name</label>
+        <input type="text" class="fc" id="suName" placeholder="Eva Anita Lundgren">
+      </div>
+
+      <div class="fg">
+        <label>Email</label>
+        <input type="email" class="fc" id="suEmail" placeholder="your@email.com" autocomplete="email">
+      </div>
+
+      <div class="fg">
+        <label>Password</label>
+        <div class="pass-wrap">
+          <input type="password" class="fc" id="suPassword" placeholder="Min 6 characters" autocomplete="new-password">
+          <button type="button" class="pass-toggle" id="suPassToggle">👁</button>
+        </div>
+      </div>
+
+      <div class="fg">
+        <label>Confirm password</label>
+        <div class="pass-wrap">
+          <input type="password" class="fc" id="suConfirm" placeholder="Repeat password" autocomplete="new-password">
+          <button type="button" class="pass-toggle" id="suConfirmToggle">👁</button>
+        </div>
+      </div>
+
+      <div class="login-error" id="signupError" style="display:none"></div>
+
+      <div class="mact">
+        <button class="btn b1" style="flex:1;justify-content:center" id="suSubmit">
+          Create account
+        </button>
+        <button class="btn b2" style="flex:1;justify-content:center" id="suCancel">
+          Cancel
+        </button>
+      </div>
+
+      <div class="login-hint" style="margin-top:16px">
+        Already have an account? <a href="#" id="suGoToLogin">Sign in</a>
+      </div>
+    </div>
+
+    <div class="login-loading" id="signupLoading" style="display:none">
+      <div class="login-spinner"></div>
+      <div>Creating your account...</div>
+    </div>
+  </div>
+</div>
+
 <!-- ============ INACTIVITY MODAL ============ -->
 <div class="inactivity-overlay" id="inactivityOverlay">
   <div class="inactivity-box">
