@@ -4224,7 +4224,27 @@ body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;bac
   </div>
 </div>
 
-<!-- ============ INACTIVITY MODAL ============ -->
+<!-- ============ PASSWORD CONFIRM MODAL ============ -->
+<div class="mask" id="passwordConfirmMask">
+  <div class="box" style="width:420px">
+    <h2>Confirm with password</h2>
+    <p class="d" id="passwordConfirmDesc">Please enter your password to continue.</p>
+    <div class="fg">
+      <label>Password</label>
+      <div class="pass-wrap">
+        <input type="password" class="fc" id="passwordConfirmInput" placeholder="Your password">
+        <button type="button" class="pass-toggle" id="passwordConfirmToggle">👁</button>
+      </div>
+    </div>
+    <div class="login-error" id="passwordConfirmError" style="display:none"></div>
+    <div class="mact">
+      <button class="btn b1" style="flex:1;justify-content:center" id="passwordConfirmOk">Confirm</button>
+      <button class="btn b2" style="flex:1;justify-content:center" id="passwordConfirmCancel">Cancel</button>
+    </div>
+  </div>
+</div>
+
+  <!-- ============ INACTIVITY MODAL ============ -->
 <div class="inactivity-overlay" id="inactivityOverlay">
   <div class="inactivity-box">
     <div class="inactivity-icon">⏱</div>
