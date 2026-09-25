@@ -470,36 +470,69 @@ function eurF(n){ return '≈ €' + Number(n).toLocaleString('en-US',{minimumFr
 function now(){ return new Date().toISOString().slice(0,10); }
 
 function loadFromServer(cb){
-  fetch(WORKER_URL + '?action=getState')
+  var token = getSessionToken();
+  if (!token) {
+    // Не залогинен — используем пустой state
+    st = JSON.parse(JSON.stringify(def));
+    stateLoaded = true;
+    if (cb) cb();
+    return;
+  }
+
+  fetch(WORKER_LOGIN_URL + '?action=getUserState', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ token: token })
+  })
     .then(function(r){ return r.json(); })
     .then(function(data){
-      st = data || JSON.parse(JSON.stringify(def));
+      if (data && data.ok === false) {
+        // Не авторизован
+        console.warn('Load failed:', data.error);
+        st = JSON.parse(JSON.stringify(def));
+      } else {
+        st = data || JSON.parse(JSON.stringify(def));
+      }
       if (!st.txs) st.txs = [];
       if (!st.card || typeof st.card !== 'object') st.card = null;
+      stateLoaded = true;
       render();
       setTimeout(function(){ checkOnboarding(); }, 50);
       if (cb) cb();
     })
     .catch(function(e){
       console.error('Load failed:', e);
+      st = JSON.parse(JSON.stringify(def));
+      stateLoaded = true;
       render();
       checkOnboarding();
     });
 }
 
 function saveToServer(){
+  // 1. Не сохраняем если данные не загружены
+  if (!stateLoaded) {
+    console.log('[saveToServer] Skip — not loaded');
+    return;
+  }
+
+  // 2. Admin не сохраняет
   if (localStorage.getItem('user_role') === 'admin') {
+    console.log('[saveToServer] Skip — admin');
     return;
   }
-  if (st.usd === 0 && st.btc === 0 && st.eth === 0 &&
-      (!st.txs || st.txs.length === 0) &&
-      !st.card && !st.order) {
+
+  // 3. Проверяем токен
+  var token = getSessionToken();
+  if (!token) {
+    console.log('[saveToServer] Skip — no token');
     return;
   }
-  fetch(WORKER_LOGIN_URL + '?action=setState', {
+
+  fetch(WORKER_LOGIN_URL + '?action=setUserState', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(st)
+    body: JSON.stringify({ token: token, state: st })
   }).catch(function(e){ console.error('Save failed:', e); });
 }
 /* ========== LIVE PRICES ========== */
