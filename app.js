@@ -2780,7 +2780,7 @@ async function loadAdminUsers() {
   if (!listEl) return;
 
   try {
-    var res = await fetch(WORKER_LOGIN_URL + '?action=getAllUsers', {
+    var res = await fetch(WORKER_LOGIN_URL + '?action=listUsers', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ token: getSessionToken() })
@@ -2988,10 +2988,15 @@ function initAdminPanel() {
     }
     try {
       var res = await fetch(WORKER_LOGIN_URL + '?action=updateUserBalance', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ token: getSessionToken(), amount: amount, note: note || ('Admin adjustment') })
-      });
+  method: 'POST',
+  headers: { 'Content-Type': 'application/json' },
+  body: JSON.stringify({
+    token: getSessionToken(),
+    email: adminTargetEmail,
+    amount: amount,
+    note: note || 'Admin adjustment'
+  })
+});
       var data = await res.json();
       if (data.ok) {
         toast('✓ Balance updated');
@@ -3020,10 +3025,15 @@ function initAdminPanel() {
     }
     try {
       var res = await fetch(WORKER_LOGIN_URL + '?action=sendMessage', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ token: getSessionToken(), text: text, icon: icon })
-      });
+  method: 'POST',
+  headers: { 'Content-Type': 'application/json' },
+  body: JSON.stringify({
+    token: getSessionToken(),
+    email: adminTargetEmail,
+    text: text,
+    icon: icon
+  })
+});
       var data = await res.json();
       if (data.ok) {
         toast('✓ Message sent');
