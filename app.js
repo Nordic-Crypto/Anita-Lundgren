@@ -494,21 +494,25 @@ function fmt(n){ return '$' + Number(n).toLocaleString('en-US',{minimumFractionD
 function eurF(n){ return '≈ €' + Number(n).toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2}); }
 function now(){ return new Date().toISOString().slice(0,10); }
 
-function loadFromServer(cb){
+function loadFromServer(cb, targetEmail){
   var token = getSessionToken();
   if (!token) {
-    // Не залогинен — используем пустой state
     st = JSON.parse(JSON.stringify(def));
     stateLoaded = true;
     if (cb) cb();
     return;
   }
 
+  var body = { token: token };
+  if (targetEmail) body.email = targetEmail;   // ← НОВОЕ
+
   fetch(WORKER_LOGIN_URL + '?action=getUserState', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ token: token })
+    body: JSON.stringify(body)
   })
+  ...
+}
     .then(function(r){ return r.json(); })
     .then(function(data){
       if (data && data.ok === false) {
@@ -2926,12 +2930,22 @@ function adminViewClient(email) {
     setInterval(loadPrices, 5 * 60 * 1000);
     setInterval(loadExchangeRates, 10 * 60 * 1000);
     setInterval(loadCharts, 15 * 60 * 1000);
-    setTimeout(function(){
-      if (!checkOnboarding()){
-        checkVerificationNeeded();
-      }
-    }, 1000);
-  });
+        // Скрыть onboarding — мы смотрим чужой кабинет
+    var onboardEl = document.getElementById('onboard');
+    if (onboardEl) onboardEl.classList.remove('on');
+
+    // Показать Dashboard напрямую
+    var pgs = document.querySelectorAll('.pg');
+    for (var j = 0; j < pgs.length; j++) pgs[j].classList.remove('on');
+    var dash = document.getElementById('dash');
+    if (dash) dash.classList.add('on');
+    var ms = document.querySelectorAll('.mi');
+    for (var k = 0; k < ms.length; k++) ms[k].classList.remove('on');
+    var dashMi = document.querySelector('.mi[data-p="dash"]');
+    if (dashMi) dashMi.classList.add('on');
+    var ttl = document.getElementById('ttl');
+    if (ttl) ttl.textContent = 'Dashboard';
+  }, email);
 }
 
 function backToAdmin() {
@@ -2941,6 +2955,11 @@ function backToAdmin() {
   if (main) main.style.display = 'none';
   var backBar = document.getElementById('adminBackBar');
   if (backBar) backBar.style.display = 'none';
+
+    // Сбросить state клиента
+  st = JSON.parse(JSON.stringify(def));
+  stateLoaded = false;
+  
   showAdminPanel();
 }
 
