@@ -371,7 +371,27 @@ async function doLogout() {
   clearInterval(sessionTimer);
   clearInterval(countdownTimer);
   hideInactivityModal();
-  showLoginScreen();
+
+// Закрыть ВСЕ модалки и оверлеи
+document.querySelectorAll('.mask').forEach(function(m){ m.classList.remove('on'); });
+document.querySelectorAll('.overlay, .inactivity-overlay, .dep-verify-overlay, .notif-overlay, .verify-screen, .onboard, .onb-anim-stage').forEach(function(m){ m.classList.remove('on'); });
+
+// Закрыть админ-панель
+var ap = document.getElementById('adminPanel');
+if (ap) ap.classList.remove('on');
+
+// Закрыть панель уведомлений
+var np = document.getElementById('notifPanel');
+if (np) np.classList.remove('on');
+
+// Скрыть админ-бар
+var abb = document.getElementById('adminBackBar');
+if (abb) abb.style.display = 'none';
+
+// Сбросить inline-стили, если есть
+document.querySelectorAll('.mask').forEach(function(m){ m.style.display = ''; });
+
+showLoginScreen();
 }
 
 function initLoginLogout() {
