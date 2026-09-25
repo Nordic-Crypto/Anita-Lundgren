@@ -51,7 +51,7 @@ body{font-family:-apple-system,'Segoe UI',Roboto,sans-serif;background:var(--bg)
   html { font-size: 12px; }
 }
 body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;background:radial-gradient(900px 500px at 15% -10%,rgba(0,212,255,.10),transparent 60%),radial-gradient(800px 500px at 100% 110%,rgba(124,58,237,.12),transparent 60%)}
-.side{width:235px;background:...;border-right:1px solid var(--bd);display:flex;flex-direction:column;padding:18px 14px;position:relative;z-index:2}
+.side{width:235px;background:linear-gradient(180deg,rgba(19,26,36,.95),rgba(13,18,25,.95));border-right:1px solid var(--bd);display:flex;flex-direction:column;padding:18px 14px;position:relative;z-index:2}
 .brand{font-size:1.3rem;font-weight:800;margin-bottom:34px;display:flex;align-items:center;gap:11px}
 .blogo{width:34px;height:34px;border-radius:10px;background:linear-gradient(135deg,var(--pri),var(--pri2));display:flex;align-items:center;justify-content:center}
 .blogo svg{width:18px;height:18px;stroke:#04121a;fill:none;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round}
@@ -1758,6 +1758,19 @@ body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;bac
   letter-spacing: .08em;
   font-weight: 600;
 }
+  .stat-change {
+  font-size: .78rem;
+  font-weight: 700;
+  margin-top: 6px;
+  display: inline-block;
+  font-family: ui-monospace, monospace;
+}
+.stat-change.up { color: var(--ok); }
+.stat-change.down { color: var(--bad); }
+
+/* Light theme */
+body.light-theme .stat-change.up { color: #16a34a; }
+body.light-theme .stat-change.down { color: #dc2626; }
 
 @media (max-width: 900px) {
   .welcome-block {
@@ -4019,21 +4032,25 @@ body.light-theme .top-search svg { stroke: #64748b; }
     <div class="stat-icon">💰</div>
     <div class="stat-value" id="statIncome">$0.00</div>
     <div class="stat-label">Total Deposited</div>
+    <div class="stat-change up" id="statIncomeChange">↑ +12.4%</div>
   </div>
   <div class="stat-card">
     <div class="stat-icon">💸</div>
     <div class="stat-value" id="statSpending">$0.00</div>
     <div class="stat-label">Total Spending</div>
+    <div class="stat-change down" id="statSpendingChange">↓ 0.0%</div>
   </div>
   <div class="stat-card">
     <div class="stat-icon">📊</div>
     <div class="stat-value" id="statTxCount">0</div>
     <div class="stat-label">Transactions</div>
+    <div class="stat-change up" id="statTxChange">↑ +100%</div>
   </div>
   <div class="stat-card">
     <div class="stat-icon">⭐</div>
     <div class="stat-value" id="statDays">1</div>
     <div class="stat-label">Days with us</div>
+    <div class="stat-change up" id="statDaysChange">↑ +100%</div>
   </div>
 </div>
 
