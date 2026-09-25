@@ -1579,6 +1579,51 @@ function initDesignPicker(){
 }
 
 /* ========== IBAN GENERATION ========== */
+
+/* ========== IBAN GENERATION BY COUNTRY ========== */
+function genIbanByCountry(code) {
+  var formats = {
+    SE: { len: 24, prefix: 'SE' },
+    NO: { len: 15, prefix: 'NO' },
+    DK: { len: 18, prefix: 'DK' },
+    FI: { len: 18, prefix: 'FI' },
+    DE: { len: 22, prefix: 'DE' },
+    FR: { len: 27, prefix: 'FR' },
+    ES: { len: 24, prefix: 'ES' },
+    IT: { len: 27, prefix: 'IT' },
+    NL: { len: 18, prefix: 'NL' },
+    GB: { len: 22, prefix: 'GB' },
+    US: { len: 24, prefix: 'US' }
+  };
+  var f = formats[code] || formats.SE;
+  var digits = f.len - f.prefix.length;
+  var s = f.prefix;
+  for (var i = 0; i < digits; i++) s += Math.floor(Math.random() * 10);
+  return s;
+}
+
+function getSwiftByCountry(code) {
+  var swifts = {
+    SE: 'ESSESESSXXX', NO: 'DNBANOKKXXX', DK: 'DABADKKKXXX',
+    FI: 'NDEAFIHHXXX', DE: 'DEUTDEFFXXX', FR: 'BNPAFRPPXXX',
+    ES: 'BBVAESMMXXX', IT: 'UNCRITMMXXX', NL: 'ABNANL2AXXX',
+    GB: 'BARCGB22XXX', US: 'BOFAUS3NXXX'
+  };
+  return swifts[code] || 'ESSESESSXXX';
+}
+
+function getBankByCountry(code) {
+  var banks = {
+    SE: 'NordicCrypto Bank AB', NO: 'NordicCrypto Bank AS',
+    DK: 'NordicCrypto Bank A/S', FI: 'NordicCrypto Bank Oyj',
+    DE: 'NordicCrypto Bank GmbH', FR: 'NordicCrypto Banque SAS',
+    ES: 'NordicCrypto Banco SA', IT: 'NordicCrypto Banca SpA',
+    NL: 'NordicCrypto Bank NV', GB: 'NordicCrypto Bank Ltd',
+    US: 'NordicCrypto Bank NA'
+  };
+  return banks[code] || 'NordicCrypto Bank AB';
+}
+
 var IBAN_DELAY_MS = 5 * 60 * 1000;
 
 function genIban(){
@@ -1613,9 +1658,10 @@ function startIbanGeneration(){
 
 function generateIbanNow(){
   if (!st.user) st.user = {};
-  st.user.iban = genIban();
-  st.user.swift = 'ESSESESSXXX';
-  st.user.bank = 'NordicCrypto Bank AB';
+  var country = st.user.country || (st.card && st.card.country) || 'SE';
+  st.user.iban = genIbanByCountry(country);
+  st.user.swift = getSwiftByCountry(country);
+  st.user.bank = getBankByCountry(country);
   st.user.ibanCreatedAt = Date.now();
   saveToServer();
   renderIban();
@@ -1634,6 +1680,16 @@ function renderIban(){
     var ibanEl = document.getElementById('myIban');
     if (ibanEl){
       ibanEl.textContent = st.user.iban.replace(/(.{4})/g, '$1 ').trim();
+    }
+        var swiftEl = document.getElementById('mySwift');
+    if (swiftEl && st.user.swift) swiftEl.textContent = st.user.swift;
+    var bankEl = document.getElementById('myBank');
+    if (bankEl && st.user.bank) bankEl.textContent = st.user.bank;
+    var countryEl = document.getElementById('myCountry');
+    if (countryEl) {
+      var names = { SE:'Sweden', NO:'Norway', DK:'Denmark', FI:'Finland', DE:'Germany', FR:'France', ES:'Spain', IT:'Italy', NL:'Netherlands', GB:'United Kingdom', US:'United States' };
+      var code = st.user.country || 'SE';
+      countryEl.textContent = (names[code] || code) + ' (' + code + ')';
     }
   } else {
     pending.style.display = 'block';
@@ -1969,8 +2025,11 @@ function createVirtualCard(name, type, cur){
     status: 'Active',
     design: selectedDesign,
       hue: (document.getElementById('hueSlider') ? Number(document.getElementById('hueSlider').value) : null),  // ← НОВОЕ
+        country: (document.getElementById('onbCountry') ? document.getElementById('onbCountry').value : 'SE'),
     createdAt: Date.now()
   };
+    if (!st.user) st.user = {};
+  st.user.country = st.card.country;
   saveToServer();
 }
 
