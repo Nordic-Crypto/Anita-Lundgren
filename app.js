@@ -511,8 +511,6 @@ function loadFromServer(cb, targetEmail){
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(body)
   })
-  ...
-}
     .then(function(r){ return r.json(); })
     .then(function(data){
       if (data && data.ok === false) {
