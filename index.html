@@ -90,6 +90,8 @@ body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;bac
 .badge.fail{background:rgba(255,84,112,.14);color:var(--bad)}
 .mask{position:fixed;inset:0;background:rgba(3,6,11,.75);display:none;justify-content:center;align-items:center;z-index:1000}
 .mask.on{display:flex}
+#signupMask:not(.on){display:none !important;pointer-events:none !important}
+#signupMask.on{pointer-events:auto}
 .box{background:linear-gradient(180deg,var(--pan2),#0f151e);padding:30px;border-radius:16px;width:440px;max-width:calc(100vw - 40px);border:1px solid var(--bd2);box-shadow:0 40px 90px -20px rgba(0,0,0,.9)}
 .box h2{margin-bottom:6px;font-size:1.25rem}.box .d{color:var(--mut);font-size:.86rem;margin-bottom:22px}
 .mact{display:flex;gap:10px;margin-top:24px}
