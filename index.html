@@ -3812,6 +3812,13 @@ body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;bac
       <span>Gold</span>
     </button>
   </div>
+          <div class="fg" style="margin-top:16px">
+          <label>Custom accent color</label>
+          <div style="display:flex;align-items:center;gap:14px">
+            <input type="range" min="0" max="360" value="200" id="hueSlider" style="flex:1;accent-color:#00d4ff;cursor:pointer">
+            <div id="huePreview" style="width:38px;height:38px;border-radius:10px;background:hsl(200,70%,50%);border:1px solid rgba(255,255,255,.2);flex-shrink:0"></div>
+          </div>
+        </div>  
 </div>
       <div class="fg">
         <label>Card type</label>
