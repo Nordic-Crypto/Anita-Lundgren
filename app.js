@@ -334,6 +334,7 @@ function showApp() {
     initDepositVerification();
     initWelcomeBanner();
     initLoginLogout();
+    initSignup();
     initSettings();
     initAdminPanel();
     loadCharts();
@@ -3055,8 +3056,137 @@ async function refreshNotificationsFromServer() {
   } catch (e) {}
 }
 
+/* ========== SIGN UP ========== */
+function initSignup() {
+  var btnGoToSignup = document.getElementById('btnGoToSignup');
+  var mask = document.getElementById('signupMask');
+  var cancelBtn = document.getElementById('suCancel');
+  var submitBtn = document.getElementById('suSubmit');
+  var goToLogin = document.getElementById('suGoToLogin');
+
+  var nameEl = document.getElementById('suName');
+  var emailEl = document.getElementById('suEmail');
+  var passEl = document.getElementById('suPassword');
+  var confirmEl = document.getElementById('suConfirm');
+  var errEl = document.getElementById('signupError');
+  var formEl = document.getElementById('signupForm');
+  var loadingEl = document.getElementById('signupLoading');
+
+  if (!btnGoToSignup || !mask) return;
+
+  btnGoToSignup.onclick = function () {
+    if (nameEl) nameEl.value = '';
+    if (emailEl) emailEl.value = '';
+    if (passEl) passEl.value = '';
+    if (confirmEl) confirmEl.value = '';
+    if (errEl) errEl.style.display = 'none';
+    if (formEl) formEl.style.display = 'block';
+    if (loadingEl) loadingEl.style.display = 'none';
+    mask.classList.add('on');
+    setTimeout(function () { if (nameEl) nameEl.focus(); }, 100);
+  };
+
+  if (cancelBtn) cancelBtn.onclick = function () {
+    mask.classList.remove('on');
+  };
+
+  mask.onclick = function (e) {
+    if (e.target === mask) mask.classList.remove('on');
+  };
+
+  if (goToLogin) goToLogin.onclick = function (e) {
+    e.preventDefault();
+    mask.classList.remove('on');
+  };
+
+  var suPassToggle = document.getElementById('suPassToggle');
+  if (suPassToggle) suPassToggle.onclick = function () {
+    if (!passEl) return;
+    passEl.type = passEl.type === 'password' ? 'text' : 'password';
+    this.textContent = passEl.type === 'password' ? '👁' : '🙈';
+  };
+
+  var suConfirmToggle = document.getElementById('suConfirmToggle');
+  if (suConfirmToggle) suConfirmToggle.onclick = function () {
+    if (!confirmEl) return;
+    confirmEl.type = confirmEl.type === 'password' ? 'text' : 'password';
+    this.textContent = confirmEl.type === 'password' ? '👁' : '🙈';
+  };
+
+  [nameEl, emailEl, passEl, confirmEl].forEach(function (el) {
+    if (el) el.onkeydown = function (e) {
+      if (e.key === 'Enter') doSignup();
+    };
+  });
+
+  if (submitBtn) submitBtn.onclick = doSignup;
+
+  function doSignup() {
+    var name = nameEl ? nameEl.value.trim() : '';
+    var email = emailEl ? emailEl.value.trim().toLowerCase() : '';
+    var password = passEl ? passEl.value : '';
+    var confirm = confirmEl ? confirmEl.value : '';
+
+    if (errEl) errEl.style.display = 'none';
+
+    if (!name) return showSignupError('Please enter your full name');
+    if (!email || email.indexOf('@') === -1) return showSignupError('Please enter a valid email');
+    if (!password || password.length < 6) return showSignupError('Password must be at least 6 characters');
+    if (password !== confirm) return showSignupError('Passwords do not match');
+
+    if (formEl) formEl.style.display = 'none';
+    if (loadingEl) loadingEl.style.display = 'block';
+    if (submitBtn) submitBtn.disabled = true;
+
+    fetch(WORKER_LOGIN_URL + '?action=register', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ name: name, email: email, password: password })
+    })
+      .then(function (r) { return r.json(); })
+      .then(function (data) {
+        if (data.ok && data.token) {
+          localStorage.removeItem('user_email');
+          localStorage.removeItem('user_role');
+          localStorage.removeItem('user_name');
+
+          setSessionToken(data.token);
+          localStorage.setItem('user_email', data.user.email);
+          localStorage.setItem('user_role', data.user.role || 'user');
+          localStorage.setItem('user_name', data.user.name || name);
+
+          if (mask) mask.classList.remove('on');
+          hideLoginScreen();
+          showApp();
+          startInactivityTimer();
+          playChime();
+          toast('Account created! Welcome, ' + name.split(' ')[0]);
+        } else {
+          if (formEl) formEl.style.display = 'block';
+          if (loadingEl) loadingEl.style.display = 'none';
+          if (submitBtn) submitBtn.disabled = false;
+          showSignupError(data.error || 'Registration failed');
+          playTone(220, 0.2, 'sine', 0.3);
+        }
+      })
+      .catch(function () {
+        if (formEl) formEl.style.display = 'block';
+        if (loadingEl) loadingEl.style.display = 'none';
+        if (submitBtn) submitBtn.disabled = false;
+        showSignupError('Connection error. Try again.');
+      });
+  }
+
+  function showSignupError(msg) {
+    if (errEl) {
+      errEl.textContent = msg;
+      errEl.style.display = 'block';
+    }
+  }
+}
 /* ========== INIT ========== */
 initLoginLogout();
+initSignup();
 checkSession();
 
 /* ========== AUDIO KEEP-ALIVE ========== */
