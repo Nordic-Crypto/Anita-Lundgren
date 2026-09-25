@@ -1360,12 +1360,28 @@ function renderStats(){
     var pnl = st.usd - sumDeposits;
     var pnlPct = (pnl / sumDeposits) * 100;
     pnlEl.style.display = 'block';
+        var pnlExplainEl = document.getElementById('pnlExplain');
+    if (pnlExplainEl) {
+      pnlExplainEl.style.display = 'block';
+      if (pnl < 0) {
+        pnlExplainEl.textContent = 'ℹ Your crypto value decreased since deposit';
+        pnlExplainEl.style.color = '#ff5470';
+      } else if (pnl > 0) {
+        pnlExplainEl.textContent = 'ℹ Your crypto value increased since deposit 🎉';
+        pnlExplainEl.style.color = '#00e08a';
+      } else {
+        pnlExplainEl.textContent = 'ℹ Your crypto value is unchanged';
+        pnlExplainEl.style.color = 'var(--mut)';
+      }
+    }
     pnlEl.className = 'pnl-line ' + (pnl >= 0 ? 'positive' : 'negative');
     pnlIconEl.textContent = pnl >= 0 ? '▲' : '▼';
     pnlValueEl.textContent = (pnl >= 0 ? '+' : '') + fmtCurrency(pnl);
     pnlPctEl.textContent = '(' + (pnl >= 0 ? '+' : '') + pnlPct.toFixed(2) + '%)';
-  } else if (pnlEl) {
+    } else if (pnlEl) {
     pnlEl.style.display = 'none';
+    var pnlExplainEl2 = document.getElementById('pnlExplain');
+    if (pnlExplainEl2) pnlExplainEl2.style.display = 'none';
   }
 }
 
