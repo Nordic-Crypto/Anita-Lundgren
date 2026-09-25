@@ -1350,8 +1350,6 @@ function renderStats(){
   var sumDeposits = 0;
   for (var p = 0; p < txs.length; p++) {
     var amt2 = txs[p].amt;
-    if (txs[p].symbol === 'ETH' && txs[p].crypto) amt2 = txs[p].crypto * st.ethP;
-    else if (txs[p].symbol === 'BTC' && txs[p].crypto) amt2 = txs[p].crypto * st.btcP;
     if (amt2 > 0) sumDeposits += amt2;
   }
   var pnlEl = document.getElementById('pnlLine');
