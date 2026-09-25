@@ -3263,13 +3263,18 @@ function initAdminPanel() {
   var balanceCancel = document.getElementById('adminBalanceCancel');
   var msgSave = document.getElementById('adminMsgSave');
   var msgCancel = document.getElementById('adminMsgCancel');
+  var refreshDeleted = document.getElementById('adminRefreshDeleted');
 
   if (refreshBtn) refreshBtn.onclick = function(){
     loadAdminUsers();
     loadAdminStats();
     toast('Refreshed');
   };
-
+  if (refreshDeleted) refreshDeleted.onclick = function(){
+    loadDeletedUsers();
+    toast('Deleted refreshed');
+  };
+  
   if (logoutBtn) logoutBtn.onclick = function(){
     if (!confirm('Log out?')) return;
     doLogout();
