@@ -1971,6 +1971,23 @@ function renderCard(){
 
   var c = st.card;
   var frozen = (c.status === 'Frozen');
+    // Показать правильный логотип сети (Visa или Mastercard)
+  var networkHTML;
+  if (c.type === 'Mastercard') {
+    networkHTML = '<svg viewBox="0 0 100 40">' +
+      '<circle cx="35" cy="20" r="14" fill="#EB001B"/>' +
+      '<circle cx="65" cy="20" r="14" fill="#F79E1B"/>' +
+      '<circle cx="50" cy="20" r="14" fill="#FF5F00" opacity="0.9"/>' +
+      '</svg>';
+  } else {
+    networkHTML = '<svg viewBox="0 0 100 40">' +
+      '<text x="50" y="28" text-anchor="middle" font-family="Arial Black, Arial" font-size="22" font-weight="900" fill="currentColor" font-style="italic" letter-spacing="1">VISA</text>' +
+      '</svg>';
+  }
+  var net1 = document.getElementById('cardNetwork1');
+  if (net1) net1.innerHTML = networkHTML;
+  var net2 = document.getElementById('cardNetwork2');
+  if (net2) net2.innerHTML = networkHTML;
   var numFormatted = fmtCard(c.num);
 
   // Dash
