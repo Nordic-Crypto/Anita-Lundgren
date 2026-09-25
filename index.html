@@ -1948,11 +1948,65 @@ body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;bac
   background: linear-gradient(90deg, transparent, #ff5470, transparent);
 }
 
-/* ============ BIG CARD ============ */
-.pay.pay-large {
-  height: 260px;
-  padding: 30px;
+/* ============ CARD WITH ACTIONS ============ */
+.card-with-actions {
+  display: grid;
+  grid-template-columns: 1fr 220px;
+  gap: 20px;
   margin-bottom: 24px;
+  align-items: start;
+}
+
+.card-actions-vertical {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.card-action-btn {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 4px;
+  padding: 14px 16px;
+  background: rgba(255,255,255,.03);
+  border: 1px solid var(--bd);
+  border-radius: 12px;
+  color: var(--txt);
+  cursor: pointer;
+  text-align: left;
+  font-family: inherit;
+  transition: .2s;
+}
+
+.card-action-btn:hover {
+  background: rgba(91,141,239,.06);
+  border-color: rgba(91,141,239,.3);
+  transform: translateY(-2px);
+}
+
+.card-action-btn .icon {
+  font-size: 1.2rem;
+  margin-bottom: 4px;
+}
+
+.card-action-btn .title {
+  font-size: .85rem;
+  font-weight: 700;
+  color: var(--txt);
+}
+
+.card-action-btn .sub {
+  font-size: .68rem;
+  color: var(--mut);
+  line-height: 1.3;
+}
+
+  /* ============ BIG CARD ============ */
+.pay.pay-large {
+  height: 230px;
+  padding: 26px;
+  margin-bottom: 0;
 }
 .pay.pay-large .pn {
   font-size: 1.6rem;
@@ -3742,7 +3796,8 @@ body.light-theme .top-search svg { stroke: #64748b; }
 
 <div class="grid">
 <div>
-<div class="pay pay-large" id="cardDash">
+        <div class="card-with-actions">
+  <div class="pay pay-large" id="cardDash">
   <div class="pay-shine"></div>
   
   <div class="ptop">
@@ -3777,7 +3832,25 @@ body.light-theme .top-search svg { stroke: #64748b; }
 <div class="card-network" id="cardNetwork1"></div>
   </div>
 </div>
-<div class="sh"><h2>Quick Actions</h2></div>
+          <div class="card-actions-vertical">
+            <button class="card-action-btn" id="btnFreezeCard">
+              <span class="icon">❄</span>
+              <span class="title">Freeze Card</span>
+              <span class="sub">Temporarily lock your card</span>
+            </button>
+            <button class="card-action-btn" id="btnLimitsCard">
+              <span class="icon">📊</span>
+              <span class="title">Limits</span>
+              <span class="sub">View & manage limits</span>
+            </button>
+            <button class="card-action-btn" id="btnSettingsCard">
+              <span class="icon">⚙</span>
+              <span class="title">Settings</span>
+              <span class="sub">Card preferences</span>
+            </button>
+          </div>
+        </div>
+          <div class="sh"><h2>Quick Actions</h2></div>
 <div class="quick-tiles">
   <button class="qtile" id="btnAdd">
     <div class="qtile-icon" style="background:linear-gradient(135deg,#00d4ff,#0090c9)">
