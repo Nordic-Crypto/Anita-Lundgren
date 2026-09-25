@@ -3409,6 +3409,87 @@ body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;bac
   100% { transform: translate(30%, 30%) rotate(15deg); }
 }
 
+/* ========== LIGHT THEME ========== */
+body.light-theme {
+  --bg: #f5f7fb;
+  --pan: #ffffff;
+  --pan2: #f0f2f7;
+  --txt: #0f172a;
+  --mut: #64748b;
+  --bd: rgba(0,0,0,.08);
+  --bd2: rgba(0,0,0,.14);
+  --pri: #5b8def;
+  --pri2: #8b5cf6;
+}
+
+body.light-theme .side {
+  background: linear-gradient(180deg, #ffffff, #f0f2f7);
+  border-right: 1px solid rgba(0,0,0,.08);
+}
+
+body.light-theme .top {
+  background: rgba(255,255,255,.9);
+  border-bottom: 1px solid rgba(0,0,0,.08);
+}
+
+body.light-theme .pay {
+  color: #ffffff;
+}
+
+body.light-theme .panel,
+body.light-theme .mas,
+body.light-theme .admin-client-card,
+body.light-theme .tbl {
+  background: #ffffff;
+  border-color: rgba(0,0,0,.08);
+  color: #0f172a;
+}
+
+body.light-theme .fc {
+  background: #f5f7fb;
+  border-color: rgba(0,0,0,.12);
+  color: #0f172a;
+}
+
+body.light-theme .mi:hover {
+  background: rgba(0,0,0,.04);
+}
+
+body.light-theme .mi.on {
+  background: linear-gradient(90deg, rgba(91,141,239,.15), rgba(91,141,239,.05));
+  color: #5b8def;
+}
+
+body.light-theme .box,
+body.light-theme .onb-box,
+body.light-theme .login-box,
+body.light-theme .admin-stat-card {
+  background: #ffffff;
+  border-color: rgba(0,0,0,.08);
+  color: #0f172a;
+}
+
+body.light-theme .login-screen,
+body.light-theme .onboard,
+body.light-theme .verify-screen {
+  background: #f5f7fb;
+}
+
+body.light-theme .admin-panel {
+  background: #f5f7fb;
+}
+
+body.light-theme .top-search input {
+  color: #0f172a;
+}
+
+body.light-theme .top-icon,
+body.light-theme .settings-btn,
+body.light-theme .notif-bell {
+  background: rgba(0,0,0,.04);
+  border-color: rgba(0,0,0,.1);
+  color: #0f172a;
+}
 </style>
 </head>
 <body>
