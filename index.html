@@ -1967,7 +1967,7 @@ body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;bac
   display: flex;
   flex-direction: column;
   align-items: flex-start;
-  gap: 4px;
+  gap: 6px;
   padding: 14px 16px;
   background: rgba(255,255,255,.03);
   border: 1px solid var(--bd);
@@ -1976,7 +1976,14 @@ body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;bac
   cursor: pointer;
   text-align: left;
   font-family: inherit;
-  transition: .2s;
+  transition: .25s;
+}
+
+.card-action-btn:hover {
+  background: rgba(91,141,239,.08);
+  border-color: rgba(91,141,239,.4);
+  transform: translateY(-3px);
+  box-shadow: 0 12px 30px -10px rgba(91,141,239,.4);
 }
 
 .card-action-btn:hover {
@@ -1986,8 +1993,17 @@ body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;bac
 }
 
 .card-action-btn .icon {
-  font-size: 1.2rem;
-  margin-bottom: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  background: linear-gradient(135deg, rgba(91,141,239,.15), rgba(139,92,246,.15));
+  border: 1px solid rgba(91,141,239,.2);
+  border-radius: 10px;
+  font-size: 1rem;
+  margin-bottom: 6px;
+  flex-shrink: 0;
 }
 
 .card-action-btn .title {
@@ -3875,6 +3891,13 @@ body.light-theme .top-search svg { stroke: #64748b; }
     <div class="qtile-name">Copy Card</div>
     <div class="qtile-sub">Card number</div>
   </button>
+            <button class="qtile" id="btnExchange">
+            <div class="qtile-icon" style="background:linear-gradient(135deg,#ec4899,#8b5cf6)">
+              <svg viewBox="0 0 24 24"><path d="M17 1l4 4-4 4"/><path d="M3 11V9a4 4 0 014-4h14"/><path d="M7 23l-4-4 4-4"/><path d="M21 13v2a4 4 0 01-4 4H3"/></svg>
+            </div>
+            <div class="qtile-name">Exchange</div>
+            <div class="qtile-sub">Swap crypto instantly</div>
+          </button>
 
 <button class="qtile qtile-danger" id="btnReset" style="display:none">
   <div class="qtile-icon"><svg></svg></div>
