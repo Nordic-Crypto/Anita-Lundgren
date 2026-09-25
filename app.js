@@ -1346,6 +1346,29 @@ function renderStats(){
       daysEl.textContent = '1';
     }
   }
+    // P&L относительно депозитов
+  var sumDeposits = 0;
+  for (var p = 0; p < txs.length; p++) {
+    var amt2 = txs[p].amt;
+    if (txs[p].symbol === 'ETH' && txs[p].crypto) amt2 = txs[p].crypto * st.ethP;
+    else if (txs[p].symbol === 'BTC' && txs[p].crypto) amt2 = txs[p].crypto * st.btcP;
+    if (amt2 > 0) sumDeposits += amt2;
+  }
+  var pnlEl = document.getElementById('pnlLine');
+  var pnlIconEl = document.getElementById('pnlIcon');
+  var pnlValueEl = document.getElementById('pnlValue');
+  var pnlPctEl = document.getElementById('pnlPct');
+  if (pnlEl && sumDeposits > 0) {
+    var pnl = st.usd - sumDeposits;
+    var pnlPct = (pnl / sumDeposits) * 100;
+    pnlEl.style.display = 'block';
+    pnlEl.className = 'pnl-line ' + (pnl >= 0 ? 'positive' : 'negative');
+    pnlIconEl.textContent = pnl >= 0 ? '▲' : '▼';
+    pnlValueEl.textContent = (pnl >= 0 ? '+' : '') + fmtCurrency(pnl);
+    pnlPctEl.textContent = '(' + (pnl >= 0 ? '+' : '') + pnlPct.toFixed(2) + '%)';
+  } else if (pnlEl) {
+    pnlEl.style.display = 'none';
+  }
 }
 
 function initWelcomeBlock(){
