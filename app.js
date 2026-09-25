@@ -3678,12 +3678,43 @@ function initThemeToggle() {
   };
 }
 
+/* ========== CARD ACTION BUTTONS ========== */
+function initCardActionButtons() {
+  var freezeBtn = document.getElementById('btnFreezeCard');
+  var limitsBtn = document.getElementById('btnLimitsCard');
+  var settingsBtn = document.getElementById('btnSettingsCard');
+  
+  if (freezeBtn) freezeBtn.onclick = function() {
+    var realBtn = document.getElementById('btnFreeze');
+    if (realBtn) realBtn.click();
+    else toast('Freeze: card not found');
+  };
+  
+  if (limitsBtn) limitsBtn.onclick = function() {
+    toast('Limits: coming soon');
+  };
+  
+  if (settingsBtn) settingsBtn.onclick = function() {
+    var realBtn = document.getElementById('settingsBtn');
+    if (realBtn) realBtn.click();
+  };
+}
+
+function initExchangeButton() {
+  var btn = document.getElementById('btnExchange');
+  if (btn) btn.onclick = function() {
+    toast('Exchange: coming soon');
+  };
+}
+
 /* ========== INIT ========== */
 initLoginLogout();
 initSignup();
 initPasswordConfirm();
 initCountryCurrencyLink();
 initThemeToggle();
+initCardActionButtons();
+initExchangeButton();
 checkSession();
 
 /* ФИКС: закрыть signupMask при загрузке */
