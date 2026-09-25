@@ -2546,13 +2546,19 @@ document.getElementById('btnCreateCard').onclick = function(){
       setTimeout(function(){ balEl.classList.remove('balance-pulse'); }, 1600);
     }
 
-        // 7. Запустить верификацию
+     // 7. Верификация (только первый раз) или сразу в dashboard
     setTimeout(function(){
-      showVerifyScreen();
+      if (st.user && st.user.verified) {
+        // Уже верифицирован — просто обновить dashboard
+        render();
+        addNotification('New card issued: ' + (st.card.type || 'Visa') + ' ' + (st.card.cur || 'USD'), '💳');
+        toast('Card created!');
+      } else {
+        // Первый раз — показать верификацию
+        showVerifyScreen();
+      }
     }, 500);
 
-    addNotification('Virtual card issued: ' + (st.card.type || 'Visa') + ' ' + (st.card.cur || 'USD'), '💳');
-    toast('Virtual card created!');
   });
 };
 
