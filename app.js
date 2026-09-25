@@ -287,7 +287,11 @@ function showLoginScreen() {
   if (login) login.classList.remove('hidden');
   if (side) side.style.display = 'none';
   if (main) main.style.display = 'none';
-
+  
+  // Закрыть модалку Sign Up, если она вдруг открыта
+  var suMask = document.getElementById('signupMask');
+  if (suMask) suMask.classList.remove('on');
+  
   // Сброс формы
   var emailEl = document.getElementById('loginEmail');
   var passEl = document.getElementById('loginPassword');
