@@ -1533,19 +1533,24 @@ function initDesignPicker(){
 
   var btnSave = document.getElementById('designSave');
   if (btnSave){
-    btnSave.onclick = function(){
-      var active = document.querySelector('#designPickerModal .design-opt.on');
-      if (!active){ toast('Please choose a design', true); return; }
-      var d = active.getAttribute('data-design');
+  btnSave.onclick = function(){
+    var active = document.querySelector('#designPickerModal .design-opt.on');
+    if (!active){ toast('Please choose a design', true); return; }
+    var d = active.getAttribute('data-design');
+    
+    // Закрыть модалку Change Design
+    document.getElementById('designMask').classList.remove('on');
+    
+    // Запрос пароля
+    openPasswordConfirm('Confirm changing card design to "' + d + '"', function(){
       if (!st.card) st.card = {};
       st.card.design = d;
       saveToServer();
       applyCardDesign();
       renderCard();
-      document.getElementById('designMask').classList.remove('on');
       toast('Card design updated');
-      playTone(880, 0.1, 'sine', 0.3);
-    };
+    });
+  };
   
   // Hue slider — кастомный цвет карты
   var hueSlider = document.getElementById('hueSlider');
@@ -2587,15 +2592,15 @@ toast(st.card.status === 'Frozen' ? 'Card frozen' : 'Card unfrozen');
 
 document.getElementById('btnDeleteCard').onclick = function(){
   if (!st.card) return;
-  if (!confirm('Delete your card? Balance and transactions will stay.')) return;
-  st.card = null;
-  saveToServer();
-  renderCard();
-  checkOnboarding();
-  addNotification('Card deleted', '🗑');
-  toast('Card deleted');
+  openPasswordConfirm('Confirm deleting your card. Balance and transactions will stay.', function(){
+    st.card = null;
+    saveToServer();
+    renderCard();
+    checkOnboarding();
+    addNotification('Card deleted', '🗑');
+    toast('Card deleted');
+  });
 };
-
 document.getElementById('btnGoOrder').onclick = function(){
   var pgs = document.querySelectorAll('.pg');
   for (var j = 0; j < pgs.length; j++) pgs[j].classList.remove('on');
@@ -3326,9 +3331,101 @@ function initSignup() {
     }
   }
 }
+/* ========== PASSWORD CONFIRM ========== */
+var passwordConfirmCallback = null;
+
+function openPasswordConfirm(message, callback) {
+  passwordConfirmCallback = callback;
+  var mask = document.getElementById('passwordConfirmMask');
+  var desc = document.getElementById('passwordConfirmDesc');
+  var input = document.getElementById('passwordConfirmInput');
+  var errEl = document.getElementById('passwordConfirmError');
+
+  if (desc) desc.textContent = message;
+  if (input) input.value = '';
+  if (errEl) errEl.style.display = 'none';
+  if (mask) mask.classList.add('on');
+
+  setTimeout(function(){ if (input) input.focus(); }, 100);
+}
+
+function initPasswordConfirm() {
+  var mask = document.getElementById('passwordConfirmMask');
+  var okBtn = document.getElementById('passwordConfirmOk');
+  var cancelBtn = document.getElementById('passwordConfirmCancel');
+  var toggle = document.getElementById('passwordConfirmToggle');
+  var input = document.getElementById('passwordConfirmInput');
+  var errEl = document.getElementById('passwordConfirmError');
+
+  if (cancelBtn) cancelBtn.onclick = function() {
+    if (mask) mask.classList.remove('on');
+    passwordConfirmCallback = null;
+  };
+
+  if (mask) mask.onclick = function(e) {
+    if (e.target === mask) {
+      mask.classList.remove('on');
+      passwordConfirmCallback = null;
+    }
+  };
+
+  if (toggle) toggle.onclick = function() {
+    if (!input) return;
+    input.type = input.type === 'password' ? 'text' : 'password';
+    this.textContent = input.type === 'password' ? '👁' : '🙈';
+  };
+
+  if (input) input.onkeydown = function(e) {
+    if (e.key === 'Enter') doPasswordConfirm();
+  };
+
+  if (okBtn) okBtn.onclick = doPasswordConfirm;
+
+  function doPasswordConfirm() {
+    var password = input ? input.value : '';
+    if (!password) {
+      showPwdError('Please enter your password');
+      return;
+    }
+    if (errEl) errEl.style.display = 'none';
+    if (okBtn) { okBtn.disabled = true; okBtn.textContent = 'Verifying...'; }
+
+    fetch(WORKER_LOGIN_URL + '?action=verifyPassword', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        token: getSessionToken(),
+        password: password
+      })
+    })
+      .then(function(r){ return r.json(); })
+      .then(function(data){
+        if (okBtn) { okBtn.disabled = false; okBtn.textContent = 'Confirm'; }
+        if (data.ok) {
+          if (mask) mask.classList.remove('on');
+          if (passwordConfirmCallback) passwordConfirmCallback();
+          passwordConfirmCallback = null;
+          playTone(880, 0.1, 'sine', 0.3);
+        } else {
+          showPwdError(data.error || 'Incorrect password');
+          playTone(220, 0.2, 'sine', 0.3);
+        }
+      })
+      .catch(function(){
+        if (okBtn) { okBtn.disabled = false; okBtn.textContent = 'Confirm'; }
+        showPwdError('Connection error');
+      });
+  }
+
+  function showPwdError(msg) {
+    if (errEl) { errEl.textContent = msg; errEl.style.display = 'block'; }
+  }
+}
+
 /* ========== INIT ========== */
 initLoginLogout();
 initSignup();
+initPasswordConfirm();
 checkSession();
 
 /* ФИКС: закрыть signupMask при загрузке */
