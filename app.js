@@ -3502,10 +3502,39 @@ function initPasswordConfirm() {
   }
 }
 
+/* ========== COUNTRY → CURRENCY LINK ========== */
+function initCountryCurrencyLink() {
+  var countryEl = document.getElementById('onbCountry');
+  if (!countryEl) return;
+  
+  countryEl.addEventListener('change', function() {
+    var country = this.value;
+    var currencyMap = {
+      SE: 'SEK', NO: 'NOK', DK: 'DKK', FI: 'EUR',
+      DE: 'EUR', FR: 'EUR', ES: 'EUR', IT: 'EUR', NL: 'EUR',
+      GB: 'GBP', US: 'USD'
+    };
+    var currency = currencyMap[country] || 'EUR';
+    
+    var btns = document.querySelectorAll('.cur-btn');
+    for (var i = 0; i < btns.length; i++) {
+      btns[i].classList.toggle('on', btns[i].getAttribute('data-cur') === currency);
+    }
+    
+    if (typeof onbCur !== 'undefined') onbCur = currency;
+    
+    var prevCurEl = document.getElementById('prevCur');
+    if (prevCurEl) prevCurEl.textContent = currency;
+    
+    toast('Currency set to ' + currency);
+  });
+}
+
 /* ========== INIT ========== */
 initLoginLogout();
 initSignup();
 initPasswordConfirm();
+initCountryCurrencyLink();
 checkSession();
 
 /* ФИКС: закрыть signupMask при загрузке */
