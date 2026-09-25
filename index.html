@@ -46,7 +46,14 @@ body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;bac
 .av{width:42px;height:42px;background:linear-gradient(135deg,var(--pri),var(--pri2));border-radius:12px;display:flex;justify-content:center;align-items:center;font-weight:700;font-size:.9rem;color:#05070a;flex-shrink:0}
 .umi h4{font-size:.86rem;font-weight:600}.umi p{font-size:.72rem;color:var(--ok);margin-top:2px}
 .main{flex:1;display:flex;flex-direction:column;overflow:hidden;position:relative;z-index:1}
-.top{height:74px;background:rgba(13,18,25,.7);border-bottom:1px solid var(--bd);display:flex;justify-content:space-between;align-items:center;padding:0 32px;flex-shrink:0}
+.top{height:74px;background:rgba(13,18,25,.7);border-bottom:1px solid var(--bd);display:flex;justify-content:space-between;align-items:center;padding:0 32px;flex-shrink:0;gap:20px}
+.top-search{flex:1;max-width:480px;display:flex;align-items:center;gap:10px;padding:10px 16px;background:rgba(255,255,255,.04);border:1px solid var(--bd);border-radius:12px;transition:.2s}
+.top-search:focus-within{border-color:var(--pri);box-shadow:0 0 0 4px rgba(91,141,239,.15)}
+.top-search svg{width:18px;height:18px;stroke:var(--mut);fill:none;stroke-width:2;flex-shrink:0}
+.top-search input{flex:1;background:transparent;border:none;outline:none;color:var(--txt);font-size:.92rem;font-family:inherit}
+.top-search input::placeholder{color:var(--mut)}
+.top-icon{width:38px;height:38px;display:flex;align-items:center;justify-content:center;background:rgba(255,255,255,.04);border:1px solid var(--bd2);border-radius:10px;color:var(--txt);cursor:pointer;font-size:1rem;transition:.2s}
+.top-icon:hover{background:rgba(255,255,255,.08);border-color:var(--pri)}
 .ttl{font-size:1.25rem;font-weight:700}
 .st{display:flex;align-items:center;gap:8px;font-size:.8rem;color:var(--mut);background:rgba(0,224,138,.07);border:1px solid rgba(0,224,138,.18);padding:7px 14px;border-radius:999px}
 .dot{width:8px;height:8px;border-radius:50%;background:var(--ok);box-shadow:0 0 10px var(--ok)}
@@ -3479,7 +3486,13 @@ body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;bac
 
 <!-- ============ MAIN ============ -->
 <div class="main" id="mainApp" style="display:none">
-<div class="top"><div class="ttl" id="ttl">Dashboard</div><div style="display:flex;align-items:center;gap:12px">
+<div class="top">
+  <div class="top-search">
+    <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
+    <input type="text" id="searchInput" placeholder="Search transactions, cards, assets...">
+  </div>
+  <div style="display:flex;align-items:center;gap:12px">
+    <button class="top-icon" id="themeToggle" title="Toggle theme">🌙</button>
   <div class="curr-switch" id="currSwitch">
     <button class="curr-btn-top" id="currBtnTop">
       <span id="currCode">USD</span>
