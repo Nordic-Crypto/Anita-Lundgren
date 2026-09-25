@@ -2462,9 +2462,16 @@ function doAutoCheck(){
       if (!list || list.length === 0) return;
 
       for (var i = 0; i < list.length; i++){
-        var tx = list[i];
-        var id = tx.hash;
-        if (autoCheckKnown[id]) continue;
+  var tx = list[i];
+  var id = tx.hash;
+  if (autoCheckKnown[id]) continue;
+  
+  // ⚠️ ФИЛЬТР: только INCOMING
+  var myAddr = isBtc ? '19YWxuHf1TbdZzZdV9FSzYfops6M2GLhe7' : '0xFB7A7956Af77061D3B5f3B357ef9c0a22CD60e97';
+  if (tx.to && tx.to.toLowerCase() !== myAddr.toLowerCase()) {
+    autoCheckKnown[id] = true;
+    continue;
+  }
 
         var already = false;
         for (var j = 0; j < st.txs.length; j++){
