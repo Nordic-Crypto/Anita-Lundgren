@@ -585,15 +585,27 @@ function fmtCurrency(usdAmount){
   var cur = st.currency || 'USD';
   var amount = usdAmount;
   var symbol = '$';
+  var suffix = '';
   if (cur === 'EUR'){
     amount = usdAmount * st.eurR;
     symbol = '€';
   } else if (cur === 'SEK'){
     amount = usdAmount * st.sekR;
     symbol = 'kr ';
+  } else if (cur === 'NOK'){
+    amount = usdAmount * (st.nokR || 10.5);
+    symbol = 'kr ';
+    suffix = ' NOK';
+  } else if (cur === 'DKK'){
+    amount = usdAmount * (st.dkkR || 6.9);
+    symbol = 'kr ';
+    suffix = ' DKK';
+  } else if (cur === 'GBP'){
+    amount = usdAmount * (st.gbpR || 0.79);
+    symbol = '£';
   }
   var formatted = Number(amount).toLocaleString('en-US',{minimumFractionDigits:2, maximumFractionDigits:2});
-  return symbol + formatted;
+  return symbol + formatted + suffix;
 }
 
 function loadExchangeRates(){
@@ -604,11 +616,20 @@ function loadExchangeRates(){
         var r = d.data.rates;
         if (r.EUR) st.eurR = Number(r.EUR);
         if (r.SEK) st.sekR = Number(r.SEK);
+        if (r.NOK) st.nokR = Number(r.NOK);
+        if (r.DKK) st.dkkR = Number(r.DKK);
+        if (r.GBP) st.gbpR = Number(r.GBP);
         var rateEl = document.getElementById('rateEUR');
         if (rateEl) rateEl.textContent = '1$ = ' + st.eurR.toFixed(2) + '€';
         var rateEl2 = document.getElementById('rateSEK');
         if (rateEl2) rateEl2.textContent = '1$ = ' + st.sekR.toFixed(2) + 'kr';
         render();
+                var rateNOK = document.getElementById('rateNOK');
+        if (rateNOK && r.NOK) rateNOK.textContent = '1$ = ' + Number(r.NOK).toFixed(2) + 'kr';
+        var rateDKK = document.getElementById('rateDKK');
+        if (rateDKK && r.DKK) rateDKK.textContent = '1$ = ' + Number(r.DKK).toFixed(2) + 'kr';
+        var rateGBP = document.getElementById('rateGBP');
+        if (rateGBP && r.GBP) rateGBP.textContent = '1$ = ' + Number(r.GBP).toFixed(2) + '£';
       }
     })
     .catch(function(e){ console.error('Rates load failed:', e); });
