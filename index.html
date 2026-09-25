@@ -3158,9 +3158,14 @@ body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;bac
 
 /* Client cards */
 .admin-clients-list {
-  display: flex;
-  flex-direction: column;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(480px, 1fr));
   gap: 14px;
+}
+@media (max-width: 1000px) {
+  .admin-clients-list {
+    grid-template-columns: 1fr;
+  }
 }
 .admin-client-card {
   background: rgba(255,255,255,.03);
@@ -4641,7 +4646,17 @@ body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;bac
         </div>
       </div>
     </div>
-
+      <!-- Deleted Accounts -->
+      <div class="admin-section">
+        <div class="admin-section-head">
+          <div class="admin-section-title">🗑 Deleted Accounts</div>
+          <button class="btn b2" id="adminRefreshDeleted">🔄 Refresh</button>
+        </div>
+        <div class="admin-clients-list" id="adminDeletedList">
+          <div class="admin-empty">Loading deleted...</div>
+        </div>
+      </div>
+    
   </div>
 </div>
 
