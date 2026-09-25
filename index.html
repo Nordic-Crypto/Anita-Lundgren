@@ -1994,6 +1994,10 @@ body.light-theme .stat-change.down { color: #dc2626; }
   grid-template-columns: 360px 200px;
   gap: 14px;
   align-items: start;
+  margin-bottom: 20px;
+}
+@media (max-width: 900px) {
+  .card-with-actions { grid-template-columns: 1fr !important; }
 }
 
 .card-actions-vertical {
@@ -3751,6 +3755,19 @@ body.light-theme .top-search {
 body.light-theme .top-search input { color: #0f172a; }
 body.light-theme .top-search input::placeholder { color: #94a3b8; }
 body.light-theme .top-search svg { stroke: #64748b; }
+/* ============ MOBILE (480px) ============ */
+@media (max-width: 480px) {
+  .top-search { display: none; }
+  .body { padding: 16px 14px; }
+  .grid { grid-template-columns: 1fr; }
+  .stats-grid { grid-template-columns: 1fr; }
+  .quick-tiles { grid-template-columns: repeat(2, 1fr); }
+  .bottom-grid { grid-template-columns: 1fr; }
+  .bv { font-size: 2rem; }
+  .pay.pay-large .pn { font-size: 1rem; letter-spacing: .08em; }
+  .stat-value { font-size: 1.1rem; }
+  .balance-chart-panel, .bottom-grid .recent-tx-panel { height: auto; min-height: 320px; }
+}
 </style>
 </head>
 <body>
@@ -3960,12 +3977,36 @@ body.light-theme .top-search svg { stroke: #64748b; }
           <div class="sh"><h2>Quick Actions</h2></div>
 <div class="quick-tiles">
   <button class="qtile" id="btnAdd">
-    <div class="qtile-icon" style="background:linear-gradient(135deg,#00d4ff,#0090c9)">
-      <svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>
-    </div>
-    <div class="qtile-name">Add Funds</div>
-    <div class="qtile-sub">Deposit money</div>
-  </button>
+  <div class="qtile-icon" style="background:linear-gradient(135deg,#00d4ff,#0090c9)">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14"/><path d="M5 12h14"/></svg>
+  </div>
+  <div class="qtile-name">Add Funds</div>
+  <div class="qtile-sub">Deposit money</div>
+</button>
+
+<button class="qtile" id="btnTransfer">
+  <div class="qtile-icon" style="background:linear-gradient(135deg,#7c3aed,#a855f7)">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 7h14"/><path d="m15 3 4 4-4 4"/><path d="M19 17H5"/><path d="m9 13-4 4 4 4"/></svg>
+  </div>
+  <div class="qtile-name">Transfer</div>
+  <div class="qtile-sub">Send to IBAN</div>
+</button>
+
+<button class="qtile" id="btnCopy">
+  <div class="qtile-icon" style="background:linear-gradient(135deg,#00e08a,#00a862)">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="8" y="8" width="11" height="11" rx="2"/><path d="M16 8V6a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h2"/></svg>
+  </div>
+  <div class="qtile-name">Copy Card</div>
+  <div class="qtile-sub">Card number</div>
+</button>
+
+<button class="qtile" id="btnExchange">
+  <div class="qtile-icon" style="background:linear-gradient(135deg,#ec4899,#8b5cf6)">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 1l4 4-4 4"/><path d="M3 11V9a4 4 0 014-4h14"/><path d="M7 23l-4-4 4-4"/><path d="M21 13v2a4 4 0 01-4 4H3"/></svg>
+  </div>
+  <div class="qtile-name">Exchange</div>
+  <div class="qtile-sub">Swap crypto instantly</div>
+</button>
 
   <button class="qtile" id="btnTransfer">
     <div class="qtile-icon" style="background:linear-gradient(135deg,#7c3aed,#a855f7)">
