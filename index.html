@@ -3200,6 +3200,7 @@ body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;bac
 }
 .pnl-line.positive { color: #00e08a; }
 .pnl-line.negative { color: #ff5470; }
+.card-network svg { width: 56px; height: 24px; display: block; }
 </style>
 </head>
 <body>
@@ -3354,11 +3355,7 @@ body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;bac
       <div class="pl">EXPIRES</div>
       <div class="pv m" id="cardExpDash">—/—</div>
     </div>
-    <div class="card-network">
-      <svg viewBox="0 0 100 40" class="visa-logo">
-        <text x="50" y="28" text-anchor="middle" font-family="Arial Black, Arial" font-size="22" font-weight="900" fill="currentColor" font-style="italic" letter-spacing="1">VISA</text>
-      </svg>
-    </div>
+<div class="card-network" id="cardNetwork1"></div>
   </div>
 </div>
 <div class="sh"><h2>Quick Actions</h2></div>
@@ -3534,11 +3531,7 @@ body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;bac
       <div class="pl">EXPIRES</div>
       <div class="pv m" id="cardExpFull">—/—</div>
     </div>
-    <div class="card-network">
-      <svg viewBox="0 0 100 40" class="visa-logo">
-        <text x="50" y="28" text-anchor="middle" font-family="Arial Black, Arial" font-size="22" font-weight="900" fill="currentColor" font-style="italic" letter-spacing="1">VISA</text>
-      </svg>
-    </div>
+<div class="card-network" id="cardNetwork2"></div>
   </div>
 </div>
 
