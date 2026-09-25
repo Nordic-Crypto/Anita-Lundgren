@@ -3193,6 +3193,14 @@ initLoginLogout();
 initSignup();
 checkSession();
 
+/* ФИКС: закрыть signupMask при загрузке */
+[100, 500, 1500].forEach(function(d){
+  setTimeout(function(){
+    var m = document.getElementById('signupMask');
+    if (m) m.classList.remove('on');
+  }, d);
+});
+
 /* ========== AUDIO KEEP-ALIVE ========== */
 // Будим AudioContext сразу при загрузке
 setTimeout(function(){
