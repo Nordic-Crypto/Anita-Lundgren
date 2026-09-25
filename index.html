@@ -80,7 +80,7 @@ body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;bac
 .body{flex:1;padding:24px 32px;overflow-y:auto}
 .pg{display:none;animation:fade .35s ease}.pg.on{display:block}
 @keyframes fade{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
-.grid{display:grid;grid-template-columns:minmax(0,1.4fr) minmax(380px,.95fr);gap:24px;align-items:start}
+.grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(380px,440px);gap:20px;align-items:start}
 @media (max-width:1100px){
   .grid{grid-template-columns:1fr}
 }
@@ -1991,10 +1991,9 @@ body.light-theme .stat-change.down { color: #dc2626; }
 /* ============ CARD WITH ACTIONS ============ */
 .card-with-actions {
   display: grid;
-  grid-template-columns: 360px 200px;
+  grid-template-columns: 460px 200px;
   gap: 14px;
   align-items: start;
-  margin-bottom: 20px;
 }
 @media (max-width: 900px) {
   .card-with-actions { grid-template-columns: 1fr !important; }
@@ -2063,10 +2062,10 @@ body.light-theme .stat-change.down { color: #dc2626; }
 
   /* ============ BIG CARD ============ */
 .pay.pay-large {
-  height: 220px;
-  padding: 22px;
+  height: 240px;
+  padding: 24px;
   margin-bottom: 0;
-  max-width: 360px;
+  max-width: 460px;
   width: 100%;
   background:
     radial-gradient(500px 250px at 100% 0%, rgba(236,72,153,.5), transparent 60%),
