@@ -1971,11 +1971,10 @@ body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;bac
 
 /* ============ CARD WITH ACTIONS ============ */
 .card-with-actions {
-  grid-template-columns: 480px 200px;
-  gap: 16px;
-  margin-bottom: 24px;
+  display: grid;
+  grid-template-columns: 360px 200px;
+  gap: 14px;
   align-items: start;
-  max-width: 700px;
 }
 
 .card-actions-vertical {
@@ -1986,10 +1985,11 @@ body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;bac
 
 .card-action-btn {
   display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  gap: 6px;
-  padding: 14px 16px;
+  flex-direction: row;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 14px;
+  height: 48px;
   background: rgba(255,255,255,.03);
   border: 1px solid var(--bd);
   border-radius: 12px;
@@ -1997,7 +1997,7 @@ body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;bac
   cursor: pointer;
   text-align: left;
   font-family: inherit;
-  transition: .25s;
+  transition: .2s;
 }
 
 .card-action-btn:hover {
@@ -2017,13 +2017,12 @@ body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;bac
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 36px;
-  height: 36px;
+  width: 28px;
+  height: 28px;
   background: linear-gradient(135deg, rgba(91,141,239,.15), rgba(139,92,246,.15));
   border: 1px solid rgba(91,141,239,.2);
-  border-radius: 10px;
-  font-size: 1rem;
-  margin-bottom: 6px;
+  border-radius: 8px;
+  font-size: .9rem;
   flex-shrink: 0;
 }
 
@@ -2041,10 +2040,10 @@ body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;bac
 
   /* ============ BIG CARD ============ */
 .pay.pay-large {
-  height: 250px;
-  padding: 24px;
+  height: 220px;
+  padding: 22px;
   margin-bottom: 0;
-  max-width: 480px;
+  max-width: 360px;
   width: 100%;
   background:
     radial-gradient(500px 250px at 100% 0%, rgba(236,72,153,.5), transparent 60%),
