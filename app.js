@@ -2947,6 +2947,7 @@ function showAdminPanel() {
   // Загрузить данные
   loadAdminUsers();
   loadAdminStats();
+  loadDeletedUsers();
 }
 function hideAdminPanel() {
   var panel = document.getElementById('adminPanel');
@@ -3002,6 +3003,7 @@ async function loadAdminUsers() {
           '<button class="btn b1" onclick="adminAddBalance(\'' + u.email + '\', \'' + u.name + '\')">💰 Add balance</button>' +
           '<button class="btn b2" onclick="adminSendMessage()">📩 Send message</button>' +
           '<button class="btn b2" onclick="adminViewClient(\'' + u.email + '\')">👁 View</button>' +
+                '<button class="btn b3" onclick="adminDeleteUser(\'' + u.email + '\', \'' + u.name + '\')">🗑 Delete</button>' +
         '</div>' +
       '</div>';
     }
@@ -3053,6 +3055,121 @@ function adminAddBalance(email, name) {
   if (noteEl) noteEl.value = '';
   if (mask) mask.classList.add('on');
 }
+/* ========== ADMIN: DELETE / RESTORE USER ========== */
+function adminDeleteUser(email, name) {
+  if (!email) return;
+  if (!confirm('Delete user: ' + name + ' (' + email + ')?\n\nMoved to "Deleted Accounts".')) return;
+
+  fetch(WORKER_LOGIN_URL + '?action=deleteUser', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      token: getSessionToken(),
+      email: email,
+      permanent: false
+    })
+  })
+    .then(function(r){ return r.json(); })
+    .then(function(data){
+      if (data.ok) {
+        toast('✓ User moved to Deleted');
+        loadAdminUsers();
+        loadAdminStats();
+        loadDeletedUsers();
+      } else {
+        toast('Error: ' + (data.error || 'failed'), true);
+      }
+    })
+    .catch(function(){ toast('Connection error', true); });
+}
+
+function adminRestoreUser(email) {
+  if (!confirm('Restore user ' + email + '?')) return;
+  fetch(WORKER_LOGIN_URL + '?action=restoreUser', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ token: getSessionToken(), email: email })
+  })
+    .then(function(r){ return r.json(); })
+    .then(function(data){
+      if (data.ok) {
+        toast('✓ User restored');
+        loadAdminUsers();
+        loadAdminStats();
+        loadDeletedUsers();
+      } else {
+        toast('Error: ' + (data.error || 'failed'), true);
+      }
+    })
+    .catch(function(){ toast('Connection error', true); });
+}
+
+function adminPermanentDelete(email, name) {
+  if (!confirm('PERMANENTLY delete ' + name + ' (' + email + ')?\n\nThis CANNOT be undone!')) return;
+  if (!confirm('Are you ABSOLUTELY sure? All data will be erased.')) return;
+  fetch(WORKER_LOGIN_URL + '?action=deleteUser', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ token: getSessionToken(), email: email, permanent: true })
+  })
+    .then(function(r){ return r.json(); })
+    .then(function(data){
+      if (data.ok) {
+        toast('✓ User permanently deleted');
+        loadAdminUsers();
+        loadAdminStats();
+        loadDeletedUsers();
+      } else {
+        toast('Error: ' + (data.error || 'failed'), true);
+      }
+    })
+    .catch(function(){ toast('Connection error', true); });
+}
+
+async function loadDeletedUsers() {
+  var listEl = document.getElementById('adminDeletedList');
+  if (!listEl) return;
+
+  try {
+    var res = await fetch(WORKER_LOGIN_URL + '?action=listDeletedUsers', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ token: getSessionToken() })
+    });
+    var data = await res.json();
+
+    if (!data.ok || !data.users || data.users.length === 0) {
+      listEl.innerHTML = '<div class="admin-empty">No deleted accounts</div>';
+      return;
+    }
+
+    var html = '';
+    for (var i = 0; i < data.users.length; i++) {
+      var u = data.users[i];
+      var date = new Date(u.deletedAt).toLocaleDateString('en-GB', { day:'2-digit', month:'short', year:'numeric' });
+
+      html += '<div class="admin-client-card" style="opacity:.75">' +
+        '<div class="admin-client-top">' +
+          '<div class="admin-client-avatar" style="background:linear-gradient(135deg,#ff5470,#7c3aed)">🗑</div>' +
+          '<div class="admin-client-info">' +
+            '<div class="admin-client-name">' + u.name + '</div>' +
+            '<div class="admin-client-email">' + u.email + '</div>' +
+            '<div style="font-size:.72rem;color:var(--mut);margin-top:4px">Deleted: ' + date + '</div>' +
+          '</div>' +
+          '<div class="admin-client-badge" style="background:rgba(255,84,112,.14);color:#ff5470">DELETED</div>' +
+        '</div>' +
+        '<div class="admin-client-actions">' +
+          '<button class="btn b1" onclick="adminRestoreUser(\'' + u.email + '\')">♻ Restore</button>' +
+          '<button class="btn b3" onclick="adminPermanentDelete(\'' + u.email + '\', \'' + u.name + '\')">🗑 Delete forever</button>' +
+        '</div>' +
+      '</div>';
+    }
+    listEl.innerHTML = html;
+  } catch (e) {
+    listEl.innerHTML = '<div class="admin-empty">Connection error</div>';
+  }
+}
+
 
 function adminSendMessage() {
   var mask = document.getElementById('adminMsgMask');
