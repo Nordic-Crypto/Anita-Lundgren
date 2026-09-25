@@ -1467,7 +1467,7 @@ function applyCardDesign(){
   var cards = document.querySelectorAll('.pay');
   for (var i = 0; i < cards.length; i++){
     var c = cards[i];
-    c.classList.remove('design-cosmic', 'design-purple', 'design-silver', 'design-black', 'design-gold');
+    c.classList.remove('design-cosmic', 'design-purple', 'design-silver', 'design-black', 'design-gold', 'design-ocean', 'design-mountain', 'design-aurora', 'design-city');
     c.classList.add('design-' + design);
   }
       // Применяем кастомный hue (если клиент выбрал)
