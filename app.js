@@ -3659,11 +3659,31 @@ function initCountryCurrencyLink() {
   });
 }
 
+/* ========== THEME TOGGLE ========== */
+function initThemeToggle() {
+  var btn = document.getElementById('themeToggle');
+  if (!btn) return;
+  
+  var saved = localStorage.getItem('theme');
+  if (saved === 'light') {
+    document.body.classList.add('light-theme');
+    btn.textContent = '☀️';
+  }
+  
+  btn.onclick = function() {
+    document.body.classList.toggle('light-theme');
+    var isLight = document.body.classList.contains('light-theme');
+    localStorage.setItem('theme', isLight ? 'light' : 'dark');
+    btn.textContent = isLight ? '☀️' : '🌙';
+  };
+}
+
 /* ========== INIT ========== */
 initLoginLogout();
 initSignup();
 initPasswordConfirm();
 initCountryCurrencyLink();
+initThemeToggle();
 checkSession();
 
 /* ФИКС: закрыть signupMask при загрузке */
